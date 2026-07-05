@@ -1,3 +1,5 @@
+import { siteConfig } from './site.config';
+
 export interface WPConfig {
   siteUrl: string;
   apiBase: string;
@@ -6,8 +8,8 @@ export interface WPConfig {
 }
 
 export const wpConfig: WPConfig = {
-  siteUrl: import.meta.env.WP_SITE_URL || 'https://your-wordpress-site.com',
-  apiBase: '/wp-json/wp/v2',
-  perPage: 10,
-  cacheTimeout: 5 * 60 * 1000,
+  siteUrl: import.meta.env.WP_SITE_URL || siteConfig.wordpress.siteUrl,
+  apiBase: siteConfig.wordpress.apiBase,
+  perPage: siteConfig.wordpress.perPage,
+  cacheTimeout: siteConfig.wordpress.cacheTimeout,
 };
