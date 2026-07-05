@@ -20,10 +20,20 @@ function stripHtml(html: string): string {
 
 function getFeaturedImage(post: WPPost): string {
   const media = post._embedded?.['wp:featuredmedia'];
-  if (media && media.length > 0) {
+  if (media && media.length > 0 && media[0].source_url) {
     return media[0].source_url;
   }
-  return `https://picsum.photos/seed/${post.slug || post.id}/600/340`;
+  const content = post.content?.rendered || '';
+  const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/);
+  if (imgMatch && imgMatch[1]) {
+    return imgMatch[1];
+  }
+  const excerpt = post.excerpt?.rendered || '';
+  const excerptImg = excerpt.match(/<img[^>]+src=["']([^"']+)["']/);
+  if (excerptImg && excerptImg[1]) {
+    return excerptImg[1];
+  }
+  return '';
 }
 
 function getCategories(post: WPPost): { name: string; slug: string } {
