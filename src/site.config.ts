@@ -94,14 +94,14 @@ export const siteConfig = {
 
   // 左侧分类菜单（如果从 WordPress 获取则使用 WordPress 数据）
   categories: [
-    { name: '科技资讯', slug: 'tech', icon: '💻', count: 128 },
-    { name: '财经新闻', slug: 'finance', icon: '📈', count: 96 },
-    { name: '体育赛事', slug: 'sports', icon: '⚽', count: 74 },
-    { name: '娱乐八卦', slug: 'entertainment', icon: '🎬', count: 112 },
-    { name: '国际要闻', slug: 'world', icon: '🌍', count: 85 },
-    { name: '社会民生', slug: 'society', icon: '🏘️', count: 63 },
-    { name: '健康生活', slug: 'health', icon: '🏥', count: 47 },
-    { name: '教育文化', slug: 'education', icon: '📚', count: 39 },
+    { name: '科技资讯', slug: 'tech', icon: '', count: 128 },
+    { name: '财经新闻', slug: 'finance', icon: '', count: 96 },
+    { name: '体育赛事', slug: 'sports', icon: '', count: 74 },
+    { name: '娱乐八卦', slug: 'entertainment', icon: '', count: 112 },
+    { name: '国际要闻', slug: 'world', icon: '', count: 85 },
+    { name: '社会民生', slug: 'society', icon: '', count: 63 },
+    { name: '健康生活', slug: 'health', icon: '', count: 47 },
+    { name: '教育文化', slug: 'education', icon: '', count: 39 },
   ],
 } as const;
 
