@@ -26,7 +26,7 @@ const {
   tags = [],
 } = Astro.props;
 
-const { site, seo, headerNav, categories, legal } = siteConfig;
+const { site, seo, headerNav, categories } = siteConfig;
 const fullUrl = new URL(url, site.url).toString();
 const fullImage = image.startsWith('http') ? image : new URL(image, site.url).toString();
 ---
@@ -113,14 +113,6 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
               <input type="text" name="q" placeholder="搜索..." />
             </form>
           </div>
-          <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-            </svg>
-            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-            </svg>
-          </button>
           <button class="mobile-menu-btn" aria-label="菜单" id="menuBtn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -130,20 +122,11 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
       </div>
     </header>
 
-    <!-- Mobile Dropdown: same content as desktop right sidebar -->
+    <!-- Mobile Dropdown: categories + theme at bottom -->
     <div class="mobile-dropdown" id="mobileDropdown">
       <div class="mobile-dropdown-inner">
-        <!-- Search -->
         <div class="mobile-section">
-          <form action="/search" method="get" class="mobile-search">
-            <input type="text" name="q" placeholder="搜索文章..." />
-            <button type="submit">搜索</button>
-          </form>
-        </div>
-
-        <!-- Categories -->
-        <div class="mobile-section">
-          <div class="mobile-section-title">分类</div>
+          <div class="mobile-section-title">分类导航</div>
           <div class="mobile-categories">
             {categories.map((cat) => (
               <a href={`/category/${cat.slug}`} class="mobile-cat-item">
@@ -154,20 +137,7 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
             ))}
           </div>
         </div>
-
-        <!-- Navigation -->
-        <div class="mobile-section">
-          <div class="mobile-section-title">导航</div>
-          <div class="mobile-nav-links">
-            {headerNav.map((item) => (
-              <a href={item.href}>{item.name}</a>
-            ))}
-          </div>
-        </div>
-
-        <!-- Theme Switcher -->
-        <div class="mobile-section">
-          <div class="mobile-section-title">外观</div>
+        <div class="mobile-section mobile-section-last">
           <div class="theme-switcher">
             <button data-theme="light">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -179,19 +149,9 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
             </button>
             <button data-theme="">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              自动
+              跟随系统
             </button>
           </div>
-        </div>
-
-        <!-- Footer / Copyright -->
-        <div class="mobile-section mobile-footer">
-          <div>{legal.copyright}</div>
-          <div class="divider"></div>
-          <div><a href={legal.icpLink} target="_blank" rel="nofollow noopener">{legal.icp}</a></div>
-          <div style="margin-top:4px;"><a href="/sitemap.xml">Sitemap</a></div>
-          <div class="divider"></div>
-          <div>Powered by Astro + WordPress</div>
         </div>
       </div>
     </div>
@@ -208,15 +168,6 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
       }
 
       document.addEventListener('DOMContentLoaded', function() {
-        var toggle = document.getElementById('themeToggle');
-        if (toggle) {
-          toggle.addEventListener('click', function() {
-            var current = document.documentElement.getAttribute('data-theme');
-            var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            setTheme(isDark ? 'light' : 'dark');
-          });
-        }
-
         document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
           var current = localStorage.getItem('theme') || '';
           btn.classList.toggle('active', btn.getAttribute('data-theme') === current);
