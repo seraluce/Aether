@@ -1,14 +1,19 @@
 ---
-import { getPosts, getTags } from '../../lib/wordpress';
+import { getTags, getAllPosts } from '../../lib/wordpress';
 import { mapPost } from '../../lib/mappers';
 import type { Post } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
 
+function isAsciiSlug(slug: string): boolean {
+  return /^[\w-]+$/.test(slug);
+}
+
 export async function getStaticPaths() {
   try {
     const wpTags = await getTags();
-    return wpTags.map((tag) => ({
+    const validTags = wpTags.filter((t) => isAsciiSlug(t.slug));
+    return validTags.map((tag) => ({
       params: { name: tag.slug },
       props: { tagName: tag.name, tagSlug: tag.slug },
     }));
@@ -22,7 +27,7 @@ const tagName = Astro.props.tagName || name;
 
 let posts: Post[] = [];
 try {
-  const wpPosts = await getPosts(1, 30);
+  const wpPosts = await getAllPosts();
   const filtered = wpPosts.filter((p) => {
     const terms = p._embedded?.['wp:term'];
     if (terms && terms[1]) {
