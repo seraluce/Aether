@@ -119,7 +119,14 @@ export async function getTotalPosts(): Promise<{ total: number; totalPages: numb
 }
 
 export async function getAllPosts(): Promise<WPPost[]> {
-  const { totalPages } = await getTotalPosts();
+  let totalPages = 1;
+  try {
+    const result = await getTotalPosts();
+    totalPages = result.totalPages;
+  } catch {
+    return [];
+  }
+
   const maxPages = Math.min(totalPages, 20);
   const batchSize = 5;
   const allPosts: WPPost[] = [];
@@ -128,7 +135,7 @@ export async function getAllPosts(): Promise<WPPost[]> {
     const end = Math.min(start + batchSize - 1, maxPages);
     const batch = [];
     for (let page = start; page <= end; page++) {
-      batch.push(getPosts(page, wpConfig.perPage));
+      batch.push(getPosts(page, wpConfig.perPage).catch(() => [] as WPPost[]));
     }
     const results = await Promise.all(batch);
     allPosts.push(...results.flat());
