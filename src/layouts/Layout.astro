@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { siteConfig } from '../site.config';
 
 interface Props {
   title: string;
@@ -15,8 +16,8 @@ interface Props {
 
 const {
   title,
-  description = '资讯新闻 - 最新最全的新闻资讯平台，涵盖科技、财经、体育、娱乐、国际等多个领域',
-  image = '/images/og-image.png',
+  description = siteConfig.site.description,
+  image = siteConfig.seo.ogImage,
   url = '/',
   type = 'website',
   publishedTime,
@@ -25,28 +26,27 @@ const {
   tags = [],
 } = Astro.props;
 
-const siteName = '资讯新闻';
-const siteUrl = import.meta.env.SITE_URL || 'https://example.com';
-const fullUrl = new URL(url, siteUrl).toString();
-const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toString();
+const { site, seo, headerNav } = siteConfig;
+const fullUrl = new URL(url, site.url).toString();
+const fullImage = image.startsWith('http') ? image : new URL(image, site.url).toString();
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={site.language}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>{title} - {siteName}</title>
-    <meta name="title" content={`${title} - ${siteName}`} />
+    <title>{title} - {site.name}</title>
+    <meta name="title" content={`${title} - ${site.name}`} />
     <meta name="description" content={description} />
-    <meta name="keywords" content={tags.length > 0 ? tags.join(',') : '新闻,资讯,科技,财经,体育,娱乐,国际'} />
-    <meta name="author" content={author || siteName} />
+    <meta name="keywords" content={tags.length > 0 ? tags.join(',') : seo.keywords} />
+    <meta name="author" content={author || site.name} />
     <link rel="canonical" href={fullUrl} />
     <link rel="icon" type="image/png" href="/images/logo.png" />
     <link rel="apple-touch-icon" href="/images/logo.png" />
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content={siteName} />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={fullUrl} />
@@ -67,50 +67,161 @@ const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toS
         '@context': 'https://schema.org', '@type': 'NewsArticle',
         'headline': title, 'description': description, 'image': fullImage,
         'datePublished': publishedTime,
-        'author': { '@type': 'Person', 'name': author || siteName },
-        'publisher': { '@type': 'Organization', 'name': siteName,
-          'logo': { '@type': 'ImageObject', 'url': new URL('/images/logo.png', siteUrl).toString() }
+        'author': { '@type': 'Person', 'name': author || site.name },
+        'publisher': { '@type': 'Organization', 'name': site.name,
+          'logo': { '@type': 'ImageObject', 'url': new URL('/images/logo.png', site.url).toString() }
         },
         'mainEntityOfPage': { '@type': 'WebPage', '@id': fullUrl }
       })} />
     ) : (
       <script type="application/ld+json" set:html={JSON.stringify({
         '@context': 'https://schema.org', '@type': 'WebSite',
-        'name': siteName, 'url': siteUrl, 'description': description,
+        'name': site.name, 'url': site.url, 'description': description,
         'potentialAction': { '@type': 'SearchAction',
-          'target': `${siteUrl}/search?q={search_term_string}`,
+          'target': `${site.url}/search?q={search_term_string}`,
           'query-input': 'required name=search_term_string'
         }
       })} />
     )}
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="dns-prefetch" href="https://picsum.photos" />
+    <!-- Theme initialization: prevent flash -->
+    <script is:inline>
+      (function() {
+        const saved = localStorage.getItem('theme');
+        const mode = saved || 'system';
+        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <header class="site-header">
       <div class="header-inner">
+        <button class="mobile-menu-btn" aria-label="菜单">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
         <a href="/" class="site-logo">
-          <img src="/images/logo.png" alt={siteName} width="28" height="28" />
-          {siteName}
+          <img src="/images/logo.png" alt={site.name} width="28" height="28" />
+          <span class="logo-text">{site.name}</span>
         </a>
         <nav class="header-nav">
-          <a href="/" class="active">首页</a>
-          <a href="/category/tech">科技</a>
-          <a href="/category/finance">财经</a>
-          <a href="/category/sports">体育</a>
-          <a href="/category/entertainment">娱乐</a>
-          <a href="/category/world">国际</a>
+          {headerNav.map((item) => (
+            <a href={item.href} class={item.active ? 'active' : ''}>{item.name}</a>
+          ))}
         </nav>
-        <div class="header-search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <form action="/search" method="get" style="display:contents;">
-            <input type="text" name="q" placeholder="搜索文章..." />
-          </form>
+        <div class="header-actions">
+          <div class="header-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <form action="/search" method="get" style="display:contents;">
+              <input type="text" name="q" placeholder="搜索文章..." />
+            </form>
+          </div>
+          <button class="theme-toggle" aria-label="切换主题">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-overlay">
+      <div class="mobile-menu">
+        <div class="mobile-menu-header">
+          <span class="site-logo">
+            <img src="/images/logo.png" alt="" width="24" height="24" />
+            {site.name}
+          </span>
+          <button class="mobile-menu-close" aria-label="关闭">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <nav class="mobile-nav">
+          {headerNav.map((item) => (
+            <a href={item.href}>{item.name}</a>
+          ))}
+        </nav>
+        <div class="mobile-menu-footer">
+          <div class="theme-switcher">
+            <button data-theme="light" aria-label="浅色模式">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              浅色
+            </button>
+            <button data-theme="dark" aria-label="深色模式">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+              深色
+            </button>
+            <button data-theme="system" aria-label="跟随系统">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              自动
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <slot />
+
+    <script is:inline>
+      // Theme toggle
+      function setTheme(mode) {
+        localStorage.setItem('theme', mode);
+        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
+        document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
+          btn.classList.toggle('active', btn.dataset.theme === mode);
+        });
+      }
+
+      // Initialize theme switcher active state
+      document.addEventListener('DOMContentLoaded', function() {
+        var current = localStorage.getItem('theme') || 'system';
+        document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
+          btn.classList.toggle('active', btn.dataset.theme === current);
+          btn.addEventListener('click', function() { setTheme(this.dataset.theme); });
+        });
+      });
+
+      // Header theme toggle (cycles: light -> dark -> system)
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggle = document.querySelector('.theme-toggle');
+        if (toggle) {
+          toggle.addEventListener('click', function() {
+            var modes = ['light', 'dark', 'system'];
+            var current = localStorage.getItem('theme') || 'system';
+            var next = modes[(modes.indexOf(current) + 1) % modes.length];
+            setTheme(next);
+          });
+        }
+      });
+
+      // Mobile menu
+      document.addEventListener('DOMContentLoaded', function() {
+        var overlay = document.querySelector('.mobile-overlay');
+        var openBtn = document.querySelector('.mobile-menu-btn');
+        var closeBtn = document.querySelector('.mobile-menu-close');
+        if (openBtn) openBtn.addEventListener('click', function() { overlay.classList.add('open'); });
+        if (closeBtn) closeBtn.addEventListener('click', function() { overlay.classList.remove('open'); });
+        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.classList.remove('open'); });
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if ((localStorage.getItem('theme') || 'system') === 'system') {
+          document.documentElement.classList.toggle('dark', e.matches);
+        }
+      });
+    </script>
   </body>
 </html>
