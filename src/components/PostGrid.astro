@@ -33,10 +33,12 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 <div class="post-grid" id="postGrid">
   {sortedByDate.map((post, index) => (
     <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="latest" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+      {post.image && (
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
       </div>
+      )}
       <div class="post-card-body">
         <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
         <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
@@ -63,10 +65,12 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 
   {sortedByViews.map((post, index) => (
     <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="hot" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+      {post.image && (
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
       </div>
+      )}
       <div class="post-card-body">
         <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
         <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
@@ -84,10 +88,12 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 
   {recommended.map((post, index) => (
     <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="recommended" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+      {post.image && (
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
       </div>
+      )}
       <div class="post-card-body">
         <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
         <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
