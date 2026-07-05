@@ -58,7 +58,7 @@ function formatViews(n: number): string {
   </div>
   <div class="tag-cloud">
     {tags.map((tag) => (
-      <a href="#">{tag}</a>
+      <a href={`/tag/${tag}`}>{tag}</a>
     ))}
   </div>
 </div>
