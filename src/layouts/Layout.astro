@@ -127,13 +127,21 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
     <div class="mobile-dropdown" id="mobileDropdown">
       <div class="mobile-dropdown-inner">
         <div class="mobile-section">
+          <form action="/search" method="get" class="mobile-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" name="q" placeholder="搜索文章..." />
+          </form>
+        </div>
+        <div class="mobile-section">
           <div class="mobile-section-title">分类导航</div>
-          <div class="mobile-categories">
+          <div class="mobile-menu-list">
             {categories.map((cat) => (
-              <a href={`/category/${cat.slug}`} class="mobile-cat-item">
-                <span class="cat-icon">{cat.icon}</span>
-                <span class="cat-name">{cat.name}</span>
-                <span class="cat-count">{cat.count}</span>
+              <a href={`/category/${cat.slug}`} class="mobile-menu-item">
+                <span class="mobile-menu-icon">{cat.icon}</span>
+                <span class="mobile-menu-name">{cat.name}</span>
+                <span class="mobile-menu-count">{cat.count}</span>
               </a>
             ))}
           </div>
