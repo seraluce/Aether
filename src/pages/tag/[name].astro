@@ -28,14 +28,9 @@ const tagName = Astro.props.tagName || name;
 let posts: Post[] = [];
 try {
   const wpPosts = await getAllPosts();
-  const filtered = wpPosts.filter((p) => {
-    const terms = p._embedded?.['wp:term'];
-    if (terms && terms[1]) {
-      return terms[1].some((t: {slug: string}) => t.slug === name);
-    }
-    return false;
-  });
-  posts = filtered.map(mapPost);
+  const allMapped = wpPosts.map(mapPost);
+  const displayName = Astro.props.tagName || name;
+  posts = allMapped.filter((p) => p.tags.includes(displayName));
 } catch {
   posts = [];
 }
