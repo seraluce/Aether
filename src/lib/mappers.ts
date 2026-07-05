@@ -77,16 +77,29 @@ export function mapPost(post: WPPost): Post {
   };
 }
 
+const emojiPool = [
+  '💻', '📈', '⚽', '🎬', '🌍', '🏘️', '🏥', '📚',
+  '🔥', '💡', '🎮', '🎵', '📱', '🚀', '🎯', '💎',
+  '🌟', '🎨', '🔬', '📷', '🏆', '🎭', '🌈', '⚡',
+  '🎪', '🧩', '🛠️', '📦', '🎲', '🔮', '🌸', '🍀',
+];
+
+function pickIcon(name: string, slug: string): string {
+  const str = name + slug;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return emojiPool[Math.abs(hash) % emojiPool.length];
+}
+
 export function mapCategory(cat: WPCategory): { name: string; slug: string; count: number; icon: string } {
-  const icons: Record<string, string> = {
-    tech: '💻', finance: '📈', sports: '⚽', entertainment: '🎬',
-    world: '🌍', society: '🏘️', health: '🏥', education: '📚',
-  };
   return {
     name: cat.name,
     slug: cat.slug,
     count: cat.count,
-    icon: icons[cat.slug] || '📰',
+    icon: pickIcon(cat.name, cat.slug),
   };
 }
 
