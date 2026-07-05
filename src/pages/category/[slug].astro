@@ -55,7 +55,7 @@ try {
     <section class="content-area" style="max-width: 1000px; margin: 0 auto; width: 100%;">
       <div class="content-header">
         <h2 class="content-title">
-          <span style="margin-right: 8px;">{category.icon}</span>
+          <span style="margin-right: 8px; display: inline-flex;" set:html={category.icon}></span>
           {category.name}
           <span style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;">{category.count} 篇文章</span>
         </h2>
