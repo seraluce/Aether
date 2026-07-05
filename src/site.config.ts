@@ -64,11 +64,23 @@ export const siteConfig = {
 
   // 社交链接（可选，显示在右侧栏底部）
   social: [
-    // { name: 'GitHub', url: 'https://github.com/your-username', icon: 'github' },
-    // { name: 'Twitter', url: 'https://twitter.com/your-username', icon: 'twitter' },
-    // { name: 'WeChat', url: '', icon: 'wechat' },
-    // { name: 'Email', url: 'mailto:you@example.com', icon: 'email' },
+    { name: 'GitHub', url: 'https://github.com/seraluce', icon: 'github' },
+    { name: 'Twitter', url: 'https://twitter.com/seraluce', icon: 'twitter' },
+    { name: 'Email', url: 'mailto:hello@example.com', icon: 'email' },
   ],
+
+  // 个人主页 / 关于我
+  about: {
+    avatar: '/images/logo.png',
+    name: '资讯新闻',
+    bio: '一个热爱技术与内容创作的开发者，专注于分享科技、互联网领域的优质内容。',
+    description: '欢迎来到我的资讯站点。这里汇聚科技、财经、体育、娱乐等多领域的新闻资讯，致力于为您提供最新、最全的阅读体验。',
+    social: [
+      { name: 'GitHub', url: 'https://github.com/seraluce', icon: 'github' },
+      { name: 'Twitter', url: 'https://twitter.com/seraluce', icon: 'twitter' },
+      { name: 'Email', url: 'mailto:hello@example.com', icon: 'email' },
+    ],
+  },
 
   // 右侧小组件配置
   widgets: {
@@ -76,6 +88,7 @@ export const siteConfig = {
     hotPosts: true,
     hotPostsCount: 5,
     tags: true,
+    tagsCount: 10,
     copyright: true,
   },
 
