@@ -172,6 +172,10 @@ img { max-width: 100%; height: auto; }
 .mobile-menu-btn:hover { border-color: var(--border-hover); color: var(--fg); }
 
 /* Mobile Dropdown Menu */
+body.menu-open {
+  overflow: hidden;
+}
+
 .mobile-dropdown {
   display: none;
   position: fixed;
@@ -189,6 +193,25 @@ img { max-width: 100%; height: auto; }
 
 .mobile-dropdown.open {
   transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-dropdown::before {
+  content: '';
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.mobile-dropdown.open::before {
   opacity: 1;
   pointer-events: auto;
 }
