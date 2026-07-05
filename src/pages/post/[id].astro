@@ -3,9 +3,11 @@ import { getPostById } from '../../lib/wordpress';
 import { getPosts } from '../../lib/wordpress';
 import type { WPPost } from '../../lib/wordpress';
 import Layout from '../../layouts/Layout.astro';
+import ArticleActions from '../../components/ArticleActions.astro';
+import ArticleSidebar from '../../components/ArticleSidebar.astro';
 
 export async function getStaticPaths() {
-  let posts: Array<{ params: { id: string }; props: { post: WPPost | null } }> = [];
+  let posts: Array<{ params: { id: string }; props: { post: WPPost | null; allPosts: WPPost[] } }> = [];
   try {
     const wpPosts = await getPosts(1, 100);
     const fullPosts = await Promise.all(
@@ -13,13 +15,13 @@ export async function getStaticPaths() {
     );
     posts = wpPosts.map((p, i) => ({
       params: { id: String(p.id) },
-      props: { post: fullPosts[i] },
+      props: { post: fullPosts[i], allPosts: wpPosts },
     }));
   } catch {
     const { mockData } = await import('../../data/mock');
     posts = mockData.posts.map((p, i) => ({
       params: { id: String(i + 1) },
-      props: { post: null },
+      props: { post: null, allPosts: [] },
     }));
   }
   return posts;
@@ -27,6 +29,7 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 const post = Astro.props.post;
+const allPosts = Astro.props.allPosts;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
@@ -38,60 +41,63 @@ const pageImage = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/im
 const authorName = post?._embedded?.author?.[0]?.name || '';
 const categoryName = post?._embedded?.['wp:term']?.[0]?.[0]?.name || '';
 const tagNames = post?._embedded?.['wp:term']?.[1]?.map((t: {name: string}) => t.name) || [];
+
+const pageUrl = `/post/${id}`;
+
+const relatedPosts = allPosts
+  .filter((p: WPPost) => String(p.id) !== id)
+  .slice(0, 4)
+  .map((p: WPPost) => ({
+    id: p.id,
+    title: stripHtml(p.title.rendered),
+    image: p._embedded?.['wp:featuredmedia']?.[0]?.source_url || `https://picsum.photos/seed/${p.id}/120/90`,
+  }));
 ---
 
 <Layout
   title={pageTitle}
   description={pageDesc}
   image={pageImage}
-  url={`/post/${id}`}
+  url={pageUrl}
   type="article"
   publishedTime={post?.date}
   author={authorName}
   category={categoryName}
   tags={tagNames}
 >
-  <main class="main-layout">
-    <section class="content-area" style="grid-column: 1 / -1; max-width: 740px; margin: 0 auto;">
+  <div class="article-layout">
+    <ArticleActions postId={Number(id)} pageUrl={pageUrl} title={pageTitle} />
+
+    <div class="article-main">
       {post ? (
         <article>
-          <header style="margin-bottom: 32px;">
+          <header class="article-header">
             {pageImage && pageImage.startsWith('http') && (
-              <img src={pageImage} alt={pageTitle} style="width:100%;border-radius:var(--radius-lg);margin-bottom:24px;border:1px solid var(--border);" />
+              <img src={pageImage} alt={pageTitle} class="article-cover" />
             )}
-            <h1 style="font-size: 28px; font-weight: 650; line-height: 1.3; letter-spacing: -0.03em; margin-bottom: 16px;">
-              {pageTitle}
-            </h1>
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--fg-muted); font-size: 13px;">
-              {authorName && (
-                <span style="display:flex;align-items:center;gap:6px;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  {authorName}
-                </span>
-              )}
-              <span style="color:var(--border);">|</span>
-              <span style="display:flex;align-items:center;gap:6px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                {new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
+            <h1>{pageTitle}</h1>
+            <div class="article-meta">
+              {authorName && <span>{authorName}</span>}
+              {authorName && <span class="sep">|</span>}
+              <span>{new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
               {categoryName && (
                 <>
-                  <span style="color:var(--border);">|</span>
-                  <span style="color:var(--accent);font-weight:500;">{categoryName}</span>
+                  <span class="sep">|</span>
+                  <span class="accent">{categoryName}</span>
                 </>
               )}
             </div>
             {tagNames.length > 0 && (
-              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+              <div class="article-tags">
                 {tagNames.map((tag: string) => (
-                  <span style="font-size:12px;padding:2px 10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--fg-muted);font-weight:450;">{tag}</span>
+                  <span>{tag}</span>
                 ))}
               </div>
             )}
           </header>
           <div class="article-content" set:html={post.content.rendered} />
-          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <a href="/" style="color: var(--accent); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+          <div class="article-footer">
+            <a href="/">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
               返回首页
             </a>
@@ -100,10 +106,14 @@ const tagNames = post?._embedded?.['wp:term']?.[1]?.map((t: {name: string}) => t
       ) : (
         <div class="sidebar-card" style="padding: 60px 40px; text-align: center;">
           <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">文章未找到</h2>
-          <p style="color: var(--fg-secondary); font-size: 14px;">请检查文章地址是否正确。</p>
+          <p style="color: var(--fg-secondary);">请检查文章地址是否正确。</p>
           <a href="/" style="display: inline-block; margin-top: 20px; color: var(--accent); font-size: 13px; font-weight: 500;">返回首页</a>
         </div>
       )}
-    </section>
-  </main>
+    </div>
+
+    <aside class="article-sidebar">
+      <ArticleSidebar relatedPosts={relatedPosts} />
+    </aside>
+  </div>
 </Layout>
