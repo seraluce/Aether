@@ -11,7 +11,7 @@ const siteData = data.error ? mockData : data;
 const useMock = !!data.error;
 ---
 
-<Layout title="首页" url="/" type="website">
+<Layout title="首页" url="/" type="website" categories={siteData.categories}>
   {useMock && (
     <div style="background:#fff3cd;color:#856404;padding:12px 24px;text-align:center;font-size:13px;border-bottom:1px solid #ffc107;">
       提示：无法连接 WordPress API，当前显示示例数据。请在 <code>.env</code> 中配置 <code>WP_SITE_URL</code>。
