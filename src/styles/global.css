@@ -563,13 +563,18 @@ body.menu-open {
 }
 
 .article-meta .sep { color: var(--border); }
-.article-meta .accent { color: var(--accent); font-weight: 500; }
+.article-meta .accent, .article-meta a.accent { color: var(--accent); font-weight: 500; text-decoration: none; }
+.article-meta a.accent:hover { text-decoration: underline; }
 
 .article-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-.article-tags span {
+.article-tags span, .article-tags a {
   font-size: 12px; padding: 2px 10px;
   background: var(--bg-secondary); border: 1px solid var(--border);
   border-radius: 4px; color: var(--fg-muted); font-weight: 450;
+  text-decoration: none; transition: all 0.15s;
+}
+.article-tags a:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--accent-bg);
 }
 
 .article-cover {
