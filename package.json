@@ -1,0 +1,17 @@
+{
+  "name": "news-theme",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0 --port 4321",
+    "build": "astro build",
+    "preview": "wrangler pages dev dist",
+    "deploy": "wrangler pages deploy dist"
+  },
+  "dependencies": {
+    "astro": "^4.16.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
