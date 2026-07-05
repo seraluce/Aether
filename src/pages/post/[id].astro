@@ -1,5 +1,5 @@
 ---
-import { getPostById, getPosts, getCategories } from '../../lib/wordpress';
+import { getPostById, getAllPosts, getCategories } from '../../lib/wordpress';
 import type { WPPost, WPCategory } from '../../lib/wordpress';
 import { mapCategory } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
@@ -10,7 +10,7 @@ export async function getStaticPaths() {
   let posts: Array<{ params: { id: string }; props: { post: WPPost | null; allPosts: WPPost[]; categories: Array<{ name: string; slug: string; count: number; icon: string }> } }> = [];
   try {
     const [wpPosts, wpCategories] = await Promise.all([
-      getPosts(1, 100),
+      getAllPosts(),
       getCategories(),
     ]);
     const fullPosts = await Promise.all(
@@ -123,3 +123,47 @@ const relatedPosts = allPosts
     </aside>
   </div>
 </Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var content = document.querySelector('.article-content');
+    if (!content) return;
+
+    var imgs = content.querySelectorAll('img');
+    imgs.forEach(function(img) {
+      var src = img.getAttribute('src');
+      if (src) {
+        img.setAttribute('data-src', src);
+        img.removeAttribute('src');
+        img.style.minHeight = '120px';
+        img.style.background = 'var(--bg-tertiary)';
+      }
+    });
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var img = entry.target;
+          var dataSrc = img.getAttribute('data-src');
+          if (dataSrc) {
+            img.setAttribute('src', dataSrc);
+            img.removeAttribute('data-src');
+            img.addEventListener('load', function() {
+              img.classList.add('img-loaded');
+              img.style.minHeight = '';
+              img.style.background = '';
+            });
+            img.addEventListener('error', function() {
+              img.classList.add('img-loaded');
+              img.style.minHeight = '';
+              img.style.background = '';
+            });
+          }
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '300px' });
+
+    imgs.forEach(function(img) { observer.observe(img); });
+  });
+</script>
