@@ -1,18 +1,23 @@
 ---
-import { getPosts, getCategories } from '../../lib/wordpress';
+import { getPosts, getCategories, getAllPosts } from '../../lib/wordpress';
 import { mapPost, mapCategory } from '../../lib/mappers';
 import type { Post } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
 
+function isAsciiSlug(slug: string): boolean {
+  return /^[\w-]+$/.test(slug);
+}
+
 export async function getStaticPaths() {
   try {
     const wpCategories = await getCategories();
-    const allCats = wpCategories.map((c) => ({
+    const validCats = wpCategories.filter((c) => isAsciiSlug(c.slug));
+    const allCats = validCats.map((c) => ({
       name: c.name, slug: c.slug, count: c.count,
       icon: (c as any).icon || '📁',
     }));
-    return wpCategories.map((cat) => ({
+    return validCats.map((cat) => ({
       params: { slug: cat.slug },
       props: {
         category: mapCategory(cat),
@@ -37,7 +42,7 @@ const allCategories = Astro.props.allCategories || [];
 
 let posts: Post[] = [];
 try {
-  const wpPosts = await getPosts(1, 30);
+  const wpPosts = await getAllPosts();
   const filtered = wpPosts.filter((p) => {
     const terms = p._embedded?.['wp:term'];
     if (terms && terms[0]) {
