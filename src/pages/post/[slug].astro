@@ -1,0 +1,87 @@
+---
+import { getPost } from '../../lib/wordpress';
+import { getPosts } from '../../lib/wordpress';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  let posts = [];
+  try {
+    const wpPosts = await getPosts(1, 100);
+    posts = wpPosts.map((p) => ({
+      params: { slug: p.slug },
+      props: { post: p },
+    }));
+  } catch {
+    // fallback: 使用 mock 数据生成路径
+    const { mockData } = await import('../../data/mock');
+    posts = mockData.posts.map((p) => ({
+      params: { slug: p.slug },
+      props: { post: null },
+    }));
+  }
+  return posts;
+}
+
+const { slug } = Astro.params;
+const post = Astro.props.post;
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+const pageTitle = post ? stripHtml(post.title.rendered) : '文章';
+const pageDesc = post ? stripHtml(post.excerpt.rendered).slice(0, 160) : '';
+const pageImage = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/images/og-image.png';
+const authorName = post?._embedded?.author?.[0]?.name || '';
+const categoryName = post?._embedded?.['wp:term']?.[0]?.[0]?.name || '';
+const tagNames = post?._embedded?.['wp:term']?.[1]?.map((t: {name: string}) => t.name) || [];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  image={pageImage}
+  url={`/post/${slug}`}
+  type="article"
+  publishedTime={post?.date}
+  author={authorName}
+  category={categoryName}
+  tags={tagNames}
+>
+  <main class="main-layout">
+    <section class="content-area" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto;">
+      {post ? (
+        <article class="sidebar-card" style="padding: 32px;">
+          {pageImage && pageImage.startsWith('http') && (
+            <img src={pageImage} alt={pageTitle} style="width:100%;border-radius:8px;margin-bottom:24px;" />
+          )}
+          <h1 style="font-size: 28px; line-height: 1.4; margin-bottom: 16px;">
+            {pageTitle}
+          </h1>
+          <div style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap;">
+            {authorName && <span>作者：{authorName}</span>}
+            {categoryName && <span>分类：{categoryName}</span>}
+            <span>{new Date(post.date).toLocaleDateString('zh-CN')}</span>
+          </div>
+          {tagNames.length > 0 && (
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
+              {tagNames.map((tag: string) => (
+                <span style="font-size:12px;padding:4px 12px;background:#f0f2f5;border-radius:14px;color:#666;">{tag}</span>
+              ))}
+            </div>
+          )}
+          <div class="post-content" set:html={post.excerpt.rendered} />
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <a href="/" style="color: var(--primary);">&larr; 返回首页</a>
+          </div>
+        </article>
+      ) : (
+        <div class="sidebar-card" style="padding: 40px; text-align: center;">
+          <h2>文章未找到</h2>
+          <p style="margin-top: 12px; color: var(--text-light);">请检查文章地址是否正确。</p>
+          <a href="/" style="display: inline-block; margin-top: 16px; color: var(--primary);">返回首页</a>
+        </div>
+      )}
+    </section>
+  </main>
+</Layout>
