@@ -43,14 +43,8 @@ const allCategories = Astro.props.allCategories || [];
 let posts: Post[] = [];
 try {
   const wpPosts = await getAllPosts();
-  const filtered = wpPosts.filter((p) => {
-    const terms = p._embedded?.['wp:term'];
-    if (terms && terms[0]) {
-      return terms[0].some((t: {slug: string}) => t.slug === slug);
-    }
-    return false;
-  });
-  posts = filtered.map(mapPost);
+  const allMapped = wpPosts.map(mapPost);
+  posts = allMapped.filter((p) => p.categorySlug === slug);
 } catch {
   posts = [];
 }
