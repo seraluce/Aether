@@ -176,9 +176,9 @@ img { max-width: 100%; height: auto; }
   display: none;
   position: fixed;
   top: 56px;
-  right: 12px;
-  width: 300px;
-  max-height: calc(100vh - 68px);
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - 56px);
   overflow-y: auto;
   z-index: 99;
   transform: translateY(-8px);
@@ -195,20 +195,19 @@ img { max-width: 100%; height: auto; }
 
 .mobile-dropdown-inner {
   background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
+  border-bottom: 1px solid var(--border);
   box-shadow: 0 8px 32px var(--overlay-bg);
   display: flex;
   flex-direction: column;
 }
 
 .mobile-section {
-  padding: 12px;
+  padding: 16px 20px;
 }
 
 .mobile-section-last {
   border-top: 1px solid var(--border);
+  padding: 12px 20px;
 }
 
 .mobile-section-title {
@@ -216,25 +215,39 @@ img { max-width: 100%; height: auto; }
   font-weight: 550;
   color: var(--fg-muted);
   letter-spacing: 0.04em;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   padding: 0 4px;
 }
 
 .mobile-categories {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+@media (min-width: 480px) {
+  .mobile-categories {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 640px) {
+  .mobile-categories {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .mobile-cat-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 12px;
-  gap: 10px;
-  font-size: 14px;
+  padding: 14px 8px;
+  gap: 6px;
+  font-size: 13px;
   color: var(--fg-secondary);
-  border-radius: 8px;
+  border-radius: 10px;
   transition: all 0.15s;
+  text-align: center;
 }
 
 .mobile-cat-item:hover {
@@ -242,9 +255,9 @@ img { max-width: 100%; height: auto; }
   color: var(--fg);
 }
 
-.mobile-cat-item .cat-icon { font-size: 18px; width: 24px; text-align: center; }
-.mobile-cat-item .cat-name { flex: 1; font-weight: 450; }
-.mobile-cat-item .cat-count { font-size: 12px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.mobile-cat-item .cat-icon { font-size: 24px; width: auto; text-align: center; }
+.mobile-cat-item .cat-name { font-weight: 500; font-size: 13px; }
+.mobile-cat-item .cat-count { font-size: 11px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
 
 .theme-switcher {
   display: flex;
