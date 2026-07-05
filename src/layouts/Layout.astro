@@ -139,7 +139,7 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           <div class="mobile-menu-list">
             {categories.map((cat) => (
               <a href={`/category/${cat.slug}`} class="mobile-menu-item">
-                <span class="mobile-menu-icon">{cat.icon}</span>
+                <span class="mobile-menu-icon" set:html={cat.icon}></span>
                 <span class="mobile-menu-name">{cat.name}</span>
                 <span class="mobile-menu-count">{cat.count}</span>
               </a>
