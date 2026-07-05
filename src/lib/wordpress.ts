@@ -5,6 +5,7 @@ export interface WPPost {
   date: string;
   title: { rendered: string };
   excerpt: { rendered: string };
+  content: { rendered: string };
   slug: string;
   categories: number[];
   tags: number[];
@@ -106,6 +107,12 @@ export async function getPost(slug: string): Promise<WPPost> {
     _fields: 'id,date,title,excerpt,slug,categories,tags,author,featured_media',
   });
   return posts[0];
+}
+
+export async function getPostById(id: number): Promise<WPPost> {
+  return wpFetch<WPPost>(`/posts/${id}`, {
+    _embed: 'true',
+  });
 }
 
 export async function getCategories(): Promise<WPCategory[]> {
