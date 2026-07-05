@@ -37,20 +37,14 @@ const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toS
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <!-- Primary Meta -->
     <title>{title} - {siteName}</title>
     <meta name="title" content={`${title} - ${siteName}`} />
     <meta name="description" content={description} />
     <meta name="keywords" content={tags.length > 0 ? tags.join(',') : '新闻,资讯,科技,财经,体育,娱乐,国际'} />
     <meta name="author" content={author || siteName} />
     <link rel="canonical" href={fullUrl} />
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/images/logo.png" />
     <link rel="apple-touch-icon" href="/images/logo.png" />
-
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
@@ -64,51 +58,31 @@ const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toS
     {author && <meta property="article:author" content={author} />}
     {category && <meta property="article:section" content={category} />}
     {tags.map((tag) => <meta property="article:tag" content={tag} />)}
-
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={fullImage} />
-
-    <!-- WeChat / QQ -->
-    <meta name="share:title" content={title} />
-    <meta name="share:desc" content={description} />
-    <meta name="share:image" content={fullImage} />
-
-    <!-- Structured Data -->
     {type === 'article' ? (
       <script type="application/ld+json" set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'NewsArticle',
-        'headline': title,
-        'description': description,
-        'image': fullImage,
+        '@context': 'https://schema.org', '@type': 'NewsArticle',
+        'headline': title, 'description': description, 'image': fullImage,
         'datePublished': publishedTime,
         'author': { '@type': 'Person', 'name': author || siteName },
-        'publisher': {
-          '@type': 'Organization',
-          'name': siteName,
+        'publisher': { '@type': 'Organization', 'name': siteName,
           'logo': { '@type': 'ImageObject', 'url': new URL('/images/logo.png', siteUrl).toString() }
         },
         'mainEntityOfPage': { '@type': 'WebPage', '@id': fullUrl }
       })} />
     ) : (
       <script type="application/ld+json" set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        'name': siteName,
-        'url': siteUrl,
-        'description': description,
-        'potentialAction': {
-          '@type': 'SearchAction',
+        '@context': 'https://schema.org', '@type': 'WebSite',
+        'name': siteName, 'url': siteUrl, 'description': description,
+        'potentialAction': { '@type': 'SearchAction',
           'target': `${siteUrl}/search?q={search_term_string}`,
           'query-input': 'required name=search_term_string'
         }
       })} />
     )}
-
-    <!-- Preconnect -->
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="dns-prefetch" href="https://picsum.photos" />
   </head>
@@ -116,7 +90,7 @@ const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toS
     <header class="site-header">
       <div class="header-inner">
         <a href="/" class="site-logo">
-          <img src="/images/logo.png" alt={siteName} width="32" height="32" style="border-radius:6px;" />
+          <img src="/images/logo.png" alt={siteName} width="28" height="28" />
           {siteName}
         </a>
         <nav class="header-nav">
@@ -128,32 +102,15 @@ const fullImage = image.startsWith('http') ? image : new URL(image, siteUrl).toS
           <a href="/category/world">国际</a>
         </nav>
         <div class="header-search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
           <form action="/search" method="get" style="display:contents;">
-            <input type="text" name="q" placeholder="搜索新闻..." />
+            <input type="text" name="q" placeholder="搜索文章..." />
           </form>
         </div>
       </div>
     </header>
-
     <slot />
-
-    <footer class="site-footer">
-      <div style="max-width:1400px;margin:0 auto;">
-        <div style="display:flex;justify-content:center;gap:24px;margin-bottom:12px;flex-wrap:wrap;">
-          <a href="/">首页</a>
-          <a href="/category/tech">科技</a>
-          <a href="/category/finance">财经</a>
-          <a href="/category/sports">体育</a>
-          <a href="/category/entertainment">娱乐</a>
-          <a href="/category/world">国际</a>
-          <a href="/sitemap.xml">站点地图</a>
-        </div>
-        <p>&copy; 2026 {siteName}. All rights reserved. | Powered by Astro + WordPress</p>
-      </div>
-    </footer>
   </body>
 </html>
