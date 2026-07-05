@@ -1,0 +1,74 @@
+---
+import type { Post } from '../lib/mappers';
+
+interface Props {
+  hotPosts: Post[];
+  tags: string[];
+}
+
+const { hotPosts, tags } = Astro.props;
+
+function formatViews(n: number): string {
+  return n >= 10000 ? (n / 10000).toFixed(1) + '万' : n.toString();
+}
+---
+
+<div class="sidebar-card">
+  <div class="sidebar-card-title">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+    文章搜索
+  </div>
+  <div class="search-widget">
+    <form action="/search" method="get">
+      <input type="text" name="q" placeholder="输入关键词搜索..." />
+      <button type="submit">搜索</button>
+    </form>
+  </div>
+</div>
+
+<div class="sidebar-card">
+  <div class="sidebar-card-title">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    热门文章
+  </div>
+  <div class="hot-post-list">
+    {hotPosts.map((post, index) => (
+      <div class="hot-post-item">
+        <span class={`hot-post-rank ${index < 3 ? 'top' : ''}`}>{index + 1}</span>
+        <div class="hot-post-info">
+          <h4><a href={`/post/${post.slug}`}>{post.title}</a></h4>
+          <span class="views">{formatViews(post.views)} 阅读</span>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<div class="sidebar-card">
+  <div class="sidebar-card-title">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+      <line x1="7" y1="7" x2="7.01" y2="7"/>
+    </svg>
+    标签云
+  </div>
+  <div class="tag-cloud">
+    {tags.map((tag) => (
+      <a href={`/tag/${tag}`}>{tag}</a>
+    ))}
+  </div>
+</div>
+
+<div class="sidebar-card">
+  <div class="ad-widget">
+    <div class="ad-placeholder">
+      <h3>广告位招商</h3>
+      <p>联系邮箱：ad@example.com</p>
+    </div>
+  </div>
+</div>
