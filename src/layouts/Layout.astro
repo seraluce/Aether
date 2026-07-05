@@ -32,7 +32,7 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
 ---
 
 <!doctype html>
-<html lang={site.language}>
+<html lang={site.language} data-theme="">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,44 +84,41 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
       })} />
     )}
     <link rel="preconnect" href="https://picsum.photos" />
-    <link rel="dns-prefetch" href="https://picsum.photos" />
-    <!-- Theme initialization: prevent flash -->
     <script is:inline>
-      (function() {
-        const saved = localStorage.getItem('theme');
-        const mode = saved || 'system';
-        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (isDark) document.documentElement.classList.add('dark');
+      (function(){
+        var t = localStorage.getItem('theme') || '';
+        if (t) document.documentElement.setAttribute('data-theme', t);
       })();
     </script>
   </head>
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <button class="mobile-menu-btn" aria-label="菜单">
+        <button class="mobile-menu-btn" aria-label="菜单" id="menuBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
         <a href="/" class="site-logo">
           <img src="/images/logo.png" alt={site.name} width="28" height="28" />
-          <span class="logo-text">{site.name}</span>
+          {site.name}
         </a>
         <nav class="header-nav">
           {headerNav.map((item) => (
             <a href={item.href} class={item.active ? 'active' : ''}>{item.name}</a>
           ))}
         </nav>
+        <div class="header-spacer"></div>
         <div class="header-actions">
           <div class="header-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <form action="/search" method="get" style="display:contents;">
-              <input type="text" name="q" placeholder="搜索文章..." />
+              <input type="text" name="q" placeholder="搜索..." />
             </form>
           </div>
-          <button class="theme-toggle" aria-label="切换主题">
+          <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
             <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
             </svg>
@@ -133,37 +130,26 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
       </div>
     </header>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-overlay">
-      <div class="mobile-menu">
-        <div class="mobile-menu-header">
-          <span class="site-logo">
-            <img src="/images/logo.png" alt="" width="24" height="24" />
-            {site.name}
-          </span>
-          <button class="mobile-menu-close" aria-label="关闭">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-        <nav class="mobile-nav">
+    <!-- Mobile Dropdown Menu -->
+    <div class="mobile-dropdown" id="mobileDropdown">
+      <div class="mobile-dropdown-inner">
+        <nav class="mobile-dropdown-nav">
           {headerNav.map((item) => (
             <a href={item.href}>{item.name}</a>
           ))}
         </nav>
-        <div class="mobile-menu-footer">
+        <div class="mobile-dropdown-footer">
           <div class="theme-switcher">
-            <button data-theme="light" aria-label="浅色模式">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <button data-theme="light">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
               浅色
             </button>
-            <button data-theme="dark" aria-label="深色模式">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            <button data-theme="dark">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
               深色
             </button>
-            <button data-theme="system" aria-label="跟随系统">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <button data-theme="">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               自动
             </button>
           </div>
@@ -174,53 +160,55 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
     <slot />
 
     <script is:inline>
-      // Theme toggle
+      // ===== Theme =====
       function setTheme(mode) {
         localStorage.setItem('theme', mode);
-        const isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList.toggle('dark', isDark);
-        document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
-          btn.classList.toggle('active', btn.dataset.theme === mode);
+        document.documentElement.setAttribute('data-theme', mode);
+        document.querySelectorAll('.theme-switcher button').forEach(function(b) {
+          b.classList.toggle('active', b.getAttribute('data-theme') === mode);
         });
       }
 
-      // Initialize theme switcher active state
       document.addEventListener('DOMContentLoaded', function() {
-        var current = localStorage.getItem('theme') || 'system';
-        document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
-          btn.classList.toggle('active', btn.dataset.theme === current);
-          btn.addEventListener('click', function() { setTheme(this.dataset.theme); });
-        });
-      });
-
-      // Header theme toggle (cycles: light -> dark -> system)
-      document.addEventListener('DOMContentLoaded', function() {
-        var toggle = document.querySelector('.theme-toggle');
+        // Theme toggle (header button)
+        var toggle = document.getElementById('themeToggle');
         if (toggle) {
           toggle.addEventListener('click', function() {
-            var modes = ['light', 'dark', 'system'];
-            var current = localStorage.getItem('theme') || 'system';
-            var next = modes[(modes.indexOf(current) + 1) % modes.length];
-            setTheme(next);
+            var current = document.documentElement.getAttribute('data-theme');
+            var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            setTheme(isDark ? 'light' : 'dark');
           });
         }
-      });
 
-      // Mobile menu
-      document.addEventListener('DOMContentLoaded', function() {
-        var overlay = document.querySelector('.mobile-overlay');
-        var openBtn = document.querySelector('.mobile-menu-btn');
-        var closeBtn = document.querySelector('.mobile-menu-close');
-        if (openBtn) openBtn.addEventListener('click', function() { overlay.classList.add('open'); });
-        if (closeBtn) closeBtn.addEventListener('click', function() { overlay.classList.remove('open'); });
-        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.classList.remove('open'); });
-      });
+        // Theme switcher (mobile menu buttons)
+        document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
+          var current = localStorage.getItem('theme') || '';
+          btn.classList.toggle('active', btn.getAttribute('data-theme') === current);
+          btn.addEventListener('click', function() {
+            setTheme(this.getAttribute('data-theme'));
+          });
+        });
 
-      // Listen for system theme changes
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        if ((localStorage.getItem('theme') || 'system') === 'system') {
-          document.documentElement.classList.toggle('dark', e.matches);
+        // Mobile menu
+        var menuBtn = document.getElementById('menuBtn');
+        var dropdown = document.getElementById('mobileDropdown');
+        if (menuBtn && dropdown) {
+          menuBtn.addEventListener('click', function() {
+            dropdown.classList.toggle('open');
+          });
+          document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+              dropdown.classList.remove('open');
+            }
+          });
         }
+
+        // System theme change listener
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('theme')) {
+            // only auto-switch when no manual preference
+          }
+        });
       });
     </script>
   </body>
