@@ -1,0 +1,74 @@
+---
+import { getPosts, getCategories } from '../../lib/wordpress';
+import { mapPost, mapCategory } from '../../lib/mappers';
+import type { Post } from '../../lib/mappers';
+import Layout from '../../layouts/Layout.astro';
+import PostGrid from '../../components/PostGrid.astro';
+
+export async function getStaticPaths() {
+  try {
+    const wpCategories = await getCategories();
+    const allCats = wpCategories.map((c) => ({
+      name: c.name, slug: c.slug, count: c.count,
+      icon: (c as any).icon || '📁',
+    }));
+    return wpCategories.map((cat) => ({
+      params: { slug: cat.slug },
+      props: {
+        category: mapCategory(cat),
+        allCategories: allCats,
+      },
+    }));
+  } catch {
+    const { siteConfig } = await import('../../site.config');
+    const allCats = siteConfig.categories.map((c) => ({
+      name: c.name, slug: c.slug, count: c.count, icon: c.icon,
+    }));
+    return siteConfig.categories.map((cat) => ({
+      params: { slug: cat.slug },
+      props: { category: cat, allCategories: allCats },
+    }));
+  }
+}
+
+const { slug } = Astro.params;
+const category = Astro.props.category;
+const allCategories = Astro.props.allCategories || [];
+
+let posts: Post[] = [];
+try {
+  const wpPosts = await getPosts(1, 30);
+  const filtered = wpPosts.filter((p) => {
+    const terms = p._embedded?.['wp:term'];
+    if (terms && terms[0]) {
+      return terms[0].some((t: {slug: string}) => t.slug === slug);
+    }
+    return false;
+  });
+  posts = filtered.map(mapPost);
+} catch {
+  posts = [];
+}
+---
+
+<Layout title={category.name} categories={allCategories}>
+  <main class="main-layout" style="grid-template-columns: 1fr;">
+    <section class="content-area" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+      <div class="content-header">
+        <h2 class="content-title">
+          <span style="margin-right: 8px;">{category.icon}</span>
+          {category.name}
+          <span style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;">{category.count} 篇文章</span>
+        </h2>
+      </div>
+      {posts.length > 0 ? (
+        <PostGrid posts={posts} />
+      ) : (
+        <div class="sidebar-card" style="padding: 60px 40px; text-align: center;">
+          <p style="color: var(--fg-secondary);">该分类暂无文章</p>
+          <a href="/" style="display: inline-block; margin-top: 16px; color: var(--accent); font-size: 13px;">返回首页</a>
+        </div>
+      )}
+    </section>
+  </main>
+</Layout>
