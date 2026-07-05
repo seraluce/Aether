@@ -149,7 +149,7 @@ export async function getPosts(page = 1, perPage = wpConfig.perPage): Promise<WP
     _embed: 'true',
     page: String(page),
     per_page: String(perPage),
-    _fields: 'id,date,title,excerpt,slug,categories,tags,author,featured_media',
+    _fields: 'id,date,title,excerpt,content,slug,categories,tags,author,featured_media',
   });
 }
 
