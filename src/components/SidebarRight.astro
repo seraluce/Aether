@@ -1,5 +1,6 @@
 ---
 import type { Post } from '../lib/mappers';
+import { siteConfig } from '../site.config';
 
 interface Props {
   hotPosts: Post[];
@@ -7,6 +8,9 @@ interface Props {
 }
 
 const { hotPosts, tags } = Astro.props;
+const tagsLimit = siteConfig.widgets.tagsCount || 10;
+const visibleTags = tags.slice(0, tagsLimit);
+const hasMoreTags = tags.length > tagsLimit;
 
 function formatViews(n: number): string {
   return n >= 10000 ? (n / 10000).toFixed(1) + '万' : n.toString();
@@ -55,9 +59,15 @@ function formatViews(n: number): string {
       <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
     标签
+    {hasMoreTags && (
+      <a href="/tags" class="sidebar-card-more">
+        更多
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+    )}
   </div>
   <div class="tag-cloud">
-    {tags.map((tag) => (
+    {visibleTags.map((tag) => (
       <a href={`/tag/${tag}`}>{tag}</a>
     ))}
   </div>
@@ -65,16 +75,21 @@ function formatViews(n: number): string {
 
 <div class="sidebar-card">
   <div class="footer-widget">
-    <div style="font-weight: 500; color: var(--fg-secondary); margin-bottom: 4px;">资讯新闻</div>
-    <div>&copy; 2026 All rights reserved.</div>
-    <div class="divider"></div>
-    <div>
-      <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">京ICP备XXXXXXXX号</a>
-    </div>
-    <div style="margin-top: 4px;">
+    <div class="footer-widget-row">
+      <a href="/archive">归档</a>
+      <span class="footer-dot">·</span>
+      <a href="/about">关于</a>
+      <span class="footer-dot">·</span>
       <a href="/sitemap.xml">Sitemap</a>
     </div>
-    <div class="divider"></div>
-    <div style="color: var(--fg-muted);">Powered by Astro + WordPress</div>
+    <div class="footer-widget-row">
+      <span>资讯新闻</span>
+      <span class="footer-dot">·</span>
+      <span>&copy; 2026 All rights reserved.</span>
+    </div>
+    <div class="footer-widget-row">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">京ICP备XXXXXXXX号</a>
+    </div>
+    <div class="footer-widget-powered">Powered by Astro + WordPress</div>
   </div>
 </div>
