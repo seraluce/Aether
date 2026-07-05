@@ -17,7 +17,7 @@ const { categories } = Astro.props;
     {categories.map((cat) => (
       <li>
         <a href={`/category/${cat.slug}`}>
-          <span class="cat-icon">{cat.icon}</span>
+          <span class="cat-icon" set:html={cat.icon}></span>
           <span class="cat-name">{cat.name}</span>
           <span class="cat-count">{cat.count}</span>
         </a>
