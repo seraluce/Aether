@@ -1,40 +1,44 @@
 ---
 import { getPostById, getAllPosts, getCategories } from '../../lib/wordpress';
-import type { WPPost, WPCategory } from '../../lib/wordpress';
+import type { WPPost } from '../../lib/wordpress';
 import { mapCategory } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import ArticleActions from '../../components/ArticleActions.astro';
 import ArticleSidebar from '../../components/ArticleSidebar.astro';
 
 export async function getStaticPaths() {
-  let posts: Array<{ params: { id: string }; props: { post: WPPost | null; allPosts: WPPost[]; categories: Array<{ name: string; slug: string; count: number; icon: string }> } }> = [];
   try {
     const [wpPosts, wpCategories] = await Promise.all([
       getAllPosts(),
       getCategories(),
     ]);
-    const fullPosts = await Promise.all(
-      wpPosts.map((p) => getPostById(p.id).catch(() => null))
-    );
     const categories = wpCategories.map(mapCategory);
-    posts = wpPosts.map((p, i) => ({
+    return wpPosts.map((p) => ({
       params: { id: String(p.id) },
-      props: { post: fullPosts[i], allPosts: wpPosts, categories },
+      props: { postSummary: p, allPosts: wpPosts, categories },
     }));
   } catch {
     const { mockData } = await import('../../data/mock');
-    posts = mockData.posts.map((p, i) => ({
+    return mockData.posts.map((p, i) => ({
       params: { id: String(i + 1) },
-      props: { post: null, allPosts: [], categories: mockData.categories },
+      props: { postSummary: null, allPosts: [], categories: mockData.categories },
     }));
   }
-  return posts;
 }
 
 const { id } = Astro.params;
-const post = Astro.props.post;
+const postSummary = Astro.props.postSummary;
 const allPosts = Astro.props.allPosts;
 const wpCategories = Astro.props.categories;
+
+let post: WPPost | null = null;
+if (postSummary) {
+  try {
+    post = await getPostById(Number(id));
+  } catch {
+    post = null;
+  }
+}
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
