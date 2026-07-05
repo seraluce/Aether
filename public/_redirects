@@ -1,0 +1,5 @@
+# Cloudflare Pages _redirects
+# https://developers.cloudflare.com/pages/configuration/redirects
+
+# 示例：重定向旧路径
+# /old-blog/:path  /blog/:path  301
