@@ -167,6 +167,12 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
 
     <slot />
 
+    <button class="theme-fab" id="themeFab" aria-label="切换主题">
+      <svg class="fab-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="fab-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg class="fab-icon-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    </button>
+
     <script is:inline>
       function setTheme(mode) {
         localStorage.setItem('theme', mode);
@@ -174,13 +180,29 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
         document.querySelectorAll('.theme-switcher button').forEach(function(b) {
           b.classList.toggle('active', b.getAttribute('data-theme') === mode);
         });
+        updateFabIcon(mode);
+      }
+      function updateFabIcon(mode) {
+        var fab = document.getElementById('themeFab');
+        if (!fab) return;
+        fab.classList.remove('mode-light', 'mode-dark', 'mode-auto');
+        fab.classList.add('mode-' + (mode || 'auto'));
       }
       document.addEventListener('DOMContentLoaded', function() {
+        var current = localStorage.getItem('theme') || '';
         document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
-          var current = localStorage.getItem('theme') || '';
           btn.classList.toggle('active', btn.getAttribute('data-theme') === current);
           btn.addEventListener('click', function() { setTheme(this.getAttribute('data-theme')); });
         });
+        updateFabIcon(current);
+        var fab = document.getElementById('themeFab');
+        if (fab) {
+          fab.addEventListener('click', function() {
+            var mode = localStorage.getItem('theme') || '';
+            var next = mode === '' ? 'light' : mode === 'light' ? 'dark' : '';
+            setTheme(next);
+          });
+        }
         var menuBtn = document.getElementById('menuBtn');
         var dropdown = document.getElementById('mobileDropdown');
         if (menuBtn && dropdown) {
