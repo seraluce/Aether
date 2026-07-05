@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SidebarLeft from '../components/SidebarLeft.astro';
+import SidebarRight from '../components/SidebarRight.astro';
 import { fetchSiteData } from '../data/fetcher';
 import { mockData } from '../data/mock';
 
@@ -37,8 +39,11 @@ sorted.forEach((post) => {
 ---
 
 <Layout title="文章归档" url="/archive" categories={siteData.categories}>
-  <main class="main-layout" style="grid-template-columns: 1fr;">
-    <section class="content-area" style="max-width: 800px; margin: 0 auto; width: 100%;">
+  <main class="main-layout">
+    <aside class="sidebar-left">
+      <SidebarLeft categories={siteData.categories} />
+    </aside>
+    <section class="content-area">
       <div class="content-header">
         <h2 class="content-title">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -3px; margin-right: 6px;">
@@ -73,5 +78,8 @@ sorted.forEach((post) => {
         )}
       </div>
     </section>
+    <aside class="sidebar-right">
+      <SidebarRight hotPosts={siteData.hotPosts} tags={siteData.tags} />
+    </aside>
   </main>
 </Layout>
