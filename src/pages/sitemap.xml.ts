@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ site }) => {
       priority: '0.8',
     })),
     ...posts.map((post) => ({
-      loc: `${siteUrl}/post/${post.slug}`,
+      loc: `${siteUrl}/post/${post.id}`,
       lastmod: new Date(post.date).toISOString(),
       changefreq: 'weekly' as const,
       priority: '0.6',
