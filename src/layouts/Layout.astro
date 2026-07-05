@@ -206,9 +206,20 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
         var menuBtn = document.getElementById('menuBtn');
         var dropdown = document.getElementById('mobileDropdown');
         if (menuBtn && dropdown) {
-          menuBtn.addEventListener('click', function(e) { e.stopPropagation(); dropdown.classList.toggle('open'); });
+          function closeMenu() {
+            dropdown.classList.remove('open');
+            document.body.classList.remove('menu-open');
+          }
+          menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+            document.body.classList.toggle('menu-open', dropdown.classList.contains('open'));
+          });
           document.addEventListener('click', function(e) {
-            if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) dropdown.classList.remove('open');
+            if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+          });
+          dropdown.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') closeMenu();
           });
         }
       });
