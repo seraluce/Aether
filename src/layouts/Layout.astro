@@ -12,6 +12,7 @@ interface Props {
   author?: string;
   category?: string;
   tags?: string[];
+  categories?: Array<{ name: string; slug: string; count: number; icon: string }>;
 }
 
 const {
@@ -24,9 +25,10 @@ const {
   author,
   category,
   tags = [],
+  categories = siteConfig.categories.map(c => ({ name: c.name, slug: c.slug, count: c.count, icon: c.icon })),
 } = Astro.props;
 
-const { site, seo, headerNav, categories } = siteConfig;
+const { site, seo } = siteConfig;
 const fullUrl = new URL(url, site.url).toString();
 const fullImage = image.startsWith('http') ? image : new URL(image, site.url).toString();
 ---
@@ -99,8 +101,8 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           {site.name}
         </a>
         <nav class="header-nav">
-          {headerNav.map((item) => (
-            <a href={item.href} class={item.active ? 'active' : ''}>{item.name}</a>
+          {categories.slice(0, 6).map((cat) => (
+            <a href={`/category/${cat.slug}`}>{cat.name}</a>
           ))}
         </nav>
         <div class="header-spacer"></div>
@@ -122,7 +124,6 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
       </div>
     </header>
 
-    <!-- Mobile Dropdown: categories + theme at bottom -->
     <div class="mobile-dropdown" id="mobileDropdown">
       <div class="mobile-dropdown-inner">
         <div class="mobile-section">
@@ -166,25 +167,18 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           b.classList.toggle('active', b.getAttribute('data-theme') === mode);
         });
       }
-
       document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.theme-switcher button').forEach(function(btn) {
           var current = localStorage.getItem('theme') || '';
           btn.classList.toggle('active', btn.getAttribute('data-theme') === current);
           btn.addEventListener('click', function() { setTheme(this.getAttribute('data-theme')); });
         });
-
         var menuBtn = document.getElementById('menuBtn');
         var dropdown = document.getElementById('mobileDropdown');
         if (menuBtn && dropdown) {
-          menuBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('open');
-          });
+          menuBtn.addEventListener('click', function(e) { e.stopPropagation(); dropdown.classList.toggle('open'); });
           document.addEventListener('click', function(e) {
-            if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) {
-              dropdown.classList.remove('open');
-            }
+            if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) dropdown.classList.remove('open');
           });
         }
       });
