@@ -91,6 +91,52 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
   return data;
 }
 
+async function wpFetchWithHeaders(endpoint: string, params: Record<string, string> = {}): Promise<{ data: unknown; total: number; totalPages: number }> {
+  const url = new URL(`${wpConfig.siteUrl}${wpConfig.apiBase}${endpoint}`);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+
+  const res = await fetch(url.toString(), {
+    headers: { 'Accept': 'application/json' },
+  });
+
+  if (!res.ok) {
+    throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+  }
+
+  const total = parseInt(res.headers.get('X-WP-Total') || '0', 10);
+  const totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
+  const data = await res.json();
+  return { data, total, totalPages };
+}
+
+export async function getTotalPosts(): Promise<{ total: number; totalPages: number }> {
+  const result = await wpFetchWithHeaders('/posts', {
+    per_page: '1',
+    page: '1',
+    _fields: 'id',
+  });
+  return { total: result.total, totalPages: result.totalPages };
+}
+
+export async function getAllPosts(): Promise<WPPost[]> {
+  const { totalPages } = await getTotalPosts();
+  const maxPages = Math.min(totalPages, 20);
+  const batchSize = 5;
+  const allPosts: WPPost[] = [];
+
+  for (let start = 1; start <= maxPages; start += batchSize) {
+    const end = Math.min(start + batchSize - 1, maxPages);
+    const batch = [];
+    for (let page = start; page <= end; page++) {
+      batch.push(getPosts(page, wpConfig.perPage));
+    }
+    const results = await Promise.all(batch);
+    allPosts.push(...results.flat());
+  }
+
+  return allPosts;
+}
+
 export async function getPosts(page = 1, perPage = wpConfig.perPage): Promise<WPPost[]> {
   return wpFetch<WPPost[]>('/posts', {
     _embed: 'true',
