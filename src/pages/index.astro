@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SidebarLeft from '../components/SidebarLeft.astro';
+import SidebarRight from '../components/SidebarRight.astro';
+import PostGrid from '../components/PostGrid.astro';
+import { fetchSiteData } from '../data/fetcher';
+import { mockData } from '../data/mock';
+
+const data = await fetchSiteData();
+const siteData = data.error ? mockData : data;
+const useMock = !!data.error;
+---
+
+<Layout title="首页" url="/" type="website">
+  {useMock && (
+    <div style="background:#fff3cd;color:#856404;padding:12px 24px;text-align:center;font-size:13px;border-bottom:1px solid #ffc107;">
+      提示：无法连接 WordPress API，当前显示示例数据。请在 <code>.env</code> 中配置 <code>WP_SITE_URL</code>。
+    </div>
+  )}
+  <main class="main-layout">
+    <aside class="sidebar-left">
+      <SidebarLeft categories={siteData.categories} />
+    </aside>
+    <section class="content-area">
+      <PostGrid posts={siteData.posts} />
+    </section>
+    <aside class="sidebar-right">
+      <SidebarRight hotPosts={siteData.hotPosts} tags={siteData.tags} />
+    </aside>
+  </main>
+</Layout>
