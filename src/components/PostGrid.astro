@@ -32,7 +32,7 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 
 <div class="post-grid" id="postGrid">
   {sortedByDate.map((post, index) => (
-    <article class={`post-card ${index === 0 ? 'post-featured' : ''}`} data-tab="latest">
+    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="latest" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
@@ -62,7 +62,7 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
   ))}
 
   {sortedByViews.map((post, index) => (
-    <article class={`post-card ${index === 0 ? 'post-featured' : ''}`} data-tab="hot" style="display:none;">
+    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="hot" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
@@ -83,7 +83,7 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
   ))}
 
   {recommended.map((post, index) => (
-    <article class={`post-card ${index === 0 ? 'post-featured' : ''}`} data-tab="recommended" style="display:none;">
+    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="recommended" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       <div class="post-card-image-wrapper">
         <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
@@ -104,27 +104,113 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
   ))}
 </div>
 
+<div class="load-more-sentinel" id="loadMoreSentinel">
+  <div class="load-more-indicator" id="loadMoreIndicator" style="display:none;">
+    <span class="loading-spinner"></span>
+    加载更多...
+  </div>
+  <div class="load-more-end" id="loadMoreEnd" style="display:none;">
+    已经到底了
+  </div>
+</div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    var BATCH = 12;
     var tabs = document.querySelectorAll('#contentTabs a');
-    var cards = document.querySelectorAll('#postGrid .post-card');
+    var grid = document.getElementById('postGrid');
+    var sentinel = document.getElementById('loadMoreSentinel');
+    var indicator = document.getElementById('loadMoreIndicator');
+    var endMsg = document.getElementById('loadMoreEnd');
+
+    var revealed = { latest: BATCH, hot: BATCH, recommended: BATCH };
+    var currentTab = 'latest';
+    var loading = false;
+
+    function getVisibleCards() {
+      return grid.querySelectorAll('.post-card[data-tab="' + currentTab + '"]');
+    }
+
+    function getTotal(tab) {
+      return grid.querySelectorAll('.post-card[data-tab="' + tab + '"]').length;
+    }
+
+    function updateSentinel() {
+      var total = getTotal(currentTab);
+      if (revealed[currentTab] >= total) {
+        indicator.style.display = 'none';
+        endMsg.style.display = total > BATCH ? '' : 'none';
+      } else {
+        indicator.style.display = 'none';
+        endMsg.style.display = 'none';
+      }
+    }
+
+    function revealMore() {
+      if (loading) return;
+      var total = getTotal(currentTab);
+      if (revealed[currentTab] >= total) {
+        updateSentinel();
+        return;
+      }
+
+      loading = true;
+      indicator.style.display = '';
+
+      var cards = getVisibleCards();
+      var start = revealed[currentTab];
+      var end = Math.min(start + BATCH, total);
+
+      setTimeout(function() {
+        for (var i = start; i < end; i++) {
+          if (cards[i]) {
+            cards[i].style.display = '';
+            var imgs = cards[i].querySelectorAll('img[loading="lazy"]');
+            imgs.forEach(function(img) {
+              if (img.dataset.src) {
+                img.src = img.dataset.src;
+              }
+            });
+          }
+        }
+        revealed[currentTab] = end;
+        loading = false;
+        indicator.style.display = 'none';
+        updateSentinel();
+      }, 300);
+    }
 
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function(e) {
         e.preventDefault();
         var target = this.getAttribute('data-tab');
+        if (target === currentTab) return;
 
         tabs.forEach(function(t) { t.classList.remove('active'); });
         this.classList.add('active');
 
-        cards.forEach(function(card) {
-          if (card.getAttribute('data-tab') === target) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
+        var oldCards = grid.querySelectorAll('.post-card[data-tab="' + currentTab + '"]');
+        oldCards.forEach(function(c) { c.style.display = 'none'; });
+
+        currentTab = target;
+        endMsg.style.display = 'none';
+        indicator.style.display = 'none';
+
+        var newCards = getVisibleCards();
+        newCards.forEach(function(c, i) {
+          c.style.display = i < revealed[currentTab] ? '' : 'none';
         });
+        updateSentinel();
       });
     });
+
+    var observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        revealMore();
+      }
+    }, { rootMargin: '200px' });
+
+    observer.observe(sentinel);
+    updateSentinel();
   });
 </script>
