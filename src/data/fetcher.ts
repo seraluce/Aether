@@ -1,7 +1,6 @@
-import { getPosts, getCategories, getTags } from '../lib/wordpress';
+import { getAllPosts, getCategories, getTags } from '../lib/wordpress';
 import { mapPost, mapCategory, mapTag } from '../lib/mappers';
 import type { Post } from '../lib/mappers';
-import { wpConfig } from '../config';
 
 export interface SiteData {
   posts: Post[];
@@ -13,19 +12,12 @@ export interface SiteData {
 
 export async function fetchSiteData(): Promise<SiteData> {
   try {
-    const totalPages = 3;
-    const postPromises = [];
-    for (let page = 1; page <= totalPages; page++) {
-      postPromises.push(getPosts(page, wpConfig.perPage));
-    }
-
-    const [wpPostsPages, wpCategories, wpTags] = await Promise.all([
-      Promise.all(postPromises),
+    const [wpPosts, wpCategories, wpTags] = await Promise.all([
+      getAllPosts(),
       getCategories(),
       getTags(),
     ]);
 
-    const wpPosts = wpPostsPages.flat();
     const posts = wpPosts.map(mapPost);
     const categories = wpCategories.map(mapCategory);
     const tags = wpTags.map(mapTag);
