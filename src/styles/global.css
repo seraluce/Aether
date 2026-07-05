@@ -576,3 +576,26 @@ img { max-width: 100%; height: auto; }
   .article-content { font-size: 14px; }
   .article-footer { margin-bottom: 60px; }
 }
+
+/* Load More */
+.load-more-sentinel { padding: 24px 0; text-align: center; }
+.load-more-indicator {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 13px; color: var(--fg-muted);
+}
+.load-more-end { font-size: 12px; color: var(--fg-muted); }
+
+.loading-spinner {
+  width: 16px; height: 16px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Article content lazy images */
+.article-content img {
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.article-content img.img-loaded {
+  opacity: 1;
+}
