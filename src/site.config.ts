@@ -52,7 +52,7 @@ export const siteConfig = {
   wordpress: {
     siteUrl: 'https://your-wordpress-site.com',
     apiBase: '/wp-json/wp/v2',
-    perPage: 10,
+    perPage: 30,
     cacheTimeout: 5 * 60 * 1000, // 5 分钟
   },
 
