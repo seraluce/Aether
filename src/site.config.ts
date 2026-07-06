@@ -50,7 +50,7 @@ export const siteConfig = {
 
   // WordPress API 配置
   wordpress: {
-    siteUrl: 'https://your-wordpress-site.com',
+    siteUrl: 'https://www.frbkw.com',
     apiBase: '/wp-json/wp/v2',
     perPage: 30,
     cacheTimeout: 5 * 60 * 1000, // 5 分钟
