@@ -107,7 +107,7 @@ img {
 }
 
 .header-inner {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   height: 100%;
   display: flex;
@@ -466,12 +466,12 @@ body.menu-open {
 
 /* ==================== Layout ==================== */
 .main-layout {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 20px;
   display: grid;
   grid-template-columns: 220px 1fr 300px;
-  gap: 20px;
+  gap: 15px;
 }
 
 /* ==================== Sidebar Cards ==================== */
@@ -613,7 +613,7 @@ body.menu-open {
 
 .post-item-image-link {
   flex-shrink: 0;
-  width: 160px;
+  width: 192px;
   height: 108px;
   border-radius: 8px;
   overflow: hidden;
@@ -898,7 +898,7 @@ body.menu-open {
 
 /* ==================== Article Page ==================== */
 .article-layout {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 20px;
   display: grid;
@@ -1171,7 +1171,7 @@ body.menu-open {
 /* ==================== Responsive ==================== */
 
 /* Tablet */
-@media (max-width: 1200px) {
+@media (max-width: 1240px) {
   .main-layout {
     grid-template-columns: 200px 1fr;
   }
