@@ -8,7 +8,7 @@ export interface WPConfig {
 }
 
 export const wpConfig: WPConfig = {
-  siteUrl: import.meta.env.WP_SITE_URL || siteConfig.wordpress.siteUrl,
+  siteUrl: siteConfig.wordpress.siteUrl,
   apiBase: siteConfig.wordpress.apiBase,
   perPage: siteConfig.wordpress.perPage,
   cacheTimeout: siteConfig.wordpress.cacheTimeout,
