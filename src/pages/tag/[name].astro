@@ -9,30 +9,31 @@ function isAsciiSlug(slug: string): boolean {
   return /^[\w-]+$/.test(slug);
 }
 
-export async function getStaticPaths() {
-  try {
-    const wpTags = await getTags();
-    const validTags = wpTags.filter((t) => isAsciiSlug(t.slug));
-    return validTags.map((tag) => ({
-      params: { name: tag.slug },
-      props: { tagName: tag.name, tagSlug: tag.slug },
-    }));
-  } catch {
-    return [];
-  }
-}
-
 const { name } = Astro.params;
-const tagName = Astro.props.tagName || name;
 
+let tagName = name || '';
 let posts: Post[] = [];
+
 try {
-  const wpPosts = await getAllPosts();
+  const [wpTags, wpPosts] = await Promise.all([
+    getTags(),
+    getAllPosts(),
+  ]);
+
+  const validTags = wpTags.filter((t) => isAsciiSlug(t.slug));
+  const found = validTags.find((t) => t.slug === name);
+  if (found) {
+    tagName = found.name;
+  }
+
   const allMapped = wpPosts.map(mapPost);
-  const displayName = Astro.props.tagName || name;
-  posts = allMapped.filter((p) => p.tags.includes(displayName));
+  posts = allMapped.filter((p) => p.tags.includes(tagName));
 } catch {
   posts = [];
+}
+
+if (!tagName) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 ---
 
@@ -41,7 +42,9 @@ try {
     <section class="content-area" style="max-width: 1000px; margin: 0 auto; width: 100%;">
       <div class="content-header">
         <h2 class="content-title">
-          <span style="margin-right: 8px;">🏷️</span>
+          <span style="margin-right: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </span>
           {tagName}
           <span style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;">{posts.length} 篇文章</span>
         </h2>
