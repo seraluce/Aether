@@ -1,38 +1,29 @@
 ---
 import { getPostById, getAllPosts, getCategories } from '../../lib/wordpress';
 import type { WPPost } from '../../lib/wordpress';
-import { mapCategory } from '../../lib/mappers';
+import { mapCategory, mapPost } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import ArticleActions from '../../components/ArticleActions.astro';
 import ArticleSidebar from '../../components/ArticleSidebar.astro';
 
-export async function getStaticPaths() {
-  try {
-    const [wpPosts, wpCategories] = await Promise.all([
-      getAllPosts(),
-      getCategories(),
-    ]);
-    const categories = wpCategories.map(mapCategory);
-    return wpPosts.map((p) => ({
-      params: { id: String(p.id) },
-      props: { postSummary: p, allPosts: wpPosts, categories },
-    }));
-  } catch {
-    const { mockData } = await import('../../data/mock');
-    return mockData.posts.map((p, i) => ({
-      params: { id: String(i + 1) },
-      props: { postSummary: null, allPosts: [], categories: mockData.categories },
-    }));
-  }
-}
-
 const { id } = Astro.params;
-const postSummary = Astro.props.postSummary;
-const allPosts = Astro.props.allPosts;
-const wpCategories = Astro.props.categories;
 
 let post: WPPost | null = null;
-if (postSummary) {
+let allPosts: WPPost[] = [];
+let wpCategories: Array<{ name: string; slug: string; count: number; icon: string }> = [];
+
+try {
+  const [wpPosts, wpCats] = await Promise.all([
+    getAllPosts(),
+    getCategories(),
+  ]);
+  allPosts = wpPosts;
+  wpCategories = wpCats.map(mapCategory);
+} catch {
+  // fallback: empty data
+}
+
+if (id) {
   try {
     post = await getPostById(Number(id));
   } catch {
@@ -40,12 +31,16 @@ if (postSummary) {
   }
 }
 
+if (!post) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
 }
 
-const pageTitle = post ? stripHtml(post.title.rendered) : '文章';
-const pageDesc = post ? stripHtml(post.excerpt.rendered).slice(0, 160) : '';
+const pageTitle = stripHtml(post.title.rendered);
+const pageDesc = stripHtml(post.excerpt.rendered).slice(0, 160);
 const pageImage = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/images/og-image.png';
 const authorName = post?._embedded?.author?.[0]?.name || '';
 const categoryName = post?._embedded?.['wp:term']?.[0]?.[0]?.name || '';
@@ -81,54 +76,46 @@ const relatedPosts = allPosts
     <ArticleActions postId={Number(id)} pageUrl={pageUrl} title={pageTitle} />
 
     <div class="article-main">
-      {post ? (
-        <article>
-          <header class="article-header">
-            {pageImage && pageImage.startsWith('http') && (
-              <img src={pageImage} alt={pageTitle} class="article-cover" />
+      <article>
+        <header class="article-header">
+          {pageImage && pageImage.startsWith('http') && (
+            <img src={pageImage} alt={pageTitle} class="article-cover" />
+          )}
+          <h1>{pageTitle}</h1>
+          <div class="article-meta">
+            {authorName && <span>{authorName}</span>}
+            {authorName && <span class="sep">|</span>}
+            <span>{new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            {categoryName && categorySlug && (
+              <>
+                <span class="sep">|</span>
+                <a href={`/category/${categorySlug}`} class="accent">{categoryName}</a>
+              </>
             )}
-            <h1>{pageTitle}</h1>
-            <div class="article-meta">
-              {authorName && <span>{authorName}</span>}
-              {authorName && <span class="sep">|</span>}
-              <span>{new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              {categoryName && categorySlug && (
-                <>
-                  <span class="sep">|</span>
-                  <a href={`/category/${categorySlug}`} class="accent">{categoryName}</a>
-                </>
-              )}
-              {categoryName && !categorySlug && (
-                <>
-                  <span class="sep">|</span>
-                  <span class="accent">{categoryName}</span>
-                </>
-              )}
-            </div>
-            {tagNames.length > 0 && (
-              <div class="article-tags">
-                {tagNames.map((tag: string, i: number) => {
-                  const slug = tagSlugs[i] || tag;
-                  return <a href={`/tag/${slug}`}>{tag}</a>;
-                })}
-              </div>
+            {categoryName && !categorySlug && (
+              <>
+                <span class="sep">|</span>
+                <span class="accent">{categoryName}</span>
+              </>
             )}
-          </header>
-          <div class="article-content" set:html={post.content.rendered} />
-          <div class="article-footer">
-            <a href="/">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              返回首页
-            </a>
           </div>
-        </article>
-      ) : (
-        <div class="sidebar-card" style="padding: 60px 40px; text-align: center;">
-          <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">文章未找到</h2>
-          <p style="color: var(--fg-secondary);">请检查文章地址是否正确。</p>
-          <a href="/" style="display: inline-block; margin-top: 20px; color: var(--accent); font-size: 13px; font-weight: 500;">返回首页</a>
+          {tagNames.length > 0 && (
+            <div class="article-tags">
+              {tagNames.map((tag: string, i: number) => {
+                const slug = tagSlugs[i] || tag;
+                return <a href={`/tag/${slug}`}>{tag}</a>;
+              })}
+            </div>
+          )}
+        </header>
+        <div class="article-content" set:html={post.content.rendered} />
+        <div class="article-footer">
+          <a href="/">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回首页
+          </a>
         </div>
-      )}
+      </article>
     </div>
 
     <aside class="article-sidebar">
