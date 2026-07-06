@@ -112,7 +112,14 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
               <input type="text" name="q" placeholder="搜索..." />
             </form>
           </div>
-          <button class="header-theme-toggle" id="headerThemeToggle" aria-label="切换主题">
+          
+        </div>
+        <nav class="header-nav">
+          {siteConfig.headerNav.map((item) => (
+    <a href={item.href}>{item.name}</a>
+          ))}
+        </nav>
+        <button class="header-theme-toggle" id="headerThemeToggle" aria-label="切换主题">
             <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
             <svg class="icon-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -125,12 +132,6 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
-        </div>
-        <nav class="header-nav">
-          {categories.slice(0, 6).map((cat) => (
-            <a href={`/category/${cat.slug}`}>{cat.name}</a>
-          ))}
-        </nav>
       </div>
     </header>
  
