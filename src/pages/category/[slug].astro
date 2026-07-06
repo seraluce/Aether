@@ -9,48 +9,41 @@ function isAsciiSlug(slug: string): boolean {
   return /^[\w-]+$/.test(slug);
 }
 
-export async function getStaticPaths() {
-  try {
-    const wpCategories = await getCategories();
-    const validCats = wpCategories.filter((c) => isAsciiSlug(c.slug));
-    const allCats = validCats.map((c) => ({
-      name: c.name, slug: c.slug, count: c.count,
-      icon: (c as any).icon || '📁',
-    }));
-    return validCats.map((cat) => ({
-      params: { slug: cat.slug },
-      props: {
-        category: mapCategory(cat),
-        allCategories: allCats,
-      },
-    }));
-  } catch {
-    const { siteConfig } = await import('../../site.config');
-    const allCats = siteConfig.categories.map((c) => ({
-      name: c.name, slug: c.slug, count: c.count, icon: c.icon,
-    }));
-    return siteConfig.categories.map((cat) => ({
-      params: { slug: cat.slug },
-      props: { category: cat, allCategories: allCats },
-    }));
-  }
-}
-
 const { slug } = Astro.params;
-const category = Astro.props.category;
-const allCategories = Astro.props.allCategories || [];
 
+let wpCategories: Array<{ name: string; slug: string; count: number; icon: string }> = [];
+let category: { name: string; slug: string; count: number; icon: string } | null = null;
 let posts: Post[] = [];
+
 try {
-  const wpPosts = await getAllPosts();
+  const [cats, wpPosts] = await Promise.all([
+    getCategories(),
+    getAllPosts(),
+  ]);
+
+  const validCats = cats.filter((c) => isAsciiSlug(c.slug));
+  wpCategories = validCats.map((c) => ({
+    name: c.name, slug: c.slug, count: c.count,
+    icon: (c as any).icon || '',
+  }));
+
+  const found = cats.find((c) => c.slug === slug);
+  if (found) {
+    category = mapCategory(found);
+  }
+
   const allMapped = wpPosts.map(mapPost);
   posts = allMapped.filter((p) => p.categorySlug === slug);
 } catch {
   posts = [];
 }
+
+if (!category) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
 ---
 
-<Layout title={category.name} categories={allCategories}>
+<Layout title={category.name} categories={wpCategories}>
   <main class="main-layout" style="grid-template-columns: 1fr;">
     <section class="content-area" style="max-width: 1000px; margin: 0 auto; width: 100%;">
       <div class="content-header">
