@@ -1,22 +1,24 @@
 ---
-import { getPostById, getAllPosts, getCategories } from '../../lib/wordpress';
-import type { WPPost } from '../../lib/wordpress';
-import { mapCategory, mapPost } from '../../lib/mappers';
-import Layout from '../../layouts/Layout.astro';
-import ArticleActions from '../../components/ArticleActions.astro';
-import ArticleSidebar from '../../components/ArticleSidebar.astro';
+import { getPostById, getAllPosts, getCategories } from "../../lib/wordpress";
+import type { WPPost } from "../../lib/wordpress";
+import { mapCategory, mapPost } from "../../lib/mappers";
+import Layout from "../../layouts/Layout.astro";
+import ArticleActions from "../../components/ArticleActions.astro";
+import ArticleSidebar from "../../components/ArticleSidebar.astro";
 
 const { id } = Astro.params;
 
 let post: WPPost | null = null;
 let allPosts: WPPost[] = [];
-let wpCategories: Array<{ name: string; slug: string; count: number; icon: string }> = [];
+let wpCategories: Array<{
+  name: string;
+  slug: string;
+  count: number;
+  icon: string;
+}> = [];
 
 try {
-  const [wpPosts, wpCats] = await Promise.all([
-    getAllPosts(),
-    getCategories(),
-  ]);
+  const [wpPosts, wpCats] = await Promise.all([getAllPosts(), getCategories()]);
   allPosts = wpPosts;
   wpCategories = wpCats.map(mapCategory);
 } catch {
@@ -32,21 +34,26 @@ if (id) {
 }
 
 if (!post) {
-  return new Response(null, { status: 404, statusText: 'Not Found' });
+  return new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
+function stripHtml(html: string | undefined | null): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
 }
 
-const pageTitle = stripHtml(post.title.rendered);
-const pageDesc = stripHtml(post.excerpt.rendered).slice(0, 160);
-const pageImage = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/images/og-image.png';
-const authorName = post?._embedded?.author?.[0]?.name || '';
-const categoryName = post?._embedded?.['wp:term']?.[0]?.[0]?.name || '';
-const categorySlug = post?._embedded?.['wp:term']?.[0]?.[0]?.slug || '';
-const tagNames = post?._embedded?.['wp:term']?.[1]?.map((t: {name: string}) => t.name) || [];
-const tagSlugs = post?._embedded?.['wp:term']?.[1]?.map((t: {slug: string}) => t.slug) || [];
+const pageTitle = stripHtml(post.title?.rendered);
+const pageDesc = stripHtml(post.excerpt?.rendered).slice(0, 160);
+const pageImage =
+  post?._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+  "/images/og-image.png";
+const authorName = post?._embedded?.author?.[0]?.name || "";
+const categoryName = post?._embedded?.["wp:term"]?.[0]?.[0]?.name || "";
+const categorySlug = post?._embedded?.["wp:term"]?.[0]?.[0]?.slug || "";
+const tagNames =
+  post?._embedded?.["wp:term"]?.[1]?.map((t: { name: string }) => t.name) || [];
+const tagSlugs =
+  post?._embedded?.["wp:term"]?.[1]?.map((t: { slug: string }) => t.slug) || [];
 
 const pageUrl = `/post/${id}`;
 
@@ -55,8 +62,10 @@ const relatedPosts = allPosts
   .slice(0, 4)
   .map((p: WPPost) => ({
     id: p.id,
-    title: stripHtml(p.title.rendered),
-    image: p._embedded?.['wp:featuredmedia']?.[0]?.source_url || `https://picsum.photos/seed/${p.id}/120/90`,
+    title: stripHtml(p.title?.rendered),
+    image:
+      p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+      `https://picsum.photos/seed/${p.id}/120/90`,
   }));
 ---
 
@@ -78,40 +87,65 @@ const relatedPosts = allPosts
     <div class="article-main">
       <article>
         <header class="article-header">
-          {pageImage && pageImage.startsWith('http') && (
-            <img src={pageImage} alt={pageTitle} class="article-cover" />
-          )}
+          {
+            pageImage && pageImage.startsWith("http") && (
+              <img src={pageImage} alt={pageTitle} class="article-cover" />
+            )
+          }
           <h1>{pageTitle}</h1>
           <div class="article-meta">
             {authorName && <span>{authorName}</span>}
             {authorName && <span class="sep">|</span>}
-            <span>{new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-            {categoryName && categorySlug && (
-              <>
-                <span class="sep">|</span>
-                <a href={`/category/${categorySlug}`} class="accent">{categoryName}</a>
-              </>
-            )}
-            {categoryName && !categorySlug && (
-              <>
-                <span class="sep">|</span>
-                <span class="accent">{categoryName}</span>
-              </>
-            )}
+            <span
+              >{
+                new Date(post.date).toLocaleDateString("zh-CN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              }</span
+            >
+            {
+              categoryName && categorySlug && (
+                <>
+                  <span class="sep">|</span>
+                  <a href={`/category/${categorySlug}`} class="accent">
+                    {categoryName}
+                  </a>
+                </>
+              )
+            }
+            {
+              categoryName && !categorySlug && (
+                <>
+                  <span class="sep">|</span>
+                  <span class="accent">{categoryName}</span>
+                </>
+              )
+            }
           </div>
-          {tagNames.length > 0 && (
-            <div class="article-tags">
-              {tagNames.map((tag: string, i: number) => {
-                const slug = tagSlugs[i] || tag;
-                return <a href={`/tag/${slug}`}>{tag}</a>;
-              })}
-            </div>
-          )}
+          {
+            tagNames.length > 0 && (
+              <div class="article-tags">
+                {tagNames.map((tag: string, i: number) => {
+                  const slug = tagSlugs[i] || tag;
+                  return <a href={`/tag/${slug}`}>{tag}</a>;
+                })}
+              </div>
+            )
+          }
         </header>
         <div class="article-content" set:html={post.content.rendered} />
         <div class="article-footer">
           <a href="/">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg
+            >
             返回首页
           </a>
         </div>
@@ -125,45 +159,50 @@ const relatedPosts = allPosts
 </Layout>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var content = document.querySelector('.article-content');
+  document.addEventListener("DOMContentLoaded", function () {
+    var content = document.querySelector(".article-content");
     if (!content) return;
 
-    var imgs = content.querySelectorAll('img');
-    imgs.forEach(function(img) {
-      var src = img.getAttribute('src');
+    var imgs = content.querySelectorAll<HTMLImageElement>("img");
+    imgs.forEach(function (img) {
+      var src = img.getAttribute("src");
       if (src) {
-        img.setAttribute('data-src', src);
-        img.removeAttribute('src');
-        img.style.minHeight = '120px';
-        img.style.background = 'var(--bg-tertiary)';
+        img.setAttribute("data-src", src);
+        img.removeAttribute("src");
+        img.style.minHeight = "120px";
+        img.style.background = "var(--bg-tertiary)";
       }
     });
 
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var img = entry.target;
-          var dataSrc = img.getAttribute('data-src');
-          if (dataSrc) {
-            img.setAttribute('src', dataSrc);
-            img.removeAttribute('data-src');
-            img.addEventListener('load', function() {
-              img.classList.add('img-loaded');
-              img.style.minHeight = '';
-              img.style.background = '';
-            });
-            img.addEventListener('error', function() {
-              img.classList.add('img-loaded');
-              img.style.minHeight = '';
-              img.style.background = '';
-            });
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var img = entry.target as HTMLImageElement;
+            var dataSrc = img.getAttribute("data-src");
+            if (dataSrc) {
+              img.setAttribute("src", dataSrc);
+              img.removeAttribute("data-src");
+              img.addEventListener("load", function () {
+                img.classList.add("img-loaded");
+                img.style.minHeight = "";
+                img.style.background = "";
+              });
+              img.addEventListener("error", function () {
+                img.classList.add("img-loaded");
+                img.style.minHeight = "";
+                img.style.background = "";
+              });
+            }
+            observer.unobserve(img);
           }
-          observer.unobserve(img);
-        }
-      });
-    }, { rootMargin: '300px' });
+        });
+      },
+      { rootMargin: "300px" },
+    );
 
-    imgs.forEach(function(img) { observer.observe(img); });
+    imgs.forEach(function (img) {
+      observer.observe(img);
+    });
   });
 </script>

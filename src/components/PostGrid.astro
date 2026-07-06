@@ -1,11 +1,11 @@
 ---
-import type { Post } from '../lib/mappers';
+import type { Post } from "../lib/mappers";
 
 interface Props {
   posts: Post[];
 }
 
-const { posts } = Astro.props;
+const { posts = [] } = Astro.props;
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -13,10 +13,12 @@ function formatDate(dateStr: string): string {
 }
 
 function formatViews(n: number): string {
-  return n >= 10000 ? (n / 10000).toFixed(1) + '万' : n.toString();
+  return n >= 10000 ? (n / 10000).toFixed(1) + "万" : n.toString();
 }
 
-const sortedByDate = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const sortedByDate = [...posts].sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+);
 const sortedByViews = [...posts].sort((a, b) => b.views - a.views);
 const recommended = posts.filter((_, i) => i % 2 === 0);
 ---
@@ -31,89 +33,208 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 </div>
 
 <div class="post-list" id="postGrid">
-  {sortedByDate.map((post, index) => (
-    <article class="post-item" data-tab="latest" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
-      {post.image && (
-      <a href={`/post/${post.id}`} class="post-item-image-link">
-        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
-          onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </a>
-      )}
-      <div class="post-item-content">
-        <div class="post-item-top">
-          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
-          <span class="post-item-views">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            {formatViews(post.views)}
-          </span>
+  {
+    sortedByDate.map((post, index) => (
+      <article
+        class="post-item"
+        data-tab="latest"
+        data-index={index}
+        style={index >= 12 ? "display:none;" : ""}
+      >
+        {post.image && (
+          <a href={`/post/${post.id}`} class="post-item-image-link">
+            <img
+              class="post-item-image"
+              src={post.image}
+              alt={post.title}
+              loading="lazy"
+              onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')"
+            />
+          </a>
+        )}
+        <div class="post-item-content">
+          <div class="post-item-top">
+            <a
+              href={`/category/${post.categorySlug}`}
+              class="post-item-category"
+            >
+              {post.category}
+            </a>
+            <span class="post-item-views">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              </svg>
+              {formatViews(post.views)}
+            </span>
+          </div>
+          <h3 class="post-item-title">
+            <a href={`/post/${post.id}`}>{post.title}</a>
+          </h3>
+          <p class="post-item-excerpt">{post.excerpt}</p>
+          <div class="post-item-meta">
+            <span>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <>
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </>
+              </svg>
+              {post.author}
+            </span>
+            <span>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <>
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </>
+              </svg>
+              {formatDate(post.date)}
+            </span>
+          </div>
         </div>
-        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-item-excerpt">{post.excerpt}</p>
-        <div class="post-item-meta">
-          <span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            {post.author}
-          </span>
-          <span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            {formatDate(post.date)}
-          </span>
-        </div>
-      </div>
-    </article>
-  ))}
+      </article>
+    ))
+  }
 
-  {sortedByViews.map((post, index) => (
-    <article class="post-item" data-tab="hot" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
-      {post.image && (
-      <a href={`/post/${post.id}`} class="post-item-image-link">
-        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
-          onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </a>
-      )}
-      <div class="post-item-content">
-        <div class="post-item-top">
-          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
-          <span class="post-item-views">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            {formatViews(post.views)}
-          </span>
+  {
+    sortedByViews.map((post, index) => (
+      <article
+        class="post-item"
+        data-tab="hot"
+        data-index={index}
+        style={index >= 12 ? "display:none;" : ""}
+      >
+        {post.image && (
+          <a href={`/post/${post.id}`} class="post-item-image-link">
+            <img
+              class="post-item-image"
+              src={post.image}
+              alt={post.title}
+              loading="lazy"
+              onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')"
+            />
+          </a>
+        )}
+        <div class="post-item-content">
+          <div class="post-item-top">
+            <a
+              href={`/category/${post.categorySlug}`}
+              class="post-item-category"
+            >
+              {post.category}
+            </a>
+            <span class="post-item-views">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              </svg>
+              {formatViews(post.views)}
+            </span>
+          </div>
+          <h3 class="post-item-title">
+            <a href={`/post/${post.id}`}>{post.title}</a>
+          </h3>
+          <p class="post-item-excerpt">{post.excerpt}</p>
+          <div class="post-item-meta">
+            <span>{post.author}</span>
+            <span>{formatDate(post.date)}</span>
+          </div>
         </div>
-        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-item-excerpt">{post.excerpt}</p>
-        <div class="post-item-meta">
-          <span>{post.author}</span>
-          <span>{formatDate(post.date)}</span>
-        </div>
-      </div>
-    </article>
-  ))}
+      </article>
+    ))
+  }
 
-  {recommended.map((post, index) => (
-    <article class="post-item" data-tab="recommended" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
-      {post.image && (
-      <a href={`/post/${post.id}`} class="post-item-image-link">
-        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
-          onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </a>
-      )}
-      <div class="post-item-content">
-        <div class="post-item-top">
-          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
-          <span class="post-item-views">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            {formatViews(post.views)}
-          </span>
+  {
+    recommended.map((post, index) => (
+      <article
+        class="post-item"
+        data-tab="recommended"
+        data-index={index}
+        style={index >= 12 ? "display:none;" : ""}
+      >
+        {post.image && (
+          <a href={`/post/${post.id}`} class="post-item-image-link">
+            <img
+              class="post-item-image"
+              src={post.image}
+              alt={post.title}
+              loading="lazy"
+              onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')"
+            />
+          </a>
+        )}
+        <div class="post-item-content">
+          <div class="post-item-top">
+            <a
+              href={`/category/${post.categorySlug}`}
+              class="post-item-category"
+            >
+              {post.category}
+            </a>
+            <span class="post-item-views">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              </svg>
+              {formatViews(post.views)}
+            </span>
+          </div>
+          <h3 class="post-item-title">
+            <a href={`/post/${post.id}`}>{post.title}</a>
+          </h3>
+          <p class="post-item-excerpt">{post.excerpt}</p>
+          <div class="post-item-meta">
+            <span>{post.author}</span>
+            <span>{formatDate(post.date)}</span>
+          </div>
         </div>
-        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-item-excerpt">{post.excerpt}</p>
-        <div class="post-item-meta">
-          <span>{post.author}</span>
-          <span>{formatDate(post.date)}</span>
-        </div>
-      </div>
-    </article>
-  ))}
+      </article>
+    ))
+  }
 </div>
 
 <div class="load-more-sentinel" id="loadMoreSentinel">
@@ -127,38 +248,44 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     var BATCH = 12;
-    var tabs = document.querySelectorAll('#contentTabs a');
-    var grid = document.getElementById('postGrid');
-    var sentinel = document.getElementById('loadMoreSentinel');
-    var indicator = document.getElementById('loadMoreIndicator');
-    var endMsg = document.getElementById('loadMoreEnd');
+    var tabs = document.querySelectorAll<HTMLAnchorElement>("#contentTabs a");
+    var grid = document.getElementById("postGrid");
+    var sentinel = document.getElementById("loadMoreSentinel");
+    var indicator = document.getElementById("loadMoreIndicator");
+    var endMsg = document.getElementById("loadMoreEnd");
 
-    var revealed = { latest: BATCH, hot: BATCH, recommended: BATCH };
-    var currentTab = 'latest';
+    var revealed: Record<string, number> = {
+      latest: BATCH,
+      hot: BATCH,
+      recommended: BATCH,
+    };
+    var currentTab = "latest";
     var loading = false;
 
-    function getVisibleItems() {
-      return grid.querySelectorAll('.post-item[data-tab="' + currentTab + '"]');
+    function getVisibleItems(): NodeListOf<HTMLElement> {
+      return grid!.querySelectorAll<HTMLElement>(
+        '.post-item[data-tab="' + currentTab + '"]',
+      );
     }
 
-    function getTotal(tab) {
-      return grid.querySelectorAll('.post-item[data-tab="' + tab + '"]').length;
+    function getTotal(tab: string): number {
+      return grid!.querySelectorAll('.post-item[data-tab="' + tab + '"]')
+        .length;
     }
 
-    function updateSentinel() {
+    function updateSentinel(): void {
       var total = getTotal(currentTab);
       if (revealed[currentTab] >= total) {
-        indicator.style.display = 'none';
-        endMsg.style.display = total > BATCH ? '' : 'none';
+        indicator!.style.display = "none";
+        endMsg!.style.display = total > BATCH ? "" : "none";
       } else {
-        indicator.style.display = 'none';
-        endMsg.style.display = 'none';
+        indicator!.style.display = "none";
+        endMsg!.style.display = "none";
       }
     }
-
-    function revealMore() {
+    function revealMore(): void {
       if (loading) return;
       var total = getTotal(currentTab);
       if (revealed[currentTab] >= total) {
@@ -167,18 +294,20 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
       }
 
       loading = true;
-      indicator.style.display = '';
+      indicator!.style.display = "";
 
       var items = getVisibleItems();
       var start = revealed[currentTab];
       var end = Math.min(start + BATCH, total);
 
-      setTimeout(function() {
+      setTimeout(function () {
         for (var i = start; i < end; i++) {
           if (items[i]) {
-            items[i].style.display = '';
-            var imgs = items[i].querySelectorAll('img[loading="lazy"]');
-            imgs.forEach(function(img) {
+            items[i].style.display = "";
+            var imgs = items[i].querySelectorAll<HTMLImageElement>(
+              'img[loading="lazy"]',
+            );
+            imgs.forEach(function (img) {
               if (img.dataset.src) {
                 img.src = img.dataset.src;
               }
@@ -187,42 +316,50 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
         }
         revealed[currentTab] = end;
         loading = false;
-        indicator.style.display = 'none';
+        indicator!.style.display = "none";
         updateSentinel();
       }, 300);
     }
 
-    tabs.forEach(function(tab) {
-      tab.addEventListener('click', function(e) {
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function (e: Event) {
         e.preventDefault();
-        var target = this.getAttribute('data-tab');
+        var target = (this as HTMLAnchorElement).getAttribute("data-tab");
         if (target === currentTab) return;
 
-        tabs.forEach(function(t) { t.classList.remove('active'); });
-        this.classList.add('active');
+        tabs.forEach(function (t) {
+          t.classList.remove("active");
+        });
+        var target = (this as HTMLAnchorElement).getAttribute("data-tab");
+        if (target === currentTab) return;
 
-        var oldItems = grid.querySelectorAll('.post-item[data-tab="' + currentTab + '"]');
-        oldItems.forEach(function(c) { c.style.display = 'none'; });
-
-        currentTab = target;
-        endMsg.style.display = 'none';
-        indicator.style.display = 'none';
+        tabs.forEach(function (t) {
+          t.classList.remove("active");
+        });
+        var oldItems = grid!.querySelectorAll<HTMLElement>(
+          '.post-item[data-tab="' + currentTab + '"]',
+        );
+        oldItems.forEach(function (c) {
+          c.style.display = "none";
+        });
 
         var newItems = getVisibleItems();
-        newItems.forEach(function(c, i) {
-          c.style.display = i < revealed[currentTab] ? '' : 'none';
+        newItems.forEach(function (c, i) {
+          c.style.display = i < revealed[currentTab] ? "" : "none";
         });
         updateSentinel();
       });
     });
 
-    var observer = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        revealMore();
-      }
-    }, { rootMargin: '200px' });
+    var observer = new IntersectionObserver(
+      function (entries) {
+        if (entries[0].isIntersecting) {
+          revealMore();
+        }
+      },
+      { rootMargin: "200px" },
+    );
 
-    observer.observe(sentinel);
     updateSentinel();
   });
 </script>

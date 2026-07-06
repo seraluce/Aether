@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { siteConfig } from '../site.config';
-
+ 
 interface Props {
   title: string;
   description?: string;
@@ -14,7 +14,7 @@ interface Props {
   tags?: string[];
   categories?: Array<{ name: string; slug: string; count: number; icon: string }>;
 }
-
+ 
 const {
   title,
   description = siteConfig.site.description,
@@ -26,13 +26,13 @@ const {
   category,
   tags = [],
   categories = siteConfig.categories.map(c => ({ name: c.name, slug: c.slug, count: c.count, icon: c.icon })),
-} = Astro.props;
-
+} = Astro.props as Props;
+ 
 const { site, seo } = siteConfig;
 const fullUrl = new URL(url, site.url).toString();
 const fullImage = image.startsWith('http') ? image : new URL(image, site.url).toString();
 ---
-
+ 
 <!doctype html>
 <html lang={site.language} data-theme="">
   <head>
@@ -59,7 +59,7 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {author && <meta property="article:author" content={author} />}
     {category && <meta property="article:section" content={category} />}
-    {tags.map((tag) => <meta property="article:tag" content={tag} />)}
+    {tags.map((tag: string) => <meta property="article:tag" content={tag} />)}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -100,12 +100,9 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           <img src="/images/logo.png" alt={site.name} width="28" height="28" />
           {site.name}
         </a>
-        <nav class="header-nav">
-          {categories.slice(0, 6).map((cat) => (
-            <a href={`/category/${cat.slug}`}>{cat.name}</a>
-          ))}
-        </nav>
+ 
         <div class="header-spacer"></div>
+        
         <div class="header-actions">
           <div class="header-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -115,6 +112,11 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
               <input type="text" name="q" placeholder="搜索..." />
             </form>
           </div>
+          <button class="header-theme-toggle" id="headerThemeToggle" aria-label="切换主题">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            <svg class="icon-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </button>
           <button class="mobile-menu-btn" aria-label="菜单" id="menuBtn">
             <svg class="menu-icon-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -124,9 +126,14 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
             </svg>
           </button>
         </div>
+        <nav class="header-nav">
+          {categories.slice(0, 6).map((cat) => (
+            <a href={`/category/${cat.slug}`}>{cat.name}</a>
+          ))}
+        </nav>
       </div>
     </header>
-
+ 
     <div class="mobile-dropdown" id="mobileDropdown">
       <div class="mobile-dropdown-inner">
         <div class="mobile-section">
@@ -167,15 +174,15 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
         </div>
       </div>
     </div>
-
+ 
     <slot />
-
-    <button class="theme-fab" id="themeFab" aria-label="切换主题">
+ 
+    <!-- <button class="theme-fab" id="themeFab" aria-label="切换主题">
       <svg class="fab-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <svg class="fab-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       <svg class="fab-icon-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-    </button>
-
+    </button> -->
+ 
     <script is:inline>
       function setTheme(mode) {
         localStorage.setItem('theme', mode);
@@ -184,12 +191,19 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           b.classList.toggle('active', b.getAttribute('data-theme') === mode);
         });
         updateFabIcon(mode);
+        updateHeaderToggleIcon(mode);
       }
       function updateFabIcon(mode) {
         var fab = document.getElementById('themeFab');
         if (!fab) return;
         fab.classList.remove('mode-light', 'mode-dark', 'mode-auto');
         fab.classList.add('mode-' + (mode || 'auto'));
+      }
+      function updateHeaderToggleIcon(mode) {
+        var btn = document.getElementById('headerThemeToggle');
+        if (!btn) return;
+        btn.classList.remove('mode-light', 'mode-dark', 'mode-auto');
+        btn.classList.add('mode-' + (mode || 'auto'));
       }
       document.addEventListener('DOMContentLoaded', function() {
         var current = localStorage.getItem('theme') || '';
@@ -198,9 +212,18 @@ const fullImage = image.startsWith('http') ? image : new URL(image, site.url).to
           btn.addEventListener('click', function() { setTheme(this.getAttribute('data-theme')); });
         });
         updateFabIcon(current);
+        updateHeaderToggleIcon(current);
         var fab = document.getElementById('themeFab');
         if (fab) {
           fab.addEventListener('click', function() {
+            var mode = localStorage.getItem('theme') || '';
+            var next = mode === '' ? 'light' : mode === 'light' ? 'dark' : '';
+            setTheme(next);
+          });
+        }
+        var headerToggle = document.getElementById('headerThemeToggle');
+        if (headerToggle) {
+          headerToggle.addEventListener('click', function() {
             var mode = localStorage.getItem('theme') || '';
             var next = mode === '' ? 'light' : mode === 'light' ? 'dark' : '';
             setTheme(next);

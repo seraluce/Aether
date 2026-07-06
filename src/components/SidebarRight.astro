@@ -7,7 +7,7 @@ interface Props {
   tags: string[];
 }
 
-const { hotPosts, tags } = Astro.props;
+const { hotPosts = [], tags = [] } = Astro.props as Props;
 const tagsLimit = siteConfig.widgets.tagsCount || 10;
 const visibleTags = tags.slice(0, tagsLimit);
 const hasMoreTags = tags.length > tagsLimit;
