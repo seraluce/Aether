@@ -1,4 +1,13 @@
 import { wpConfig } from '../config';
+import { siteConfig } from '../site.config';
+
+function getSiteUrl(): string {
+  try {
+    const envUrl = (globalThis as any).process?.env?.WP_SITE_URL;
+    if (envUrl) return envUrl;
+  } catch {}
+  return siteConfig.wordpress.siteUrl;
+}
 
 export interface WPPost {
   id: number;
@@ -75,7 +84,7 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
   const cached = getCached<T>(cacheKey);
   if (cached) return cached;
 
-  const url = new URL(`${wpConfig.siteUrl}${wpConfig.apiBase}${endpoint}`);
+  const url = new URL(`${getSiteUrl()}${wpConfig.apiBase}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
   const res = await fetch(url.toString(), {
@@ -92,7 +101,7 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
 }
 
 async function wpFetchWithHeaders(endpoint: string, params: Record<string, string> = {}): Promise<{ data: unknown; total: number; totalPages: number }> {
-  const url = new URL(`${wpConfig.siteUrl}${wpConfig.apiBase}${endpoint}`);
+  const url = new URL(`${getSiteUrl()}${wpConfig.apiBase}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
   const res = await fetch(url.toString(), {
