@@ -1,5 +1,9 @@
 # Cloudflare Pages 部署指南
 
+## 运行模式
+
+本项目使用 **SSR（服务端渲染）模式**，每次访问实时从 WordPress API 获取数据，无需重新构建即可显示新发布的文章。
+
 ## 快速部署
 
 ### 方式一：通过 Cloudflare Dashboard（推荐）
@@ -47,10 +51,10 @@ npm run deploy
 
 ## 注意事项
 
-- 静态模式会在构建时获取 WordPress 数据
-- 更新内容后需要重新部署（可配置定时触发）
+- SSR 模式每次访问实时获取 WordPress 数据，新文章即时显示
+- 内置内存缓存，相同请求在缓存有效期内不会重复请求 WordPress API
 - 图片建议使用 CDN 或 WordPress 媒体库
-- 构建时如无法连接 WordPress API，会自动使用 mock 数据
+- 如无法连接 WordPress API，会自动使用 mock 数据
 
 ## 本地预览
 
