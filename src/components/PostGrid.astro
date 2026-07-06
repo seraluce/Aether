@@ -30,33 +30,33 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
   </div>
 </div>
 
-<div class="post-grid" id="postGrid">
+<div class="post-list" id="postGrid">
   {sortedByDate.map((post, index) => (
-    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="latest" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+    <article class="post-item" data-tab="latest" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       {post.image && (
-      <div class="post-card-image-wrapper">
-        <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
+      <a href={`/post/${post.id}`} class="post-item-image-link">
+        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </div>
+      </a>
       )}
-      <div class="post-card-body">
-        <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
-        <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-card-excerpt">{post.excerpt}</p>
-        <div class="post-card-meta">
-          <div class="meta-left">
-            <span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              {post.author}
-            </span>
-            <span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              {formatDate(post.date)}
-            </span>
-          </div>
-          <span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <div class="post-item-content">
+        <div class="post-item-top">
+          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
+          <span class="post-item-views">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             {formatViews(post.views)}
+          </span>
+        </div>
+        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
+        <p class="post-item-excerpt">{post.excerpt}</p>
+        <div class="post-item-meta">
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {post.author}
+          </span>
+          <span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {formatDate(post.date)}
           </span>
         </div>
       </div>
@@ -64,46 +64,52 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
   ))}
 
   {sortedByViews.map((post, index) => (
-    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="hot" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+    <article class="post-item" data-tab="hot" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       {post.image && (
-      <div class="post-card-image-wrapper">
-        <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
+      <a href={`/post/${post.id}`} class="post-item-image-link">
+        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </div>
+      </a>
       )}
-      <div class="post-card-body">
-        <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
-        <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-card-excerpt">{post.excerpt}</p>
-        <div class="post-card-meta">
-          <div class="meta-left">
-            <span>{post.author}</span>
-            <span>{formatDate(post.date)}</span>
-          </div>
-          <span>{formatViews(post.views)} 阅读</span>
+      <div class="post-item-content">
+        <div class="post-item-top">
+          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
+          <span class="post-item-views">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            {formatViews(post.views)}
+          </span>
+        </div>
+        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
+        <p class="post-item-excerpt">{post.excerpt}</p>
+        <div class="post-item-meta">
+          <span>{post.author}</span>
+          <span>{formatDate(post.date)}</span>
         </div>
       </div>
     </article>
   ))}
 
   {recommended.map((post, index) => (
-    <article class={`post-card lazy-card ${index === 0 ? 'post-featured' : ''}`} data-tab="recommended" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
+    <article class="post-item" data-tab="recommended" data-index={index} style={index >= 12 ? 'display:none;' : ''}>
       {post.image && (
-      <div class="post-card-image-wrapper">
-        <img class="post-card-image" src={post.image} alt={post.title} loading="lazy"
+      <a href={`/post/${post.id}`} class="post-item-image-link">
+        <img class="post-item-image" src={post.image} alt={post.title} loading="lazy"
           onload="this.classList.add('loaded');this.parentElement.classList.add('loaded')" />
-      </div>
+      </a>
       )}
-      <div class="post-card-body">
-        <a href={`/category/${post.categorySlug}`} class="post-card-category">{post.category}</a>
-        <h3 class="post-card-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
-        <p class="post-card-excerpt">{post.excerpt}</p>
-        <div class="post-card-meta">
-          <div class="meta-left">
-            <span>{post.author}</span>
-            <span>{formatDate(post.date)}</span>
-          </div>
-          <span>{formatViews(post.views)} 阅读</span>
+      <div class="post-item-content">
+        <div class="post-item-top">
+          <a href={`/category/${post.categorySlug}`} class="post-item-category">{post.category}</a>
+          <span class="post-item-views">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            {formatViews(post.views)}
+          </span>
+        </div>
+        <h3 class="post-item-title"><a href={`/post/${post.id}`}>{post.title}</a></h3>
+        <p class="post-item-excerpt">{post.excerpt}</p>
+        <div class="post-item-meta">
+          <span>{post.author}</span>
+          <span>{formatDate(post.date)}</span>
         </div>
       </div>
     </article>
@@ -133,12 +139,12 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
     var currentTab = 'latest';
     var loading = false;
 
-    function getVisibleCards() {
-      return grid.querySelectorAll('.post-card[data-tab="' + currentTab + '"]');
+    function getVisibleItems() {
+      return grid.querySelectorAll('.post-item[data-tab="' + currentTab + '"]');
     }
 
     function getTotal(tab) {
-      return grid.querySelectorAll('.post-card[data-tab="' + tab + '"]').length;
+      return grid.querySelectorAll('.post-item[data-tab="' + tab + '"]').length;
     }
 
     function updateSentinel() {
@@ -163,15 +169,15 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
       loading = true;
       indicator.style.display = '';
 
-      var cards = getVisibleCards();
+      var items = getVisibleItems();
       var start = revealed[currentTab];
       var end = Math.min(start + BATCH, total);
 
       setTimeout(function() {
         for (var i = start; i < end; i++) {
-          if (cards[i]) {
-            cards[i].style.display = '';
-            var imgs = cards[i].querySelectorAll('img[loading="lazy"]');
+          if (items[i]) {
+            items[i].style.display = '';
+            var imgs = items[i].querySelectorAll('img[loading="lazy"]');
             imgs.forEach(function(img) {
               if (img.dataset.src) {
                 img.src = img.dataset.src;
@@ -195,15 +201,15 @@ const recommended = posts.filter((_, i) => i % 2 === 0);
         tabs.forEach(function(t) { t.classList.remove('active'); });
         this.classList.add('active');
 
-        var oldCards = grid.querySelectorAll('.post-card[data-tab="' + currentTab + '"]');
-        oldCards.forEach(function(c) { c.style.display = 'none'; });
+        var oldItems = grid.querySelectorAll('.post-item[data-tab="' + currentTab + '"]');
+        oldItems.forEach(function(c) { c.style.display = 'none'; });
 
         currentTab = target;
         endMsg.style.display = 'none';
         indicator.style.display = 'none';
 
-        var newCards = getVisibleCards();
-        newCards.forEach(function(c, i) {
+        var newItems = getVisibleItems();
+        newItems.forEach(function(c, i) {
           c.style.display = i < revealed[currentTab] ? '' : 'none';
         });
         updateSentinel();
