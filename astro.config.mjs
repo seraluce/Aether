@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import icon from 'astro-icon';
 
-const siteUrl = process.env.PUBLIC_WP_SITE_URL || 'https://www.frbkw.com';
+const siteUrl = process.env.WP_SITE_URL;
 
 export default defineConfig({
   site: siteUrl,
