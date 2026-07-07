@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0 --port 4321",
+    "dev": "astro dev --host 0.0.0.0 --port 4300",
     "build": "astro build",
     "preview": "wrangler pages dev dist",
     "deploy": "wrangler pages deploy dist"
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@iconify-json/simple-icons": "^1.2.89",
+    "astro-headers-file": "^2.0.0",
     "wrangler": "^4.107.0"
   }
 }

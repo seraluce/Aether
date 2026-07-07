@@ -123,7 +123,7 @@ export const siteConfig = {
       { name: "Email", url: "mailto:hello@example.com", icon: "gmail" },
       {
         name: "哔哩哔哩",
-        url: "https://twitter.com/seraluce",
+        url: "https://space.bilibili.com/",
         icon: "bilibili",
       },
     ],

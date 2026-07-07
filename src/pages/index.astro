@@ -1,5 +1,6 @@
 ---
-// src/pages/index.astro
+export const prerender = true;
+
 import Layout from "../layouts/Layout.astro";
 import SidebarLeft from "../components/SidebarLeft.astro";
 import SidebarRight from "../components/SidebarRight.astro";
@@ -7,7 +8,6 @@ import PostGrid from "../components/PostGrid.astro";
 import { fetchSiteData } from "../data/fetcher";
 import { siteConfig } from "../site.config";
 
-// ✅ 构建时获取数据（用于 SEO 和首屏）
 const initialData = await fetchSiteData();
 const siteData = initialData.error ? null : initialData;
 
@@ -25,115 +25,18 @@ const pageTitle = `${siteConfig.site.name} - ${siteConfig.site.slogan}`;
   logo={siteLogo}
   categories={siteData?.categories || []}
 >
-  <!-- ✅ 首屏使用构建时数据（SEO 友好） -->
-  <div id="app">
-    <main class="main-layout">
-      <aside class="sidebar-left">
-        <SidebarLeft categories={siteData?.categories || []} />
-      </aside>
-      <section class="content-area">
-        <PostGrid posts={siteData?.posts || []} />
-      </section>
-      <aside class="sidebar-right">
-        <SidebarRight 
-          hotPosts={siteData?.hotPosts || []} 
-          tags={siteData?.tags || []} 
-        />
-      </aside>
-    </main>
-  </div>
-
-  <!-- ⚠️ 加载最新数据的指示器（用户可见） -->
-  <div id="updating" style="display:none;text-align:center;padding:10px;background:#f0f8ff;border-radius:4px;margin:10px 0;">
-    <small>正在加载最新文章...</small>
-  </div>
-
-  <!-- ✅ 客户端脚本：静默更新数据 -->
-  <script>
-    // 页面加载完成后，在后台获取最新数据
-    document.addEventListener('DOMContentLoaded', async () => {
-      const updatingEl = document.getElementById('updating');
-      
-      try {
-        // 显示更新提示
-        updatingEl.style.display = 'block';
-
-        // 获取最新数据
-        const siteUrl = import.meta.env.PUBLIC_WP_SITE_URL || 'https://www.frbkw.com';
-        const response = await fetch(`${siteUrl}/wp-json/wp/v2/posts?_embed&per_page=20`);
-        const latestPosts = await response.json();
-
-        // 如果有新数据，更新页面
-        if (latestPosts && latestPosts.length > 0) {
-          updatePosts(latestPosts);
-        }
-
-        // 隐藏更新提示（2秒后淡出）
-        setTimeout(() => {
-          updatingEl.style.display = 'none';
-        }, 2000);
-
-      } catch (error) {
-        console.log('后台更新失败，使用缓存数据');
-        updatingEl.style.display = 'none';
-      }
-    });
-
-    // 更新文章列表（不刷新页面）
-    function updatePosts(newPosts) {
-      const postGrid = document.querySelector('.post-grid');
-      if (!postGrid) return;
-
-      // 检查是否有新文章（比较第一篇文章的 ID）
-      const firstPostId = postGrid.querySelector('.post-card')?.dataset?.postId;
-      if (firstPostId && newPosts[0]?.id === parseInt(firstPostId)) {
-        console.log('没有新文章');
-        return;
-      }
-
-      // 更新文章列表
-      const newHTML = newPosts.map(post => `
-        <article class="post-card" data-post-id="${post.id}">
-          <h2><a href="/post/${post.id}">${post.title.rendered}</a></h2>
-          <div class="post-excerpt">${post.excerpt?.rendered || ''}</div>
-          <div class="post-meta">
-            <span>${new Date(post.date).toLocaleDateString('zh-CN')}</span>
-          </div>
-        </article>
-      `).join('');
-
-      // 替换内容
-      postGrid.innerHTML = newHTML;
-
-      // 显示新文章提示
-      const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-      `;
-      toast.textContent = `📰 已更新 ${newPosts.length} 篇文章`;
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-      }, 3000);
-    }
-  </script>
-
-  <style>
-    @keyframes slideIn {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-  </style>
+  <main class="main-layout">
+    <aside class="sidebar-left">
+      <SidebarLeft categories={siteData?.categories || []} />
+    </aside>
+    <section class="content-area">
+      <PostGrid posts={siteData?.posts || []} />
+    </section>
+    <aside class="sidebar-right">
+      <SidebarRight 
+        hotPosts={siteData?.hotPosts || []} 
+        tags={siteData?.tags || []} 
+      />
+    </aside>
+  </main>
 </Layout>

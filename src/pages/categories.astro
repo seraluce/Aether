@@ -1,90 +1,121 @@
 ---
-// src/pages/categories.astro
-import Layout from '../layouts/Layout.astro';
-import { siteConfig, validateWordPressConfig, wpApi } from '../site.config';
+export const prerender = true;
 
-// ✅ 验证配置
-validateWordPressConfig();
+import Layout from "../layouts/Layout.astro";
+import SidebarLeft from "../components/SidebarLeft.astro";
+import SidebarRight from "../components/SidebarRight.astro";
+import { fetchSiteData } from "../data/fetcher";
+import { mockData } from "../data/mock";
+import { siteConfig } from "../site.config";
 
-const { wordpress } = siteConfig;
-
-// ✅ 使用辅助方法构建 URL
-const categoriesUrl = wordpress.categoriesUrl;
-
-console.log('Categories URL:', categoriesUrl);
-
-let categories = [];
-let error = null;
-
-try {
-  // ✅ 使用封装的 API 函数
-  categories = await wpApi.getCategories();
-} catch (err) {
-  error = err.message;
-  console.error('获取分类失败:', err);
-}
+const data = await fetchSiteData();
+const siteData = data.error ? mockData : data;
+const categories = siteData.categories;
+const siteFavicon = siteConfig.site.favicon;
+const siteLogo = siteConfig.site.logo.light;
 ---
 
-<Layout title="分类">
-  <div class="container">
-    <h1>分类导航</h1>
-    
-    {error && (
-      <div class="error-box">
-        <p>❌ 加载失败: {error}</p>
-        <p>站点地址: {wordpress.siteUrl || '未配置'}</p>
-        <p>API地址: {categoriesUrl || '未生成'}</p>
+<Layout
+  title="全部分类"
+  url="/categories"
+  favicon={siteFavicon}
+  icon={siteFavicon}
+  logo={siteLogo}
+  categories={siteData.categories}
+>
+  <main class="main-layout">
+    <aside class="sidebar-left">
+      <SidebarLeft categories={siteData.categories} />
+    </aside>
+    <section class="content-area">
+      <div class="content-header">
+        <h2 class="content-title">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            style="vertical-align: -3px; margin-right: 6px;"
+          >
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          全部分类
+          <span
+            style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;"
+            >{categories.length} 个分类</span
+          >
+        </h2>
       </div>
-    )}
-    
-    {!error && categories.length === 0 && (
-      <p>暂无分类数据</p>
-    )}
-    
-    {!error && categories.length > 0 && (
-      <ul class="category-list">
-        {categories.map(cat => (
-          <li key={cat.id}>
-            <a href={wordpress.getPostLink(cat.slug)}>
-              {cat.name} 
-              <span class="count">({cat.count})</span>
-            </a>
-          </li>
+      <div class="category-grid">
+        {categories.map((cat) => (
+          <a href={`/topic/${cat.slug}`} class="category-card">
+            <div class="category-icon">{cat.icon || '📁'}</div>
+            <div class="category-info">
+              <h3 class="category-name">{cat.name}</h3>
+              <span class="category-count">{cat.count} 篇文章</span>
+            </div>
+          </a>
         ))}
-      </ul>
-    )}
-  </div>
+      </div>
+      {categories.length === 0 && (
+        <div class="sidebar-card" style="padding: 60px 40px; text-align: center;">
+          <p style="color: var(--fg-muted);">暂无分类</p>
+        </div>
+      )}
+    </section>
+    <aside class="sidebar-right">
+      <SidebarRight hotPosts={siteData.hotPosts} tags={siteData.tags} />
+    </aside>
+  </main>
 </Layout>
 
 <style>
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
   }
-  .error-box {
-    background: #fee;
-    border: 1px solid #fcc;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
-  }
-  .category-list {
-    list-style: none;
-    padding: 0;
-  }
-  .category-list li {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
-  }
-  .category-list li a {
+
+  .category-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
     text-decoration: none;
-    color: #0070f3;
-    font-weight: 500;
+    color: inherit;
+    transition: all 0.2s ease;
   }
-  .count {
-    color: #999;
-    font-size: 0.85rem;
-    font-weight: normal;
+
+  .category-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .category-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .category-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .category-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--fg);
+  }
+
+  .category-count {
+    font-size: 12px;
+    color: var(--fg-muted);
   }
 </style>

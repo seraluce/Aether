@@ -1,12 +1,24 @@
 ---
-import { getPosts, getCategories, getAllPosts } from '../../lib/wordpress';
+import { getCategories, getPostsByCategory } from '../../lib/wordpress';
 import { mapPost, mapCategory } from '../../lib/mappers';
 import type { Post } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
+import { wpConfig } from '../../config';
 
 function isAsciiSlug(slug: string): boolean {
   return /^[\w-]+$/.test(slug);
+}
+
+export async function getStaticPaths() {
+  try {
+    const cats = await getCategories();
+    return cats.map((cat) => ({
+      params: { slug: cat.slug },
+    }));
+  } catch {
+    return [];
+  }
 }
 
 const { slug } = Astro.params;
@@ -16,24 +28,19 @@ let category: { name: string; slug: string; count: number; icon: string } | null
 let posts: Post[] = [];
 
 try {
-  const [cats, wpPosts] = await Promise.all([
-    getCategories(),
-    getAllPosts(),
-  ]);
+  const cats = await getCategories();
 
-  const validCats = cats.filter((c) => isAsciiSlug(c.slug));
-  wpCategories = validCats.map((c) => ({
+  wpCategories = cats.map((c) => ({
     name: c.name, slug: c.slug, count: c.count,
     icon: (c as any).icon || '',
   }));
 
-  const found = cats.find((c) => c.slug === slug);
+  const found = cats.find((c) => decodeURIComponent(c.slug) === slug);
   if (found) {
     category = mapCategory(found);
+    const wpPosts = await getPostsByCategory(found.id, 1, wpConfig.perPage);
+    posts = wpPosts.map(mapPost);
   }
-
-  const allMapped = wpPosts.map(mapPost);
-  posts = allMapped.filter((p) => p.categorySlug === slug);
 } catch {
   posts = [];
 }

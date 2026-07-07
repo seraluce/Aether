@@ -1,7 +1,6 @@
 // src/lib/wordpress.ts
 import { wpConfig } from '../config';
 
-// ✅ 简化：直接返回 wpConfig.siteUrl
 function getSiteUrl(): string {
   return wpConfig.siteUrl;
 }
@@ -84,36 +83,60 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
   const url = new URL(`${getSiteUrl()}${wpConfig.apiBase}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
-  const res = await fetch(url.toString(), {
-    headers: { 'Accept': 'application/json' },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  if (!res.ok) {
-    throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+    }
+
+    const data = await res.json() as T;
+    setCache(cacheKey, data);
+    return data;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-
-  const data = await res.json() as T;
-  setCache(cacheKey, data);
-  return data;
 }
 
 async function wpFetchWithHeaders(endpoint: string, params: Record<string, string> = {}): Promise<{ data: unknown; total: number; totalPages: number }> {
   const url = new URL(`${getSiteUrl()}${wpConfig.apiBase}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
-  const res = await fetch(url.toString(), {
-    headers: { 'Accept': 'application/json' },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  if (!res.ok) {
-    throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+  try {
+    const res = await fetch(url.toString(), {
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+    }
+
+    const total = parseInt(res.headers.get('X-WP-Total') || '0', 10);
+    const totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
+    const data = await res.json();
+    return { data, total, totalPages };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-
-  const total = parseInt(res.headers.get('X-WP-Total') || '0', 10);
-  const totalPages = parseInt(res.headers.get('X-WP-TotalPages') || '1', 10);
-  const data = await res.json();
-  return { data, total, totalPages };
 }
+
+const LIST_FIELDS = 'id,date,title,excerpt,slug,categories,tags,author,featured_media';
 
 export async function getTotalPosts(): Promise<{ total: number; totalPages: number }> {
   const result = await wpFetchWithHeaders('/posts', {
@@ -124,7 +147,8 @@ export async function getTotalPosts(): Promise<{ total: number; totalPages: numb
   return { total: result.total, totalPages: result.totalPages };
 }
 
-export async function getAllPosts(): Promise<WPPost[]> {
+export async function getAllPosts(limitPages = 5): Promise<WPPost[]> {
+  const perPage = 50;
   let totalPages = 1;
   try {
     const result = await getTotalPosts();
@@ -133,19 +157,16 @@ export async function getAllPosts(): Promise<WPPost[]> {
     return [];
   }
 
-  const maxPages = Math.min(totalPages, 20);
-  const batchSize = 5;
+  const maxPages = Math.min(totalPages, limitPages);
   const allPosts: WPPost[] = [];
+  const batch = [];
 
-  for (let start = 1; start <= maxPages; start += batchSize) {
-    const end = Math.min(start + batchSize - 1, maxPages);
-    const batch = [];
-    for (let page = start; page <= end; page++) {
-      batch.push(getPosts(page, wpConfig.perPage).catch(() => [] as WPPost[]));
-    }
-    const results = await Promise.all(batch);
-    allPosts.push(...results.flat());
+  for (let page = 1; page <= maxPages; page++) {
+    batch.push(getPosts(page, perPage).catch(() => [] as WPPost[]));
   }
+
+  const results = await Promise.all(batch);
+  allPosts.push(...results.flat());
 
   return allPosts;
 }
@@ -162,7 +183,6 @@ export async function getPost(slug: string): Promise<WPPost> {
   const posts = await wpFetch<WPPost[]>('/posts', {
     _embed: 'true',
     slug,
-    _fields: 'id,date,title,excerpt,slug,categories,tags,author,featured_media',
   });
   return posts[0];
 }
@@ -187,13 +207,21 @@ export async function getTags(): Promise<WPTag[]> {
   });
 }
 
-export async function getPostsByCategory(categorySlug: string, page = 1): Promise<WPPost[]> {
+export async function getPostsByCategory(categoryId: number, page = 1, perPage = wpConfig.perPage): Promise<WPPost[]> {
   return wpFetch<WPPost[]>('/posts', {
     _embed: 'true',
-    categories: categorySlug,
+    categories: String(categoryId),
     page: String(page),
-    per_page: String(wpConfig.perPage),
-    _fields: 'id,date,title,excerpt,slug,categories,tags,author,featured_media',
+    per_page: String(perPage),
+  });
+}
+
+export async function getPostsByTag(tagId: number, page = 1, perPage = wpConfig.perPage): Promise<WPPost[]> {
+  return wpFetch<WPPost[]>('/posts', {
+    _embed: 'true',
+    tags: String(tagId),
+    page: String(page),
+    per_page: String(perPage),
   });
 }
 
@@ -202,7 +230,6 @@ export async function searchPosts(query: string): Promise<WPPost[]> {
     _embed: 'true',
     search: query,
     per_page: '10',
-    _fields: 'id,date,title,excerpt,slug,categories,tags,author,featured_media',
   });
 }
 

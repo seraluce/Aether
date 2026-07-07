@@ -1,11 +1,25 @@
 ---
-import { getPostById, getAllPosts, getCategories } from "../../lib/wordpress";
+export const prerender = true;
+
+import { getPostById, getPosts, getCategories } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
 import Layout from "../../layouts/Layout.astro";
 import ArticleActions from "../../components/ArticleActions.astro";
 import ArticleSidebar from "../../components/ArticleSidebar.astro";
 import { siteConfig } from "../../site.config";
+import { wpConfig } from "../../config";
+
+export async function getStaticPaths() {
+  try {
+    const posts = await getPosts(1, Math.min(wpConfig.perPage, 30));
+    return posts.map((post) => ({
+      params: { id: String(post.id) },
+    }));
+  } catch {
+    return [];
+  }
+}
 
 const { id } = Astro.params;
 const siteLogo = siteConfig.site.logo.light;
@@ -13,7 +27,7 @@ const siteFavicon = siteConfig.site.favicon;
 const siteIcon = siteConfig.site.favicon
 
 let post: WPPost | null = null;
-let allPosts: WPPost[] = [];
+let recentPosts: WPPost[] = [];
 let wpCategories: Array<{
   name: string;
   slug: string;
@@ -22,8 +36,11 @@ let wpCategories: Array<{
 }> = [];
 
 try {
-  const [wpPosts, wpCats] = await Promise.all([getAllPosts(), getCategories()]);
-  allPosts = wpPosts;
+  const [wpPosts, wpCats] = await Promise.all([
+    getPosts(1, Math.min(wpConfig.perPage, 20)),
+    getCategories(),
+  ]);
+  recentPosts = wpPosts;
   wpCategories = wpCats.map(mapCategory);
 } catch {
   // fallback: empty data
@@ -61,7 +78,7 @@ const tagSlugs =
 
 const pageUrl = `/article/${id}`;
 
-const relatedPosts = allPosts
+const relatedPosts = recentPosts
   .filter((p: WPPost) => String(p.id) !== id)
   .slice(0, 4)
   .map((p: WPPost) => ({
