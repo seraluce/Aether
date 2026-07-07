@@ -7,7 +7,7 @@ const siteUrl = import.meta.env.WP_SITE_URL;
 export const siteConfig = {
   // 站点基本信息
   site: {
-    name: "Grok",
+    name: "峰瑞博客网",
     shortName: "BLOG",
     slogan: "最新最全的新闻资讯平台",
     description:
