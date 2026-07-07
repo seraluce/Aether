@@ -8,5 +8,5 @@ export default defineConfig({
   site: siteUrl,
   output: 'static',  // 静态模式
   integrations: [icon()],
-  adapter: cloudflare(),
+  /*adapter: cloudflare(),*/
 });
