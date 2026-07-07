@@ -1,20 +1,27 @@
 // ============================================================
 // 站点配置文件 — 所有站点设置集中在这里修改
+
 // ============================================================
 const siteUrl = import.meta.env.WP_SITE_URL;
 
 export const siteConfig = {
   // 站点基本信息
   site: {
-    name: "丰瑞博客网",
+    name: "Grok",
     shortName: "BLOG",
     slogan: "最新最全的新闻资讯平台",
     description:
       "最新最全的新闻资讯平台，涵盖科技、财经、体育、娱乐、国际等多个领域",
     url: "https://www.kovel.com",
+    type: "website",
     language: "zh-CN",
     timezone: "Asia/Shanghai",
-    icon: '/images/logo.png',
+    logo: {
+      dark: "logo-dark.svg",
+      light: "logo.svg"
+    },
+
+    favicon: "images/logo.png",
   },
 
   // SEO & 社交分享
@@ -42,60 +49,57 @@ export const siteConfig = {
 
   // 页脚链接
   footerLinks: [
-    { name: "首页", href: "/" },
-    { name: "科技", href: "/topic/tech" },
-    { name: "财经", href: "/topic/finance" },
-    { name: "体育", href: "/topic/sports" },
-    { name: "娱乐", href: "/topic/entertainment" },
-    { name: "国际", href: "/topic/world" },
+    { name: "关于", href: "/about" },
+    { name: "归档", href: "/archive" },
+    { name: "标签", href: "/tags" },
     { name: "地图", href: "/sitemap.xml" },
   ],
 
   // WordPress API 配置
   wordpress: {
-    siteUrl: siteUrl || 'https://www.frbkw.com', // 确保有默认值
+    siteUrl: siteUrl || "https://www.frbkw.com", // 确保有默认值
     apiBase: "/wp-json/wp/v2",
     perPage: 30,
     cacheTimeout: 5 * 60 * 1000, // 5 分钟
-    
+
     // ✅ 修复：使用更安全的方法构建 URL
-    getApiUrl(endpoint = '') {
+    getApiUrl(endpoint = "") {
       // 1. 获取基础 URL，并移除末尾可能的斜杠
-      const base = this.siteUrl?.replace(/\/$/, '');
+      const base = this.siteUrl?.replace(/\/$/, "");
       // 2. 获取 API 基础路径，并确保它以一个斜杠开头，但不要有末尾斜杠
-      const apiBase = this.apiBase.replace(/^\/?/, '/').replace(/\/$/, '');
+      const apiBase = this.apiBase.replace(/^\/?/, "/").replace(/\/$/, "");
       // 3. 处理 endpoint，确保它以一个斜杠开头，用于拼接
-      const path = endpoint ? `/${endpoint.replace(/^\/?/, '')}` : '';
+      const path = endpoint ? `/${endpoint.replace(/^\/?/, "")}` : "";
       return `${base}${apiBase}${path}`;
     },
-    
+
     // 常用端点
     get postsUrl() {
-      return this.getApiUrl('posts');
+      return this.getApiUrl("posts");
     },
-    
+
     get categoriesUrl() {
-      return this.getApiUrl('categories');
+      return this.getApiUrl("categories");
     },
-    
+
     get tagsUrl() {
-      return this.getApiUrl('tags');
+      return this.getApiUrl("tags");
     },
-    
+
     get pagesUrl() {
-      return this.getApiUrl('pages');
+      return this.getApiUrl("pages");
     },
-    
+
     // 获取单个文章
     getPostUrl(id) {
       return this.getApiUrl(`posts/${id}`);
     },
-    
+
     // 获取文章链接（前端链接）
     getPostLink(slug) {
-      const base = this.siteUrl?.replace(/\/$/, '');
+      const base = this.siteUrl?.replace(/\/$/, "");
       return `${base}/${slug}`;
-    }
+    },
   },
 
   // 主题配置
@@ -104,24 +108,24 @@ export const siteConfig = {
     accentColor: "#0070f3",
   },
 
-  // 社交链接（可选，显示在右侧栏底部）
-  social: [
-    { name: "GitHub", url: "https://github.com/seraluce", icon: "github" },
-    { name: "Twitter", url: "https://twitter.com/seraluce", icon: "twitter" },
-    { name: "Email", url: "mailto:hello@example.com", icon: "email" },
-  ],
-
   // 个人主页 / 关于我
   about: {
     avatar: "/images/logo.png",
-    name: "资讯新闻",
     bio: "一个热爱技术与内容创作的开发者，专注于分享科技、互联网领域的优质内容。",
     description:
       "欢迎来到我的资讯站点。这里汇聚科技、财经、体育、娱乐等多领域的新闻资讯，致力于为您提供最新、最全的阅读体验。",
+
+    // 社交链接（可选，显示在右侧栏底部）
     social: [
+      { name: "抖音", url: "", icon: "tiktok" },
       { name: "GitHub", url: "https://github.com/seraluce", icon: "github" },
-      { name: "Twitter", url: "https://twitter.com/seraluce", icon: "twitter" },
-      { name: "Email", url: "mailto:hello@example.com", icon: "email" },
+      { name: "X", url: "https://twitter.com/seraluce", icon: "x" },
+      { name: "Email", url: "mailto:hello@example.com", icon: "gmail" },
+      {
+        name: "哔哩哔哩",
+        url: "https://twitter.com/seraluce",
+        icon: "bilibili",
+      },
     ],
   },
 
@@ -129,7 +133,7 @@ export const siteConfig = {
   widgets: {
     search: true,
     hotPosts: true,
-    hotPostsCount: 5,
+    hotPostsCount: 10,
     tags: true,
     tagsCount: 10,
     copyright: true,
@@ -152,20 +156,22 @@ export type SiteConfig = typeof siteConfig;
 
 // ✅ 添加验证函数
 export function validateWordPressConfig() {
-  const { siteUrl} = siteConfig.wordpress;
-  
-  if (!siteUrl || siteUrl === 'undefined') {
-    console.error('❌ [WordPress] WP_SITE_URL 未正确配置！');
-    console.error('   请在 .env.local 中设置: WP_SITE_URL=https://www.frbkw.com');
+  const { siteUrl } = siteConfig.wordpress;
+
+  if (!siteUrl || siteUrl === "undefined") {
+    console.error("❌ [WordPress] WP_SITE_URL 未正确配置！");
+    console.error(
+      "   请在 .env.local 中设置: WP_SITE_URL=https://www.frbkw.com",
+    );
     return false;
   }
-  
+
   try {
     new URL(siteUrl);
-    console.log('✅ [WordPress] 站点地址有效:', siteUrl);
+    console.log("✅ [WordPress] 站点地址有效:", siteUrl);
     return true;
   } catch {
-    console.error('❌ [WordPress] WP_SITE_URL 格式无效:', siteUrl);
+    console.error("❌ [WordPress] WP_SITE_URL 格式无效:", siteUrl);
     return false;
   }
 }
@@ -175,19 +181,19 @@ export const wpApi = {
   // 获取分类
   getCategories: async () => {
     const url = siteConfig.wordpress.categoriesUrl;
-    if (!url || url.includes('undefined')) {
-      throw new Error('WordPress 站点地址未配置');
+    if (!url || url.includes("undefined")) {
+      throw new Error("WordPress 站点地址未配置");
     }
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   },
-  
+
   // 获取文章列表
   getPosts: async (params = {}) => {
     const url = siteConfig.wordpress.postsUrl;
-    if (!url || url.includes('undefined')) {
-      throw new Error('WordPress 站点地址未配置');
+    if (!url || url.includes("undefined")) {
+      throw new Error("WordPress 站点地址未配置");
     }
     const query = new URLSearchParams(params).toString();
     const fullUrl = query ? `${url}?${query}` : url;
@@ -195,12 +201,12 @@ export const wpApi = {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   },
-  
+
   // 获取单个文章
   getPost: async (id) => {
     const url = siteConfig.wordpress.getPostUrl(id);
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
-  }
+  },
 };

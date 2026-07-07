@@ -10,7 +10,8 @@ import { siteConfig } from "../site.config";
 const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
 const useMock = !!data.error;
-
+const siteFavicon = siteConfig.site.favicon;
+const siteLogo = siteConfig.site.logo.light;
 const pageTitle = `${siteConfig.site.name} - ${siteConfig.site.slogan}`;
 ---
 
@@ -18,6 +19,9 @@ const pageTitle = `${siteConfig.site.name} - ${siteConfig.site.slogan}`;
   title={pageTitle}
   url="/"
   type="website"
+  favicon={siteFavicon}
+  icon={siteFavicon}
+  logo={siteLogo}
   categories={siteData.categories}
 >
   {

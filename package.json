@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",
-    "astro": "^7.0.6"
+    "astro": "^7.0.6",
+    "astro-icon": "^1.1.5",
+    "simple-icons-astro": "^16.1.0"
   },
   "devDependencies": {
+    "@iconify-json/simple-icons": "^1.2.89",
     "wrangler": "^4.107.0"
   },
   "pnpm": {

@@ -1,10 +1,18 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import PostGrid from '../components/PostGrid.astro';
-import { mockData } from '../data/mock';
+import Layout from "../layouts/Layout.astro";
+import PostGrid from "../components/PostGrid.astro";
+import { mockData } from "../data/mock";
+import { siteConfig } from "../site.config";
+
+const siteFavicon = siteConfig.site.favicon;
+const siteLogo = siteConfig.site.logo.light;
+const siteIcon = siteConfig.site.logo.light;
 ---
 
 <Layout title="搜索结果">
+  favicon={siteFavicon}
+  icon={siteIcon}
+  logo={siteLogo}
   <main class="main-layout" style="grid-template-columns: 1fr;">
     <section class="content-area" style="max-width: 900px; margin: 0 auto;">
       <div class="content-header">

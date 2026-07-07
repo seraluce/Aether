@@ -5,8 +5,12 @@ import { mapCategory, mapPost } from "../../lib/mappers";
 import Layout from "../../layouts/Layout.astro";
 import ArticleActions from "../../components/ArticleActions.astro";
 import ArticleSidebar from "../../components/ArticleSidebar.astro";
+import { siteConfig } from "../../site.config";
 
 const { id } = Astro.params;
+const siteLogo = siteConfig.site.logo.light;
+const siteFavicon = siteConfig.site.favicon;
+const siteIcon = siteConfig.site.favicon
 
 let post: WPPost | null = null;
 let allPosts: WPPost[] = [];
@@ -80,6 +84,9 @@ const relatedPosts = allPosts
   category={categoryName}
   tags={tagNames}
   categories={wpCategories}
+  favicon={siteFavicon}
+  icon={siteFavicon}
+  logo={siteLogo}
 >
   <div class="article-layout">
     <ArticleActions postId={Number(id)} pageUrl={pageUrl} title={pageTitle} />
@@ -127,6 +134,23 @@ const relatedPosts = allPosts
           {
             tagNames.length > 0 && (
               <div class="article-tags">
+                {/* 标签图标 */}
+                <svg
+                  class="tag-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2z" />
+                  <path d="M7 7h.01" />
+                </svg>
+
                 {tagNames.map((tag: string, i: number) => {
                   const slug = tagSlugs[i] || tag;
                   return <a href={`/tag/${slug}`}>{tag}</a>;
@@ -204,8 +228,47 @@ const relatedPosts = allPosts
     imgs.forEach(function (img) {
       observer.observe(img);
     });
-    document.getElementById('goBack').addEventListener('click', () => {
-    window.history.back();
-  });
+    document.getElementById("goBack").addEventListener("click", () => {
+      window.history.back();
+    });
   });
 </script>
+<style>
+  .article-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+}
+
+.tag-icon {
+  flex-shrink: 0;
+  display: block;
+  /* 颜色继承父级 */
+  color: inherit;
+  /* 垂直居中通过父级 align-items: center 实现 */
+  /* 大小通过 width/height 控制 */
+}
+
+.article-tags a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  line-height: 1.4;
+}
+
+.article-tags a:hover {
+  color: var(--link-hover, #4A90D9);
+  text-decoration: underline;
+}
+
+/* 如果标签之间需要分隔符，可以加上 */
+/* .article-tags a:not(:last-child)::after {
+  content: "·";
+  margin-left: 8px;
+  color: var(--text-muted, #ccc);
+  pointer-events: none;
+} */
+</style>

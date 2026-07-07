@@ -1,13 +1,16 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import SidebarLeft from '../components/SidebarLeft.astro';
-import SidebarRight from '../components/SidebarRight.astro';
-import { fetchSiteData } from '../data/fetcher';
-import { mockData } from '../data/mock';
+import Layout from "../layouts/Layout.astro";
+import SidebarLeft from "../components/SidebarLeft.astro";
+import SidebarRight from "../components/SidebarRight.astro";
+import { fetchSiteData } from "../data/fetcher";
+import { mockData } from "../data/mock";
+import { siteConfig } from "../site.config";
 
 const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
 const posts = siteData.posts;
+const siteFavicon = siteConfig.site.favicon;
+const siteLogo = siteConfig.site.logo.light;
 
 interface MonthGroup {
   year: number;
@@ -19,7 +22,9 @@ interface MonthGroup {
 const grouped: MonthGroup[] = [];
 const map = new Map<string, MonthGroup>();
 
-const sorted = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const sorted = [...posts].sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+);
 
 sorted.forEach((post) => {
   const d = new Date(post.date);
@@ -38,7 +43,14 @@ sorted.forEach((post) => {
 });
 ---
 
-<Layout title="文章归档" url="/archive" categories={siteData.categories}>
+<Layout
+  title="文章归档"
+  url="/archive"
+  favicon={siteFavicon}
+  icon={siteFavicon}
+  logo={siteLogo}
+  categories={siteData.categories}
+>
   <main class="main-layout">
     <aside class="sidebar-left">
       <SidebarLeft categories={siteData.categories} />
@@ -46,36 +58,66 @@ sorted.forEach((post) => {
     <section class="content-area">
       <div class="content-header">
         <h2 class="content-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -3px; margin-right: 6px;">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            style="vertical-align: -3px; margin-right: 6px;"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line
+              x1="16"
+              y1="2"
+              x2="16"
+              y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line
+              x1="3"
+              y1="10"
+              x2="21"
+              y2="10"></line>
           </svg>
           文章归档
-          <span style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;">{posts.length} 篇文章</span>
+          <span
+            style="font-size: 14px; font-weight: 400; color: var(--fg-muted); margin-left: 8px;"
+            >{posts.length} 篇文章</span
+          >
         </h2>
       </div>
       <div class="archive-list">
-        {grouped.map((group) => (
-          <div class="archive-group">
-            <div class="archive-month">
-              <span class="archive-month-label">{group.label}</span>
-              <span class="archive-month-count">{group.posts.length} 篇</span>
+        {
+          grouped.map((group) => (
+            <div class="archive-group">
+              <div class="archive-month">
+                <span class="archive-month-label">{group.label}</span>
+                <span class="archive-month-count">{group.posts.length} 篇</span>
+              </div>
+              <ul class="archive-posts">
+                {group.posts.map((post) => (
+                  <li class="archive-item">
+                    <span class="archive-date">
+                      {new Date(post.date).getDate()}日
+                    </span>
+                    <a href={`/article/${post.id}`} class="archive-title">
+                      {post.title}
+                    </a>
+                    <span class="archive-cat">{post.category}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul class="archive-posts">
-              {group.posts.map((post) => (
-                <li class="archive-item">
-                  <span class="archive-date">{new Date(post.date).getDate()}日</span>
-                  <a href={`/article/${post.id}`} class="archive-title">{post.title}</a>
-                  <span class="archive-cat">{post.category}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-        {grouped.length === 0 && (
-          <div class="sidebar-card" style="padding: 60px 40px; text-align: center;">
-            <p style="color: var(--fg-muted);">暂无文章</p>
-          </div>
-        )}
+          ))
+        }
+        {
+          grouped.length === 0 && (
+            <div
+              class="sidebar-card"
+              style="padding: 60px 40px; text-align: center;"
+            >
+              <p style="color: var(--fg-muted);">暂无文章</p>
+            </div>
+          )
+        }
       </div>
     </section>
     <aside class="sidebar-right">
@@ -83,3 +125,101 @@ sorted.forEach((post) => {
     </aside>
   </main>
 </Layout>
+<style>
+  /* 返回上一页 */
+
+  .goback {
+    display: inline-flex; /* 使其成为 Flex 容器 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    gap: 6px; /* 如果有图标和文字，间距更舒服 */
+    padding: 10px 20px;
+    background: var(--card-bg);
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer; /* 鼠标变手型，提升交互感 */
+    transition:
+      background 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease;
+    text-decoration: none; /* 如果是 <a> 标签，去掉下划线 */
+    color: inherit; /* 保持文字颜色继承 */
+  }
+
+  .goback:hover {
+    color: var(--bg);
+    background: var(--fg);
+    border-color: var(--fg); /* 可选：边框颜色也跟随变化 */
+  }
+
+  /* Archive page */
+  .archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .archive-month {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .archive-month-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .archive-month-count {
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+  .archive-posts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .archive-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .archive-item:last-child {
+    border-bottom: none;
+  }
+  .archive-date {
+    font-size: 12px;
+    color: var(--fg-muted);
+    width: 36px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .archive-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 450;
+    color: var(--fg);
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .archive-title:hover {
+    color: var(--accent);
+  }
+  .archive-cat {
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+</style>

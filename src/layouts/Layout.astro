@@ -7,16 +7,19 @@ interface Props {
   description?: string;
   image?: string;
   url?: string;
-  type?: "website" | "article";
+  favicon: string;
+  type?: string;
   publishedTime?: string;
   author?: string;
   category?: string;
   tags?: string[];
+  icon: string;
+  logo: string;
   categories?: Array<{
     name: string;
     slug: string;
     count: number;
-    icon: string;
+    icon?: string;
   }>;
 }
 
@@ -25,10 +28,11 @@ const {
   description = siteConfig.site.description,
   image = siteConfig.seo.ogImage,
   url = siteConfig.site.url,
-  type = "website",
+  type = siteConfig.site.type,
   publishedTime,
   author,
-  icon = siteConfig.site.icon,
+  logo = siteConfig.site.logo.light,
+  favicon = siteConfig.site.favicon,
   category,
   tags = [],
   categories = siteConfig.categories.map((c) => ({
@@ -53,7 +57,6 @@ const fullImage = image.startsWith("http")
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>{title} - {site.name}</title>
-    <meta name="title" content={`${title} - ${site.name}`} />
     <meta name="description" content={description} />
     <meta
       name="keywords"
@@ -61,8 +64,8 @@ const fullImage = image.startsWith("http")
     />
     <meta name="author" content={author || site.name} />
     <link rel="canonical" href={fullUrl} />
-    <link rel="icon" type="image/png" href={icon} />
-    <link rel="apple-touch-icon" href="/images/logo.png" />
+    <link rel="icon" type="image/png" href={favicon} />
+    <link rel="apple-touch-icon" href={favicon} />
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
@@ -137,7 +140,7 @@ const fullImage = image.startsWith("http")
     <header class="site-header">
       <div class="header-inner">
         <a href="/" class="site-logo">
-          <img src="/images/logo.png" alt={site.name} width="28" height="28" />
+          <img src={logo} alt={site.name} width="28" height="28" />
           {site.name}
         </a>
 

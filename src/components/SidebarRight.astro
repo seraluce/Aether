@@ -12,6 +12,7 @@ const tagsLimit = siteConfig.widgets.tagsCount || 10;
 const visibleTags = tags.slice(0, tagsLimit);
 const hasMoreTags = tags.length > tagsLimit;
 const currentYear = new Date().getFullYear();
+const footerLinks = siteConfig.footerLinks
 
 function formatViews(n: number): string {
   return n >= 10000 ? (n / 10000).toFixed(1) + '万' : n.toString();
@@ -46,7 +47,7 @@ function formatViews(n: number): string {
         <span class={`hot-post-rank ${index < 3 ? 'top' : ''}`}>{index + 1}</span>
         <div class="hot-post-info">
           <h4><a href={`/article/${post.id}`}>{post.title}</a></h4>
-          <span class="views">{formatViews(post.views)} 阅读</span>
+          <span class="views">{formatViews(post.views)} 热度</span>
         </div>
       </div>
     ))}
@@ -77,12 +78,13 @@ function formatViews(n: number): string {
 <div class="sidebar-card">
   <div class="footer-widget">
     <div class="footer-widget-row">
-      <a href="/archive">归档</a>
-      <span class="footer-dot">·</span>
-      <a href="/about">关于</a>
-      <span class="footer-dot">·</span>
-      <a href="/sitemap.xml">Sitemap</a>
-    </div>
+    {footerLinks.map((link, index) => (
+      <>
+        <a href={link.href}>{link.name}</a>
+        {index < footerLinks.length - 1 && <span class="footer-dot">·</span>}
+      </>
+    ))}
+  </div>
     <div class="footer-widget-row">
       <span>{siteConfig.site.name} &copy; {currentYear} All rights reserved.</span>
     </div>
@@ -91,3 +93,35 @@ function formatViews(n: number): string {
     </div>
   </div>
 </div>
+
+<style>
+  * Footer widget - left aligned */
+.footer-widget {
+  font-size: 12px;
+  color: var(--fg-muted);
+  text-align: left;
+  line-height: 1.8;
+}
+.footer-widget-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.footer-widget-row a {
+  color: var(--fg-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-widget-row a:hover {
+  color: var(--accent);
+}
+.footer-dot {
+  color: var(--border);
+}
+.footer-widget-powered {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+</style>
