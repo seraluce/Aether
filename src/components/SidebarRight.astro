@@ -11,6 +11,7 @@ const { hotPosts = [], tags = [] } = Astro.props as Props;
 const tagsLimit = siteConfig.widgets.tagsCount || 10;
 const visibleTags = tags.slice(0, tagsLimit);
 const hasMoreTags = tags.length > tagsLimit;
+const currentYear = new Date().getFullYear();
 
 function formatViews(n: number): string {
   return n >= 10000 ? (n / 10000).toFixed(1) + '万' : n.toString();
@@ -44,7 +45,7 @@ function formatViews(n: number): string {
       <div class="hot-post-item">
         <span class={`hot-post-rank ${index < 3 ? 'top' : ''}`}>{index + 1}</span>
         <div class="hot-post-info">
-          <h4><a href={`/post/${post.id}`}>{post.title}</a></h4>
+          <h4><a href={`/article/${post.id}`}>{post.title}</a></h4>
           <span class="views">{formatViews(post.views)} 阅读</span>
         </div>
       </div>
@@ -83,13 +84,10 @@ function formatViews(n: number): string {
       <a href="/sitemap.xml">Sitemap</a>
     </div>
     <div class="footer-widget-row">
-      <span>资讯新闻</span>
-      <span class="footer-dot">·</span>
-      <span>&copy; 2026 All rights reserved.</span>
+      <span>{siteConfig.site.name} &copy; {currentYear} All rights reserved.</span>
     </div>
     <div class="footer-widget-row">
-      <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">京ICP备XXXXXXXX号</a>
+      <a href={siteConfig.legal.icpLink} target="_blank" rel="nofollow noopener">{siteConfig.legal.icp}</a>
     </div>
-    <div class="footer-widget-powered">Powered by Astro + WordPress</div>
   </div>
 </div>

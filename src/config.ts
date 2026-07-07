@@ -1,4 +1,5 @@
-import { siteConfig } from './site.config';
+// src/config.ts
+import { siteConfig } from "./site.config";
 
 export interface WPConfig {
   siteUrl: string;
@@ -8,7 +9,10 @@ export interface WPConfig {
 }
 
 export const wpConfig: WPConfig = {
-  siteUrl: siteConfig.wordpress.siteUrl,
+  // ✅ 优先使用环境变量，fallback 到 siteConfig
+  siteUrl:
+    import.meta.env.WP_SITE_URL ||
+    siteConfig.wordpress.siteUrl,
   apiBase: siteConfig.wordpress.apiBase,
   perPage: siteConfig.wordpress.perPage,
   cacheTimeout: siteConfig.wordpress.cacheTimeout,

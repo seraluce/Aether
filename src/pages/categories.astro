@@ -1,0 +1,90 @@
+---
+// src/pages/categories.astro
+import Layout from '../layouts/Layout.astro';
+import { siteConfig, validateWordPressConfig, wpApi } from '../site.config';
+
+// ✅ 验证配置
+validateWordPressConfig();
+
+const { wordpress } = siteConfig;
+
+// ✅ 使用辅助方法构建 URL
+const categoriesUrl = wordpress.categoriesUrl;
+
+console.log('Categories URL:', categoriesUrl);
+
+let categories = [];
+let error = null;
+
+try {
+  // ✅ 使用封装的 API 函数
+  categories = await wpApi.getCategories();
+} catch (err) {
+  error = err.message;
+  console.error('获取分类失败:', err);
+}
+---
+
+<Layout title="分类">
+  <div class="container">
+    <h1>分类导航</h1>
+    
+    {error && (
+      <div class="error-box">
+        <p>❌ 加载失败: {error}</p>
+        <p>站点地址: {wordpress.siteUrl || '未配置'}</p>
+        <p>API地址: {categoriesUrl || '未生成'}</p>
+      </div>
+    )}
+    
+    {!error && categories.length === 0 && (
+      <p>暂无分类数据</p>
+    )}
+    
+    {!error && categories.length > 0 && (
+      <ul class="category-list">
+        {categories.map(cat => (
+          <li key={cat.id}>
+            <a href={wordpress.getPostLink(cat.slug)}>
+              {cat.name} 
+              <span class="count">({cat.count})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .error-box {
+    background: #fee;
+    border: 1px solid #fcc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+  }
+  .category-list {
+    list-style: none;
+    padding: 0;
+  }
+  .category-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .category-list li a {
+    text-decoration: none;
+    color: #0070f3;
+    font-weight: 500;
+  }
+  .count {
+    color: #999;
+    font-size: 0.85rem;
+    font-weight: normal;
+  }
+</style>

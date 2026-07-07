@@ -134,7 +134,7 @@ img {
 .header-nav {
   display: flex;
   gap: 2px;
-  margin-left: 16px;
+  margin: 0 16px;
 }
 
 .header-nav a {
@@ -271,6 +271,18 @@ body.menu-open {
   overflow: hidden;
 }
 
+body.menu-open::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  backdrop-filter: blur(2px);
+}
+
 .mobile-dropdown {
   display: none;
   position: fixed;
@@ -290,25 +302,6 @@ body.menu-open {
 
 .mobile-dropdown.open {
   transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.mobile-dropdown::before {
-  content: "";
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.mobile-dropdown.open::before {
   opacity: 1;
   pointer-events: auto;
 }
@@ -365,6 +358,10 @@ body.menu-open {
 
 .mobile-search input::placeholder {
   color: var(--fg-muted);
+}
+.mobile-search:focus-within {
+  border: 1px solid var(--accent); /* 您想要的激活颜色，也可以使用 CSS 变量 */
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.2); /* 可选：添加一个柔和的外发光，提升交互感 */
 }
 
 /* Mobile Menu List - one per row */
@@ -542,7 +539,7 @@ body.menu-open {
 
 /* ==================== Content ==================== */
 .content-area {
-  min-width: 650px;
+  min-width: 0;
   padding: 0 20px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -552,7 +549,7 @@ body.menu-open {
   align-items: center;
   justify-content: space-between;
   padding: 20px 0;
-  border-bottom: 1px solid var(--border);
+  /* border-bottom: 1px solid var(--border); */
 }
 .content-title {
   font-size: 18px;
@@ -585,6 +582,7 @@ body.menu-open {
   box-shadow: var(--shadow-sm);
 }
 
+
 /* Post List - left image right text with dividers */
 .post-list {
   display: flex;
@@ -614,15 +612,21 @@ body.menu-open {
 .post-item-image-link {
   flex-shrink: 0;
   width: 192px;
-  height: 108px;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   overflow: hidden;
   background: var(--bg-tertiary);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+  display: block;
+  position: relative;
 }
+/* ===== shimmer 动画定义 ===== */
+
+
 .post-item-image-link.loaded {
   animation: none;
+  opacity: 1;
 }
 
 .post-item-image {
@@ -638,12 +642,12 @@ body.menu-open {
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 .post-item-content {
@@ -902,7 +906,7 @@ body.menu-open {
   margin: 0 auto;
   padding: 20px;
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 300px;
+  grid-template-columns: 220px  1fr 300px;
   gap: 20px;
 }
 
@@ -913,7 +917,8 @@ body.menu-open {
   align-self: start;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 20px;
+  margin-left: auto;
 }
 
 .action-btn {
@@ -1224,6 +1229,7 @@ body.menu-open {
 
   .header-inner {
     padding: 0 16px;
+    justify-content: space-between;
   }
   .mobile-menu-btn {
     display: flex;
@@ -1232,6 +1238,9 @@ body.menu-open {
     display: block;
   }
   .header-nav {
+    display: none;
+  }
+  .header-spacer {
     display: none;
   }
   .header-search {
@@ -1419,6 +1428,31 @@ body.menu-open {
   font-size: 11px;
   color: var(--fg-muted);
 }
+
+/* 返回上一页 */
+
+.goback {
+  display: inline-flex;      /* 使其成为 Flex 容器 */
+  align-items: center;       /* 垂直居中 */
+  justify-content: center;   /* 水平居中 */
+  gap: 6px;                  /* 如果有图标和文字，间距更舒服 */
+  padding: 10px 20px;
+  background: var(--card-bg);
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;           /* 鼠标变手型，提升交互感 */
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  text-decoration: none;     /* 如果是 <a> 标签，去掉下划线 */
+  color: inherit;            /* 保持文字颜色继承 */
+}
+
+.goback:hover {
+  color: var(--bg);
+  background: var(--fg);
+  border-color: var(--fg);   /* 可选：边框颜色也跟随变化 */
+}
+
 
 /* Archive page */
 .archive-list {

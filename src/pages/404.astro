@@ -1,0 +1,176 @@
+---
+// 404.astro
+// 采用与 about 页面相同的三栏布局结构
+// 布局: SidebarLeft (220px) | Content (1fr) | SidebarRight (300px)
+import Layout from '../layouts/Layout.astro';
+import SidebarLeft from '../components/SidebarLeft.astro';
+import SidebarRight from '../components/SidebarRight.astro';
+import { siteConfig } from '../site.config';
+import { fetchSiteData } from '../data/fetcher';
+import { mockData } from '../data/mock';
+
+// 获取站点数据（与 about 页面保持一致）
+const data = await fetchSiteData();
+const siteData = data.error ? mockData : data;
+---
+
+<Layout title="404 · 页面未找到" url="/404" categories={siteData.categories}>
+    <main class="main-layout">
+        <!-- 左侧栏 220px -->
+        <aside class="sidebar-left">
+            <SidebarLeft categories={siteData.categories} />
+        </aside>
+
+        <!-- 中间内容区 1fr – 404 核心内容 -->
+        <section class="content-area">
+            <div class="error-page">
+                <!-- 404 大号数字 -->
+                <div class="error-code">404</div>
+
+                <!-- 标题与描述 -->
+                <h1 class="error-title">页面迷失在深空</h1>
+                <p class="error-desc">
+                    你访问的页面似乎脱离了轨道，<br />
+                    但别担心，我们随时准备带你返航。
+                </p>
+
+                <!-- 返回首页按钮 -->
+                <a href="/" class="error-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
+                    </svg>
+                    返回首页
+                </a>
+            </div>
+        </section>
+
+        <!-- 右侧栏 300px -->
+        <aside class="sidebar-right">
+            <SidebarRight hotPosts={siteData.hotPosts} tags={siteData.tags} />
+        </aside>
+    </main>
+</Layout>
+
+<style>
+    /* ===== 404 页面专用样式 ===== */
+    .error-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 480px;
+        padding: 3rem 2rem;
+        gap: 0.8rem;
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        background: linear-gradient(135deg, #0f172a 0%, #334155 80%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .error-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #0f172a;
+        letter-spacing: -0.01em;
+        margin: 0.2rem 0;
+    }
+
+    .error-desc {
+        font-size: 1.05rem;
+        color: #64748b;
+        max-width: 400px;
+        line-height: 1.7;
+        margin: 0.2rem 0 0.8rem 0;
+    }
+
+    .error-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #0f172a;
+        color: #ffffff;
+        padding: 0.75rem 2rem;
+        border-radius: 60px;
+        font-weight: 500;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: background 0.2s ease, transform 0.15s ease;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+        margin-top: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .error-btn:hover {
+        background: #1e293b;
+        transform: translateY(-2px);
+    }
+
+    .error-btn:active {
+        transform: translateY(0);
+    }
+
+    .error-btn svg {
+        flex-shrink: 0;
+    }
+
+    /* ===== 响应式适配 ===== */
+    @media (max-width: 920px) {
+        .error-page {
+            min-height: 380px;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .error-code {
+            font-size: 6rem;
+        }
+
+        .error-title {
+            font-size: 1.6rem;
+        }
+
+        .error-desc {
+            font-size: 0.95rem;
+            max-width: 320px;
+        }
+
+        .error-btn {
+            padding: 0.65rem 1.6rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .error-page {
+            min-height: 300px;
+            padding: 2rem 1rem;
+        }
+
+        .error-code {
+            font-size: 4.5rem;
+        }
+
+        .error-title {
+            font-size: 1.3rem;
+        }
+
+        .error-desc {
+            font-size: 0.85rem;
+            max-width: 260px;
+        }
+
+        .error-btn {
+            padding: 0.55rem 1.4rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>

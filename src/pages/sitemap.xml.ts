@@ -23,13 +23,13 @@ export const GET: APIRoute = async ({ site }) => {
     { loc: siteUrl, lastmod: now, changefreq: 'daily', priority: '1.0' },
     { loc: `${siteUrl}/search`, lastmod: now, changefreq: 'weekly', priority: '0.5' },
     ...categories.map((cat) => ({
-      loc: `${siteUrl}/category/${cat.slug}`,
+      loc: `${siteUrl}/topic/${cat.slug}`,
       lastmod: now,
       changefreq: 'daily' as const,
       priority: '0.8',
     })),
     ...posts.map((post) => ({
-      loc: `${siteUrl}/post/${post.id}`,
+      loc: `${siteUrl}/article/${post.id}`,
       lastmod: new Date(post.date).toISOString(),
       changefreq: 'weekly' as const,
       priority: '0.6',

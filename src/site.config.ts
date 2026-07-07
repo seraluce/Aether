@@ -1,6 +1,7 @@
 // ============================================================
 // 站点配置文件 — 所有站点设置集中在这里修改
 // ============================================================
+const siteUrl = import.meta.env.WP_SITE_URL;
 
 export const siteConfig = {
   // 站点基本信息
@@ -13,6 +14,7 @@ export const siteConfig = {
     url: "https://www.kovel.com",
     language: "zh-CN",
     timezone: "Asia/Shanghai",
+    icon: '/images/logo.png',
   },
 
   // SEO & 社交分享
@@ -24,43 +26,81 @@ export const siteConfig = {
 
   // 备案信息
   legal: {
-    icp: "京ICP备XXXXXXXX号",
+    icp: "闽ICP备2021011984号",
     icpLink: "https://beian.miit.gov.cn/",
-    copyright: "© 2026 资讯新闻. All rights reserved.",
   },
 
   // 顶部导航菜单
   headerNav: [
     { name: "首页", href: "/", active: true },
-    { name: "科技", href: "/category/tech" },
-    { name: "财经", href: "/category/finance" },
-    { name: "体育", href: "/category/sports" },
-    { name: "娱乐", href: "/category/entertainment" },
-    { name: "国际", href: "/category/world" },
+    { name: "科技", href: "/topic/tech" },
+    { name: "财经", href: "/topic/finance" },
+    { name: "体育", href: "/topic/sports" },
+    { name: "娱乐", href: "/topic/entertainment" },
+    { name: "国际", href: "/topic/world" },
   ],
 
   // 页脚链接
   footerLinks: [
     { name: "首页", href: "/" },
-    { name: "科技", href: "/category/tech" },
-    { name: "财经", href: "/category/finance" },
-    { name: "体育", href: "/category/sports" },
-    { name: "娱乐", href: "/category/entertainment" },
-    { name: "国际", href: "/category/world" },
+    { name: "科技", href: "/topic/tech" },
+    { name: "财经", href: "/topic/finance" },
+    { name: "体育", href: "/topic/sports" },
+    { name: "娱乐", href: "/topic/entertainment" },
+    { name: "国际", href: "/topic/world" },
     { name: "地图", href: "/sitemap.xml" },
   ],
 
   // WordPress API 配置
   wordpress: {
-    siteUrl: "https://www.frbkw.com",
+    siteUrl: siteUrl || 'https://www.frbkw.com', // 确保有默认值
     apiBase: "/wp-json/wp/v2",
     perPage: 30,
     cacheTimeout: 5 * 60 * 1000, // 5 分钟
+    
+    // ✅ 修复：使用更安全的方法构建 URL
+    getApiUrl(endpoint = '') {
+      // 1. 获取基础 URL，并移除末尾可能的斜杠
+      const base = this.siteUrl?.replace(/\/$/, '');
+      // 2. 获取 API 基础路径，并确保它以一个斜杠开头，但不要有末尾斜杠
+      const apiBase = this.apiBase.replace(/^\/?/, '/').replace(/\/$/, '');
+      // 3. 处理 endpoint，确保它以一个斜杠开头，用于拼接
+      const path = endpoint ? `/${endpoint.replace(/^\/?/, '')}` : '';
+      return `${base}${apiBase}${path}`;
+    },
+    
+    // 常用端点
+    get postsUrl() {
+      return this.getApiUrl('posts');
+    },
+    
+    get categoriesUrl() {
+      return this.getApiUrl('categories');
+    },
+    
+    get tagsUrl() {
+      return this.getApiUrl('tags');
+    },
+    
+    get pagesUrl() {
+      return this.getApiUrl('pages');
+    },
+    
+    // 获取单个文章
+    getPostUrl(id) {
+      return this.getApiUrl(`posts/${id}`);
+    },
+    
+    // 获取文章链接（前端链接）
+    getPostLink(slug) {
+      const base = this.siteUrl?.replace(/\/$/, '');
+      return `${base}/${slug}`;
+    }
   },
 
   // 主题配置
   theme: {
-    defaultMode: "system" as "light" | "dark" | "system",
+    defaultMode: "system",
     accentColor: "#0070f3",
   },
 
@@ -109,3 +149,58 @@ export const siteConfig = {
 } as const;
 
 export type SiteConfig = typeof siteConfig;
+
+// ✅ 添加验证函数
+export function validateWordPressConfig() {
+  const { siteUrl} = siteConfig.wordpress;
+  
+  if (!siteUrl || siteUrl === 'undefined') {
+    console.error('❌ [WordPress] WP_SITE_URL 未正确配置！');
+    console.error('   请在 .env.local 中设置: WP_SITE_URL=https://www.frbkw.com');
+    return false;
+  }
+  
+  try {
+    new URL(siteUrl);
+    console.log('✅ [WordPress] 站点地址有效:', siteUrl);
+    return true;
+  } catch {
+    console.error('❌ [WordPress] WP_SITE_URL 格式无效:', siteUrl);
+    return false;
+  }
+}
+
+// ✅ 导出工具函数
+export const wpApi = {
+  // 获取分类
+  getCategories: async () => {
+    const url = siteConfig.wordpress.categoriesUrl;
+    if (!url || url.includes('undefined')) {
+      throw new Error('WordPress 站点地址未配置');
+    }
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+  
+  // 获取文章列表
+  getPosts: async (params = {}) => {
+    const url = siteConfig.wordpress.postsUrl;
+    if (!url || url.includes('undefined')) {
+      throw new Error('WordPress 站点地址未配置');
+    }
+    const query = new URLSearchParams(params).toString();
+    const fullUrl = query ? `${url}?${query}` : url;
+    const response = await fetch(fullUrl);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+  
+  // 获取单个文章
+  getPost: async (id) => {
+    const url = siteConfig.wordpress.getPostUrl(id);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  }
+};

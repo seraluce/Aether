@@ -64,7 +64,7 @@ sorted.forEach((post) => {
               {group.posts.map((post) => (
                 <li class="archive-item">
                   <span class="archive-date">{new Date(post.date).getDate()}日</span>
-                  <a href={`/post/${post.id}`} class="archive-title">{post.title}</a>
+                  <a href={`/article/${post.id}`} class="archive-title">{post.title}</a>
                   <span class="archive-cat">{post.category}</span>
                 </li>
               ))}

@@ -55,7 +55,7 @@ const tagNames =
 const tagSlugs =
   post?._embedded?.["wp:term"]?.[1]?.map((t: { slug: string }) => t.slug) || [];
 
-const pageUrl = `/post/${id}`;
+const pageUrl = `/article/${id}`;
 
 const relatedPosts = allPosts
   .filter((p: WPPost) => String(p.id) !== id)
@@ -87,15 +87,15 @@ const relatedPosts = allPosts
     <div class="article-main">
       <article>
         <header class="article-header">
-          {
+          <!-- {
             pageImage && pageImage.startsWith("http") && (
               <img src={pageImage} alt={pageTitle} class="article-cover" />
             )
-          }
+          } -->
           <h1>{pageTitle}</h1>
           <div class="article-meta">
-            {authorName && <span>{authorName}</span>}
-            {authorName && <span class="sep">|</span>}
+            <!-- {authorName && <span>{authorName}</span>}
+            {authorName && <span class="sep">|</span>} -->
             <span
               >{
                 new Date(post.date).toLocaleDateString("zh-CN", {
@@ -109,7 +109,7 @@ const relatedPosts = allPosts
               categoryName && categorySlug && (
                 <>
                   <span class="sep">|</span>
-                  <a href={`/category/${categorySlug}`} class="accent">
+                  <a href={`/topic/${categorySlug}`} class="accent">
                     {categoryName}
                   </a>
                 </>
@@ -137,7 +137,7 @@ const relatedPosts = allPosts
         </header>
         <div class="article-content" set:html={post.content.rendered} />
         <div class="article-footer">
-          <a href="/">
+          <button id="goBack" class="goback">
             <svg
               width="14"
               height="14"
@@ -146,8 +146,8 @@ const relatedPosts = allPosts
               stroke="currentColor"
               stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg
             >
-            返回首页
-          </a>
+            返回上一页
+          </button>
         </div>
       </article>
     </div>
@@ -204,5 +204,8 @@ const relatedPosts = allPosts
     imgs.forEach(function (img) {
       observer.observe(img);
     });
+    document.getElementById('goBack').addEventListener('click', () => {
+    window.history.back();
+  });
   });
 </script>

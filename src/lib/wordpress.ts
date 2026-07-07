@@ -1,12 +1,9 @@
+// src/lib/wordpress.ts
 import { wpConfig } from '../config';
-import { siteConfig } from '../site.config';
 
+// ✅ 简化：直接返回 wpConfig.siteUrl
 function getSiteUrl(): string {
-  try {
-    const envUrl = (globalThis as any).process?.env?.WP_SITE_URL;
-    if (envUrl) return envUrl;
-  } catch {}
-  return siteConfig.wordpress.siteUrl;
+  return wpConfig.siteUrl;
 }
 
 export interface WPPost {
