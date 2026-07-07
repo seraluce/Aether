@@ -17,11 +17,11 @@ export const siteConfig = {
     language: "zh-CN",
     timezone: "Asia/Shanghai",
     logo: {
-      dark: "logo-dark.svg",
-      light: "logo.svg"
+      dark: "/logo-dark.svg",
+      light: "/logo.svg"
     },
 
-    favicon: "images/logo.png",
+    favicon: "/images/logo.png",
   },
 
   // SEO & 社交分享
