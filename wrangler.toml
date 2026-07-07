@@ -1,3 +1,7 @@
 name = "news-theme"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "dummy-kv-id"  # 添加这个占位 id
