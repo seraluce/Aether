@@ -19,6 +19,7 @@ export default defineConfig({
   ],
   adapter: cloudflare({
     // ✅ 明确禁用不需要的功能
+    kv: false,
     imageService: 'passthrough',
     runtime: 'off',
   }),
