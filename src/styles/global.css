@@ -1106,9 +1106,11 @@ body.menu-open::before {
   font-size: 17px;
 }
 .article-content img {
+  display: block;
   border-radius: 8px;
-  margin: 1.2em 0;
+  margin: 1.2em auto;
   border: 1px solid var(--border);
+  max-width: 100%;
 }
 .article-content blockquote {
   border-left: 3px solid var(--accent);
@@ -1118,26 +1120,131 @@ body.menu-open::before {
   font-style: italic;
 }
 .article-content code {
-  font-family: "SF Mono", monospace;
-  font-size: 0.9em;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+.article-content code:not(pre code) {
   background: var(--bg-tertiary);
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid var(--border);
+  color: var(--accent);
 }
+.article-content .wp-block-code {
+  margin: 1.5em 0;
+  padding: 0;
+}
+.article-content .wp-block-code pre {
+  margin: 0;
+}
+/* 代码块容器 */
 .article-content pre {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  overflow-x: auto;
-  margin: 1.2em 0;
+  border-radius: 10px;
+  margin: 1.5em 0;
+  position: relative;
+  overflow: hidden;
 }
+/* 代码块头部栏 */
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 0 12px 0 16px;
+  background: color-mix(in srgb, var(--fg) 4%, var(--bg-tertiary));
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+}
+.code-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.code-copy-btn:hover {
+  color: var(--fg);
+  border-color: var(--fg-muted);
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+}
+.code-copy-btn.copied {
+  color: #22c55e;
+  border-color: #22c55e;
+}
+/* 代码内容区 */
 .article-content pre code {
-  background: none;
+  display: block;
+  padding: 16px 20px;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  color: var(--fg);
+  background: transparent;
   border: none;
-  padding: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  tab-size: 2;
+  counter-reset: line;
 }
+.article-content pre code::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.article-content pre code::-webkit-scrollbar-track {
+  background: transparent;
+}
+.article-content pre code::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.article-content pre code::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
+}
+/* 行号 */
+.article-content pre code .line-num {
+  display: inline-block;
+  width: 2.5em;
+  margin-right: 1em;
+  text-align: right;
+  color: var(--fg-muted);
+  opacity: 0.5;
+  user-select: none;
+  font-size: 12px;
+}
+/* highlight.js 语法高亮色 — 亮色主题 */
+.hljs-comment, .hljs-quote { color: var(--fg-muted); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-type { color: #8b5cf6; }
+.hljs-string, .hljs-addition { color: #16a34a; }
+.hljs-number, .hljs-literal { color: #ea580c; }
+.hljs-title, .hljs-section { color: #2563eb; }
+.hljs-built_in { color: #0891b2; }
+.hljs-attr, .hljs-name, .hljs-attribute { color: #ca8a04; }
+.hljs-variable, .hljs-template-variable { color: #db2777; }
+.hljs-deletion { color: #dc2626; }
+.hljs-meta { color: var(--fg-muted); }
+.hljs-regexp { color: #d946ef; }
+.hljs-symbol, .hljs-bullet { color: #ec4899; }
+.hljs-params { color: var(--fg-secondary); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: bold; }
 .article-content a {
   color: var(--accent);
   text-decoration: underline;

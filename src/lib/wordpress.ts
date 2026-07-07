@@ -147,7 +147,7 @@ export async function getTotalPosts(): Promise<{ total: number; totalPages: numb
   return { total: result.total, totalPages: result.totalPages };
 }
 
-export async function getAllPosts(limitPages = 5): Promise<WPPost[]> {
+export async function getAllPosts(limitPages = 8): Promise<WPPost[]> {
   const perPage = 50;
   let totalPages = 1;
   try {

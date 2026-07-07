@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 
-import { getPostById, getPosts, getCategories } from "../../lib/wordpress";
+import { getPostById, getAllPosts, getCategories } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
 import Layout from "../../layouts/Layout.astro";
@@ -12,7 +12,7 @@ import { wpConfig } from "../../config";
 
 export async function getStaticPaths() {
   try {
-    const posts = await getPosts(1, Math.min(wpConfig.perPage, 30));
+    const posts = await getAllPosts();
     return posts.map((post) => ({
       params: { id: String(post.id) },
     }));
@@ -89,6 +89,21 @@ const relatedPosts = recentPosts
       `https://picsum.photos/seed/${p.id}/120/90`,
   }));
 ---
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js" defer></script>
 
 <Layout
   title={pageTitle}
@@ -248,6 +263,105 @@ const relatedPosts = recentPosts
     document.getElementById("goBack").addEventListener("click", () => {
       window.history.back();
     });
+
+    // 代码块：高亮 + 行号 + 语言标识 + 复制按钮
+    function processCodeBlocks() {
+    var pres = content.querySelectorAll("pre");
+    pres.forEach(function (pre) {
+      var code = pre.querySelector("code");
+      if (!code) return;
+
+      // 检测语言
+      var lang = "";
+      var codeClass = code.className || "";
+      var langMatch = codeClass.match(/language-(\w+)/i) || codeClass.match(/lang-(\w+)/i);
+      if (langMatch) {
+        lang = langMatch[1].toLowerCase();
+      }
+
+      // 获取纯文本
+      var rawText = code.textContent || "";
+
+      // highlight.js 高亮
+      if (typeof hljs !== "undefined") {
+        if (lang) {
+          try { hljs.highlightElement(code); } catch(e) {}
+        } else {
+          try {
+            var result = hljs.highlightAuto(rawText);
+            lang = result.language || "";
+            code.innerHTML = result.value;
+          } catch(e) {}
+        }
+      }
+
+      // 语言显示名映射
+      var langNames = {
+        js: "JavaScript", javascript: "JavaScript", ts: "TypeScript", typescript: "TypeScript",
+        py: "Python", python: "Python", html: "HTML", xml: "XML", css: "CSS",
+        json: "JSON", bash: "Bash", shell: "Shell", sh: "Shell",
+        java: "Java", php: "PHP", sql: "SQL", go: "Go", golang: "Go",
+        rust: "Rust", cpp: "C++", c: "C", cs: "C#", ruby: "Ruby",
+        swift: "Swift", kotlin: "Kotlin", yaml: "YAML", toml: "TOML",
+        markdown: "Markdown", md: "Markdown", jsx: "JSX", tsx: "TSX",
+        vue: "Vue", svelte: "Svelte", dockerfile: "Dockerfile",
+      };
+      var displayName = lang ? (langNames[lang] || lang.charAt(0).toUpperCase() + lang.slice(1)) : "Code";
+
+      // 构建头部栏
+      var header = document.createElement("div");
+      header.className = "code-header";
+      header.innerHTML =
+        '<span class="code-lang">' + displayName + '</span>' +
+        '<button class="code-copy-btn">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>' +
+          '<span>复制</span>' +
+        '</button>';
+      pre.insertBefore(header, code);
+
+      // 添加行号
+      var lines = rawText.split("\n");
+      if (lines[lines.length - 1] === "") lines.pop();
+      var lineNums = lines.map(function(_, i) {
+        return '<span class="line-num">' + (i + 1) + '</span>';
+      }).join("\n");
+
+      // 给每行添加行号
+      var codeLines = code.innerHTML.split("\n");
+      if (codeLines[codeLines.length - 1] === "") codeLines.pop();
+      var numberedHTML = codeLines.map(function(line, i) {
+        return '<span class="line-num">' + (i + 1) + '</span>' + line;
+      }).join("\n");
+      code.innerHTML = numberedHTML;
+
+      // 复制按钮事件
+      var copyBtn = header.querySelector(".code-copy-btn");
+      copyBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(rawText).then(function () {
+          copyBtn.innerHTML =
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+            '<span>已复制</span>';
+          copyBtn.classList.add("copied");
+          setTimeout(function () {
+            copyBtn.innerHTML =
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>' +
+              '<span>复制</span>';
+            copyBtn.classList.remove("copied");
+          }, 2000);
+        });
+      });
+    });
+    } // end processCodeBlocks
+
+    // 等待 highlight.js 加载完成后处理代码块
+    function waitForHljs() {
+      if (typeof hljs !== "undefined") {
+        processCodeBlocks();
+      } else {
+        setTimeout(waitForHljs, 100);
+      }
+    }
+    waitForHljs();
   });
 </script>
 <style>

@@ -1,12 +1,12 @@
 {
-  "name": "news-theme",
+  "name": "aether",
   "type": "module",
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 4300",
     "build": "astro build",
     "preview": "wrangler pages dev dist",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler deploy --config dist/server/wrangler.json --route \"zine.nelv.cn/*\""
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",
