@@ -4,6 +4,7 @@ export const prerender = true;
 import { getPostById, getAllPosts, getCategories, getPosts } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
+import { slugToTopicId, nameToTagId, postToArticleId } from "../../lib/route-ids";
 import Layout from "../../layouts/Layout.astro";
 import ArticleActions from "../../components/ArticleActions.astro";
 import ArticleSidebar from "../../components/ArticleSidebar.astro";
@@ -14,7 +15,7 @@ export async function getStaticPaths() {
   try {
     const posts = await getAllPosts();
     return posts.map((post) => ({
-      params: { id: String(post.id) },
+      params: { id: postToArticleId(post.id) },
     }));
   } catch {
     return [];
@@ -36,6 +37,12 @@ let wpCategories: Array<{
 }> = [];
 
 try {
+  const allPosts = await getAllPosts();
+  const foundPost = allPosts.find((p) => postToArticleId(p.id) === id);
+  if (foundPost) {
+    post = await getPostById(foundPost.id);
+  }
+  
   const [wpPosts, wpCats] = await Promise.all([
     getPosts(1, Math.min(wpConfig.perPage, 20)),
     getCategories(),
@@ -44,14 +51,6 @@ try {
   wpCategories = wpCats.map(mapCategory);
 } catch {
   // fallback: empty data
-}
-
-if (id) {
-  try {
-    post = await getPostById(Number(id));
-  } catch {
-    post = null;
-  }
 }
 
 if (!post) {
@@ -76,7 +75,10 @@ const tagNames =
 const tagSlugs =
   post?._embedded?.["wp:term"]?.[1]?.map((t: { slug: string }) => t.slug) || [];
 
-const pageUrl = `/article/${id}`;
+const categoryTopicId = categorySlug ? slugToTopicId(categorySlug) : "";
+const articleId = post ? postToArticleId(post.id) : id;
+
+const pageUrl = `/article/${articleId}`;
 
 const relatedPosts = recentPosts
   .filter((p: WPPost) => String(p.id) !== id)
@@ -85,8 +87,7 @@ const relatedPosts = recentPosts
     id: p.id,
     title: stripHtml(p.title?.rendered),
     image:
-      p._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-      `https://picsum.photos/seed/${p.id}/120/90`,
+      p._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "",
   }));
 ---
 
@@ -145,17 +146,17 @@ const relatedPosts = recentPosts
               }</span
             >
             {
-              categoryName && categorySlug && (
+              categoryName && categoryTopicId && (
                 <>
                   <span class="sep">|</span>
-                  <a href={`/topic/${categorySlug}`} class="accent">
+                  <a href={`/topic/${categoryTopicId}`} class="accent">
                     {categoryName}
                   </a>
                 </>
               )
             }
             {
-              categoryName && !categorySlug && (
+              categoryName && !categoryTopicId && (
                 <>
                   <span class="sep">|</span>
                   <span class="accent">{categoryName}</span>
@@ -166,7 +167,6 @@ const relatedPosts = recentPosts
           {
             tagNames.length > 0 && (
               <div class="article-tags">
-                {/* 标签图标 */}
                 <svg
                   class="tag-icon"
                   xmlns="http://www.w3.org/2000/svg"
@@ -184,8 +184,8 @@ const relatedPosts = recentPosts
                 </svg>
 
                 {tagNames.map((tag: string, i: number) => {
-                  const slug = tagSlugs[i] || tag;
-                  return <a href={`/tag/${slug}`}>{tag}</a>;
+                  const tagId = nameToTagId(tag);
+                  return <a href={`/tag/${tagId}`}>{tag}</a>;
                 })}
               </div>
             )
@@ -378,10 +378,7 @@ const relatedPosts = recentPosts
 .tag-icon {
   flex-shrink: 0;
   display: block;
-  /* 颜色继承父级 */
   color: inherit;
-  /* 垂直居中通过父级 align-items: center 实现 */
-  /* 大小通过 width/height 控制 */
 }
 
 .article-tags a {
@@ -393,14 +390,5 @@ const relatedPosts = recentPosts
 
 .article-tags a:hover {
   color: var(--link-hover, #4A90D9);
-  text-decoration: underline;
 }
-
-/* 如果标签之间需要分隔符，可以加上 */
-/* .article-tags a:not(:last-child)::after {
-  content: "·";
-  margin-left: 8px;
-  color: var(--text-muted, #ccc);
-  pointer-events: none;
-} */
 </style>

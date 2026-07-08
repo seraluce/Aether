@@ -12,9 +12,21 @@ const categories = [
 ];
 
 const tags = [
-  '人工智能', '区块链', '5G', '新能源', '元宇宙',
-  '数字经济', '碳中和', '芯片', '云计算', '物联网',
-  '大数据', '智能家居', '自动驾驶', '虚拟现实', '机器人',
+  { name: '人工智能', count: 42 },
+  { name: '区块链', count: 18 },
+  { name: '5G', count: 25 },
+  { name: '新能源', count: 31 },
+  { name: '元宇宙', count: 15 },
+  { name: '数字经济', count: 28 },
+  { name: '碳中和', count: 22 },
+  { name: '芯片', count: 19 },
+  { name: '云计算', count: 24 },
+  { name: '物联网', count: 17 },
+  { name: '大数据', count: 20 },
+  { name: '智能家居', count: 12 },
+  { name: '自动驾驶', count: 16 },
+  { name: '虚拟现实', count: 11 },
+  { name: '机器人', count: 13 },
 ];
 
 const posts: Post[] = [
@@ -22,49 +34,49 @@ const posts: Post[] = [
     id: 1, title: '人工智能大模型再突破：新一代语言模型引领技术变革',
     excerpt: '最新发布的AI大模型在多项基准测试中刷新纪录，展现出前所未有的语言理解和推理能力，引发业界广泛关注。专家认为这标志着通用人工智能迈出了重要一步...',
     category: '科技资讯', categorySlug: 'tech', author: '张明远', date: '2026-07-05',
-    image: 'https://picsum.photos/seed/tech1/600/340', slug: 'ai-breakthrough', tags: ['人工智能', '大数据'], views: 15420,
+    image: '', slug: 'ai-breakthrough', tags: ['人工智能', '大数据'], views: 15420,
   },
   {
     id: 2, title: '全球股市震荡：多国央行调整货币政策应对通胀',
     excerpt: '受全球通胀压力影响，多国央行相继宣布调整利率政策。分析师认为这将对全球资本市场产生深远影响，投资者需密切关注后续走势...',
     category: '财经新闻', categorySlug: 'finance', author: '李晓峰', date: '2026-07-04',
-    image: 'https://picsum.photos/seed/finance1/600/340', slug: 'stock-market', tags: ['数字经济', '碳中和'], views: 12380,
+    image: '', slug: 'stock-market', tags: ['数字经济', '碳中和'], views: 12380,
   },
   {
     id: 3, title: '世界杯预选赛战报：国足客场逆转取得关键三分',
     excerpt: '在昨晚进行的世界杯亚洲区预选赛中，中国男足在落后一球的情况下连进两球实现逆转，为晋级之路注入强心剂...',
     category: '体育赛事', categorySlug: 'sports', author: '王建国', date: '2026-07-04',
-    image: 'https://picsum.photos/seed/sports1/600/340', slug: 'world-cup', tags: ['5G', '物联网'], views: 28900,
+    image: '', slug: 'world-cup', tags: ['5G', '物联网'], views: 28900,
   },
   {
     id: 4, title: '新能源汽车销量再创新高：上半年渗透率突破50%',
     excerpt: '据最新统计数据显示，今年上半年新能源汽车销量同比增长45%，市场渗透率首次突破50%大关，标志着新能源汽车进入主流时代...',
     category: '科技资讯', categorySlug: 'tech', author: '陈思雨', date: '2026-07-03',
-    image: 'https://picsum.photos/seed/ev1/600/340', slug: 'ev-sales', tags: ['新能源', '自动驾驶'], views: 9870,
+    image: '', slug: 'ev-sales', tags: ['新能源', '自动驾驶'], views: 9870,
   },
   {
     id: 5, title: '暑期档电影市场火爆：多部国产大片票房破十亿',
     excerpt: '今年暑期档电影市场表现强劲，多部国产影片票房突破十亿大关。业内分析认为，优质内容的持续输出是市场繁荣的关键...',
     category: '娱乐八卦', categorySlug: 'entertainment', author: '赵雅芝', date: '2026-07-03',
-    image: 'https://picsum.photos/seed/movie1/600/340', slug: 'summer-movies', tags: ['虚拟现实', '人工智能'], views: 18650,
+    image: '', slug: 'summer-movies', tags: ['虚拟现实', '人工智能'], views: 18650,
   },
   {
     id: 6, title: '芯片制造新突破：国产光刻机取得重要进展',
     excerpt: '国内半导体研发团队在光刻技术领域取得重大突破，成功研发出新一代关键设备，为芯片自主可控奠定坚实基础...',
     category: '科技资讯', categorySlug: 'tech', author: '刘志强', date: '2026-07-02',
-    image: 'https://picsum.photos/seed/chip1/600/340', slug: 'chip-breakthrough', tags: ['芯片', '云计算'], views: 22100,
+    image: '', slug: 'chip-breakthrough', tags: ['芯片', '云计算'], views: 22100,
   },
   {
     id: 7, title: '联合国气候峰会达成新协议：各国承诺加速碳中和进程',
     excerpt: '在刚刚结束的联合国气候变化大会上，与会各国达成新一轮减排协议，承诺在2035年前将碳排放量降低60%...',
     category: '国际要闻', categorySlug: 'world', author: '孙海涛', date: '2026-07-02',
-    image: 'https://picsum.photos/seed/climate1/600/340', slug: 'climate-summit', tags: ['碳中和', '新能源'], views: 8920,
+    image: '', slug: 'climate-summit', tags: ['碳中和', '新能源'], views: 8920,
   },
   {
     id: 8, title: '智慧城市建设提速：多个城市发布数字化转型方案',
     excerpt: '近期，北京、上海、深圳等多个城市相继发布智慧城市建设新方案，涵盖交通、医疗、教育等多个民生领域...',
     category: '社会民生', categorySlug: 'society', author: '周文静', date: '2026-07-01',
-    image: 'https://picsum.photos/seed/city1/600/340', slug: 'smart-city', tags: ['物联网', '大数据', '智能家居'], views: 6540,
+    image: '', slug: 'smart-city', tags: ['物联网', '大数据', '智能家居'], views: 6540,
   },
 ];
 

@@ -34,6 +34,7 @@ export interface WPTag {
   id: number;
   name: string;
   slug: string;
+  count: number;
 }
 
 export interface WPUser {
@@ -203,7 +204,7 @@ export async function getCategories(): Promise<WPCategory[]> {
 export async function getTags(): Promise<WPTag[]> {
   return wpFetch<WPTag[]>('/tags', {
     per_page: '100',
-    _fields: 'id,name,slug',
+    _fields: 'id,name,slug,count',
   });
 }
 

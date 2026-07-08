@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "../site.config";
+import { slugToTopicId } from "../lib/route-ids";
 
 interface Props {
   categories: Array<{ name: string; slug: string; count: number; icon: string }>;
@@ -15,10 +16,11 @@ const currentPath = Astro.url.pathname;
 </div>
   <ul class="category-list">
     {categories.map((cat) => {
-      const isActive = currentPath === `/topic/${cat.slug}`;
+      const topicId = slugToTopicId(cat.slug);
+      const isActive = currentPath === `/topic/${topicId}`;
       return (
         <li>
-          <a href={`/topic/${cat.slug}`} class:list={[{ active: isActive }]}>
+          <a href={`/topic/${topicId}`} class:list={[{ active: isActive }]}>
             <span class="cat-icon" set:html={cat.icon}></span>
             <span class="cat-name">{cat.name}</span>
             <span class="cat-count">{cat.count}</span>

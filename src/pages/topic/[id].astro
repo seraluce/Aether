@@ -3,6 +3,7 @@ export const prerender = true;
 
 import { getCategories, getPostsByCategory } from '../../lib/wordpress';
 import { mapPost, mapCategory } from '../../lib/mappers';
+import { slugToTopicId } from '../../lib/route-ids';
 import type { Post } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
@@ -12,20 +13,15 @@ import { siteConfig } from '../../site.config';
 export async function getStaticPaths() {
   try {
     const cats = await getCategories();
-    return cats
-      .map((cat) => {
-        try {
-          return { params: { slug: decodeURIComponent(cat.slug) } };
-        } catch {
-          return { params: { slug: cat.slug } };
-        }
-      });
+    return cats.map((cat) => ({
+      params: { id: slugToTopicId(cat.slug) },
+    }));
   } catch {
     return [];
   }
 }
 
-const { slug } = Astro.params;
+const { id } = Astro.params;
 
 let wpCategories: Array<{ name: string; slug: string; count: number; icon: string }> = [];
 let category: { name: string; slug: string; count: number; icon: string } | null = null;
@@ -39,7 +35,7 @@ try {
     icon: (c as any).icon || '',
   }));
 
-  const found = cats.find((c) => decodeURIComponent(c.slug) === slug);
+  const found = cats.find((c) => slugToTopicId(c.slug) === id);
   if (found) {
     category = mapCategory(found);
     const wpPosts = await getPostsByCategory(found.id, 1, wpConfig.perPage);

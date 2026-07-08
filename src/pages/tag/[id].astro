@@ -3,6 +3,7 @@ export const prerender = true;
 
 import { getTags, getPostsByTag } from '../../lib/wordpress';
 import { mapPost } from '../../lib/mappers';
+import { nameToTagId } from '../../lib/route-ids';
 import type { Post } from '../../lib/mappers';
 import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
@@ -12,34 +13,23 @@ import { siteConfig } from '../../site.config';
 export async function getStaticPaths() {
   try {
     const tags = await getTags();
-    return tags
-      .map((tag) => {
-        try {
-          return { params: { name: decodeURIComponent(tag.slug) } };
-        } catch {
-          return { params: { name: tag.slug } };
-        }
-      });
+    return tags.map((tag) => ({
+      params: { id: nameToTagId(tag.name) },
+    }));
   } catch {
     return [];
   }
 }
 
-const { name } = Astro.params;
+const { id } = Astro.params;
 
-let tagName = name || '';
+let tagName = '';
 let posts: Post[] = [];
 
 try {
   const wpTags = await getTags();
 
-  const found = wpTags.find((t) => {
-    try {
-      return decodeURIComponent(t.slug) === name;
-    } catch {
-      return t.slug === name;
-    }
-  });
+  const found = wpTags.find((t) => nameToTagId(t.name) === id);
   if (found) {
     tagName = found.name;
     const wpPosts = await getPostsByTag(found.id, 1, wpConfig.perPage);

@@ -6,7 +6,7 @@ import { wpConfig } from '../config';
 export interface SiteData {
   posts: Post[];
   categories: Array<{ name: string; slug: string; count: number; icon: string }>;
-  tags: string[];
+  tags: Array<{ name: string; count: number }>;
   hotPosts: Post[];
   error: string | null;
 }

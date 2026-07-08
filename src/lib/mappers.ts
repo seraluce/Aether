@@ -128,6 +128,6 @@ export function mapCategory(cat: WPCategory): {
   };
 }
 
-export function mapTag(tag: WPTag): string {
-  return tag.name;
+export function mapTag(tag: WPTag): { name: string; count: number } {
+  return { name: tag.name, count: tag.count };
 }

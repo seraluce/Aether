@@ -54,8 +54,8 @@ src/
 ├── pages/                # 页面路由
 │   ├── index.astro           # 首页
 │   ├── article/[id].astro    # 文章详情（静态预渲染）
-│   ├── topic/[slug].astro    # 分类页面
-│   ├── tag/[name].astro      # 标签页面
+│   ├── topic/[id].astro    # 分类页面
+│   ├── tag/[id].astro      # 标签页面
 │   ├── search.astro          # 搜索
 │   ├── archive.astro         # 文章归档
 │   ├── categories.astro      # 全部分类

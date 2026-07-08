@@ -1,6 +1,8 @@
 // ============================================================
 // 站点配置文件 — 所有站点设置集中在这里修改
 
+import { slugToTopicId } from "./lib/route-ids";
+
 // ============================================================
 const siteUrl = import.meta.env.WP_SITE_URL;
 
@@ -39,12 +41,12 @@ export const siteConfig = {
 
   // 顶部导航菜单
   headerNav: [
-    { name: "首页", href: "/", active: true },
-    { name: "科技", href: "/topic/tech" },
-    { name: "财经", href: "/topic/finance" },
-    { name: "体育", href: "/topic/sports" },
-    { name: "娱乐", href: "/topic/entertainment" },
-    { name: "国际", href: "/topic/world" },
+    { name: "首页", href: "/" },
+    { name: "科技", href: `/topic/${slugToTopicId("tech")}` },
+    { name: "财经", href: `/topic/${slugToTopicId("finance")}` },
+    { name: "体育", href: `/topic/${slugToTopicId("sports")}` },
+    { name: "娱乐", href: `/topic/${slugToTopicId("entertainment")}` },
+    { name: "国际", href: `/topic/${slugToTopicId("world")}` },
   ],
 
   // 页脚链接
@@ -59,7 +61,7 @@ export const siteConfig = {
   wordpress: {
     siteUrl: siteUrl || "https://www.frbkw.com", // 确保有默认值
     apiBase: "/wp-json/wp/v2",
-    perPage: 30,
+    perPage: 100,
     cacheTimeout: 5 * 60 * 1000, // 5 分钟
 
     // ✅ 修复：使用更安全的方法构建 URL

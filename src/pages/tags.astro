@@ -5,10 +5,11 @@ import SidebarRight from "../components/SidebarRight.astro";
 import { fetchSiteData } from "../data/fetcher";
 import { mockData } from "../data/mock";
 import { siteConfig } from "../site.config";
+import { nameToTagId } from "../lib/route-ids";
 
 const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
-const tags = siteData.tags;
+const tags = [...siteData.tags].sort((a, b) => b.count - a.count);
 const siteFavicon = siteConfig.site.favicon;
 const siteLogo = siteConfig.site.logo.light;
 ---
@@ -49,7 +50,7 @@ categories={siteData.categories}>
       </div>
       <div class="sidebar-card" style="padding: 24px;">
         <div class="tag-cloud tag-cloud-full">
-          {tags.map((tag) => <a href={`/tag/${tag}`}>{tag}</a>)}
+          {tags.map((tag) => <a href={`/tag/${nameToTagId(tag.name)}`}>{tag.name}</a>)}
         </div>
         {
           tags.length === 0 && (

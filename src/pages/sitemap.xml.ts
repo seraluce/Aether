@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getPosts, getCategories } from '../lib/wordpress';
 import { mapPost, mapCategory } from '../lib/mappers';
+import { slugToTopicId, postToArticleId } from '../lib/route-ids';
 import { mockData } from '../data/mock';
 
 export const GET: APIRoute = async ({ site }) => {
@@ -23,13 +24,13 @@ export const GET: APIRoute = async ({ site }) => {
     { loc: siteUrl, lastmod: now, changefreq: 'daily', priority: '1.0' },
     { loc: `${siteUrl}/search`, lastmod: now, changefreq: 'weekly', priority: '0.5' },
     ...categories.map((cat) => ({
-      loc: `${siteUrl}/topic/${cat.slug}`,
+      loc: `${siteUrl}/topic/${slugToTopicId(cat.slug)}`,
       lastmod: now,
       changefreq: 'daily' as const,
       priority: '0.8',
     })),
     ...posts.map((post) => ({
-      loc: `${siteUrl}/article/${post.id}`,
+      loc: `${siteUrl}/article/${postToArticleId(post.id)}`,
       lastmod: new Date(post.date).toISOString(),
       changefreq: 'weekly' as const,
       priority: '0.6',

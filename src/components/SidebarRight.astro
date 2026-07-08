@@ -1,16 +1,17 @@
 ---
 import type { Post } from '../lib/mappers';
 import { siteConfig } from '../site.config';
+import { nameToTagId, postToArticleId } from '../lib/route-ids';
 
 interface Props {
   hotPosts: Post[];
-  tags: string[];
+  tags: Array<{ name: string; count: number }>;
 }
 
 const { hotPosts = [], tags = [] } = Astro.props as Props;
-const tagsLimit = siteConfig.widgets.tagsCount || 10;
-const visibleTags = tags.slice(0, tagsLimit);
-const hasMoreTags = tags.length > tagsLimit;
+const tagsLimit = siteConfig.widgets.tagsCount || 12;
+const sortedTags = [...tags].sort((a, b) => b.count - a.count);
+const visibleTags = sortedTags.slice(0, tagsLimit);
 const currentYear = new Date().getFullYear();
 const footerLinks = siteConfig.footerLinks
 
@@ -46,7 +47,7 @@ function formatViews(n: number): string {
       <div class="hot-post-item">
         <span class={`hot-post-rank ${index < 3 ? 'top' : ''}`}>{index + 1}</span>
         <div class="hot-post-info">
-          <h4><a href={`/article/${post.id}`}>{post.title}</a></h4>
+          <h4><a href={`/article/${postToArticleId(post.id)}`}>{post.title}</a></h4>
           <span class="views">{formatViews(post.views)} 热度</span>
         </div>
       </div>
@@ -54,23 +55,17 @@ function formatViews(n: number): string {
   </div>
 </div>
 
-<div class="sidebar-card">
+<div class="sidebar-card sidebar-card-tags">
   <div class="sidebar-card-title">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
       <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
-    标签
-    {hasMoreTags && (
-      <a href="/tags" class="sidebar-card-more">
-        更多
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </a>
-    )}
+     标签
   </div>
   <div class="tag-cloud">
     {visibleTags.map((tag) => (
-      <a href={`/tag/${tag}`}>{tag}</a>
+      <a href={`/tag/${nameToTagId(tag.name)}`}>{tag.name}</a>
     ))}
   </div>
 </div>
