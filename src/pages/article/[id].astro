@@ -8,6 +8,7 @@ import { slugToTopicId, nameToTagId, postToArticleId } from "../../lib/route-ids
 import Layout from "../../layouts/Layout.astro";
 import ArticleActions from "../../components/ArticleActions.astro";
 import ArticleSidebar from "../../components/ArticleSidebar.astro";
+import ArticleComments from "../../components/ArticleComments.astro";
 import { siteConfig } from "../../site.config";
 import { wpConfig } from "../../config";
 
@@ -126,12 +127,13 @@ const relatedPosts = recentPosts
 
     <div class="article-main">
       <article>
-        <header class="article-header">
-          <!-- {
-            pageImage && pageImage.startsWith("http") && (
-              <img src={pageImage} alt={pageTitle} class="article-cover" />
-            )
-          } -->
+          <header class="article-header">
+          <button class="back-btn" id="goBackHeader" aria-label="返回上一层">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回
+          </button>
           <h1>{pageTitle}</h1>
           <div class="article-meta">
             <!-- {authorName && <span>{authorName}</span>}
@@ -206,6 +208,7 @@ const relatedPosts = recentPosts
           </button>
         </div>
       </article>
+      <ArticleComments postId={post.id} />
     </div>
 
     <aside class="article-sidebar">
@@ -261,6 +264,9 @@ const relatedPosts = recentPosts
       observer.observe(img);
     });
     document.getElementById("goBack").addEventListener("click", () => {
+      window.history.back();
+    });
+    document.getElementById("goBackHeader")?.addEventListener("click", () => {
       window.history.back();
     });
 
@@ -391,4 +397,30 @@ const relatedPosts = recentPosts
 .article-tags a:hover {
   color: var(--link-hover, #4A90D9);
 }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  margin-bottom: 16px;
+}
+.back-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.back-btn:active {
+  transform: scale(0.97);
+}
+
 </style>
