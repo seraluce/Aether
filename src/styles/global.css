@@ -1080,7 +1080,7 @@ body.menu-open::before {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 14px;
-  padding: 40px 44px;
+  padding: 20px 24px;
 }
 
 .article-header {
