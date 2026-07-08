@@ -236,3 +236,22 @@ export async function searchPosts(query: string): Promise<WPPost[]> {
 export async function getMedia(id: number): Promise<WPMedia> {
   return wpFetch<WPMedia>(`/media/${id}`);
 }
+
+export interface WPComment {
+  id: number;
+  post: number;
+  parent: number;
+  author_name: string;
+  author_avatar_urls: Record<string, string>;
+  date: string;
+  content: { rendered: string };
+}
+
+export async function getComments(postId: number): Promise<WPComment[]> {
+  return wpFetch<WPComment[]>('/comments', {
+    post: String(postId),
+    per_page: '100',
+    orderby: 'date_gmt',
+    order: 'asc',
+  });
+}

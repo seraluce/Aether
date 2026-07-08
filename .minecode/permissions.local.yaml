@@ -1,0 +1,62 @@
+allow:
+  - Bash(ls -la)
+  - Bash(cat package.json 2>/dev/null || echo "No package.json")
+  - Bash(git log --oneline -10)
+  - Bash(pnpm install 2>&1 | tail -5)
+  - Bash(pnpm build 2>&1)
+  - Bash(npx astro check 2>&1 | head -100)
+  - Bash(timeout 120 npx astro check 2>&1 | tail -60)
+  - Bash(echo "y" | npx astro check 2>&1 | tail -80)
+  - Bash(pnpm add -D @astrojs/check typescript 2>&1 | tail -5)
+  - Bash(npx astro check 2>&1 | tail -80)
+  - Bash(npx astro check 2>&1 | grep -E "^(src/|.*error|Result)" | head -40)
+  - Editfile(/home/ubuntu/documents/Aether/src/pages/article/[id].astro)
+  - Editfile(/home/ubuntu/documents/Aether/src/pages/404.astro)
+  - Editfile(/home/ubuntu/documents/Aether/src/pages/tag/[name].astro)
+  - Editfile(/home/ubuntu/documents/Aether/src/pages/topic/[slug].astro)
+  - Editfile(/home/ubuntu/documents/Aether/src/components/LodeMore.astro)
+  - Bash(npx astro check 2>&1 | grep -E "error|Result" | head -30)
+  - Bash(npx astro check 2>&1 | grep -B5 -A5 "ts(2307)")
+  - Editfile(/home/ubuntu/documents/Aether/src/lib/mappers.ts)
+  - Bash(npx astro check 2>&1 | grep -E "error|Result")
+  - Bash(rm -rf .astro dist && npx astro check 2>&1 | grep -E "error|Result")
+  - Bash(npx astro check 2>&1 | grep -B10 "ts(2307)")
+  - Bash(find .astro -name "*.d.ts" -o -name "*.ts" | head -20)
+  - Bash(head -5 src/styles/global.css && echo "---" && grep -n
+    "import\|wordpress" src/styles/global.css | head -10)
+  - Bash(find . -name "*.tsbuildinfo" -o -name "*.ts" -path "*/.astro/*"
+    2>/dev/null | head -10)
+  - Bash(grep -rn "from.*wordpress" .astro/ 2>/dev/null | head -10)
+  - Bash(ls -la node_modules/.astro/ 2>/dev/null || echo "No .astro in
+    node_modules")
+  - Bash(rm -rf node_modules/.astro .astro && npx astro check 2>&1 | grep -E
+    "^(src/|.*error|Result)")
+  - Bash(cat -n src/lib/mappers.ts | head -3)
+  - Bash(find src -name "* *" -type f 2>/dev/null)
+  - Bash(grep -rn "from.*\.\./lib/wordpress" src/ --include="*.ts"
+    --include="*.astro" | cat)
+  - Bash(head -1 src/lib/mappers.ts && echo "---" && ls -la src/lib/mappers.ts)
+  - Bash(find . -name "*.tsbuildinfo" -not -path "*/node_modules/*" 2>/dev/null
+    && find . -name ".astro" -type d 2>/dev/null)
+  - Bash(grep -rn "from.*wordpress" src/ --include="*.ts" --include="*.astro"
+    2>/dev/null | cat -v)
+  - Bash(find . -name "*.tsbuildinfo" -not -path "*/node_modules/*" -delete
+    2>/dev/null; rm -rf .astro node_modules/.astro; npx astro sync 2>&1 | tail
+    -5)
+  - Bash(find src -type f -name "* *" 2>/dev/null)
+  - Bash(xxd src/lib/mappers.ts | head -3)
+  - Bash(find . -not -path "*/node_modules/*" -not -path "*/.git/*" -name
+    "*.tsbuildinfo" -o -name "*.cache" 2>/dev/null)
+  - Bash(ls -laR .astro/ 2>/dev/null)
+  - Bash(rm -rf .astro node_modules/.astro && npx astro check 2>&1 | grep -E
+    "error|Result")
+  - Bash(grep -rn "wordpress" .astro/ 2>/dev/null | head -20)
+  - Bash(grep -rn "\.\./lib/wordpress" . --include="*.ts" --include="*.d.ts"
+    --include="*.astro" --include="*.js" --include="*.mjs" -l 2>/dev/null | grep
+    -v node_modules | grep -v ".git")
+  - Bash(find src -type f -name "* *" -print0 | xxd | head -20)
+  - Bash(ls -la "src/lib/mappers.ts src/components/SidebarLeft.astro
+    src/layouts/Layout.astro src/styles/global.css src/site.config.ts"
+    2>/dev/null || echo "Not found as literal path")
+  - Bash(head -3 "src/lib/mappers.ts src/components/SidebarLeft.astro
+    src/layouts/Layout.astro src/styles/global.css src/site.config.ts")
