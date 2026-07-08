@@ -1,5 +1,6 @@
 // src/lib/wordpress.ts
 import { wpConfig } from '../config';
+import { kvGet, kvPut } from './cloudflare-cache';
 
 function getSiteUrl(): string {
   return wpConfig.siteUrl;
@@ -81,6 +82,12 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
   const cached = getCached<T>(cacheKey);
   if (cached) return cached;
 
+  const kvCached = await kvGet<T>(cacheKey);
+  if (kvCached) {
+    setCache(cacheKey, kvCached);
+    return kvCached;
+  }
+
   const url = new URL(`${getSiteUrl()}${wpConfig.apiBase}${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
@@ -101,6 +108,7 @@ async function wpFetch<T>(endpoint: string, params: Record<string, string> = {})
 
     const data = await res.json() as T;
     setCache(cacheKey, data);
+    kvPut(cacheKey, data, Math.floor(wpConfig.cacheTimeout / 1000));
     return data;
   } catch (err) {
     clearTimeout(timeoutId);

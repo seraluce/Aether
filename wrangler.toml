@@ -1,1 +1,7 @@
-compatibility_date = "2024-11-01"
+name = "aether"
+compatibility_date = "2026-07-08"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "c42f0eafddf1441989bd28e1d29a0f09"

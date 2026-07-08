@@ -20,6 +20,6 @@
     "@iconify-json/simple-icons": "^1.2.89",
     "astro-headers-file": "^2.0.0",
     "typescript": "^6.0.3",
-    "wrangler": "^4.107.0"
+    "wrangler": "^4.108.0"
   }
 }
