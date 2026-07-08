@@ -3,10 +3,11 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
+    "postinstall": "node scripts/postinstall.mjs",
     "dev": "astro dev --host 0.0.0.0 --port 4300",
-    "build": "astro build",
+    "build": "astro build && node scripts/postbuild.mjs",
     "preview": "wrangler pages dev dist",
-    "deploy": "wrangler deploy --config dist/server/wrangler.json --route \"zine.nelv.cn/*\""
+    "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",

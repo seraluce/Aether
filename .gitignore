@@ -86,4 +86,8 @@ temp/
 *.rar
 *.zip
 *.gz
-*.tgz.minecode/
+*.tgz
+
+# AI tooling
+.minecode/
+
