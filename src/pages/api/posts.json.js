@@ -1,6 +1,6 @@
 // src/pages/api/posts.json.js
 export async function GET({ url }) {
-  const siteUrl = process.env.PUBLIC_WP_SITE_URL || 'https://www.frbkw.com';
+  const siteUrl = import.meta.env.WP_SITE_URL || 'https://www.frbkw.com';
   const page = url.searchParams.get('page') || '1';
   const perPage = url.searchParams.get('per_page') || '20';
 

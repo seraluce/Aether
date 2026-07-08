@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 
-import { getPostById, getAllPosts, getCategories } from "../../lib/wordpress";
+import { getPostById, getAllPosts, getCategories, getPosts } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
 import Layout from "../../layouts/Layout.astro";
@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 const siteLogo = siteConfig.site.logo.light;
 const siteFavicon = siteConfig.site.favicon;
-const siteIcon = siteConfig.site.favicon
+const siteIcon = siteConfig.site.favicon;
 
 let post: WPPost | null = null;
 let recentPosts: WPPost[] = [];
@@ -283,6 +283,7 @@ const relatedPosts = recentPosts
       var rawText = code.textContent || "";
 
       // highlight.js 高亮
+      var hljs = (window as any).hljs;
       if (typeof hljs !== "undefined") {
         if (lang) {
           try { hljs.highlightElement(code); } catch(e) {}
@@ -355,7 +356,7 @@ const relatedPosts = recentPosts
 
     // 等待 highlight.js 加载完成后处理代码块
     function waitForHljs() {
-      if (typeof hljs !== "undefined") {
+      if (typeof (window as any).hljs !== "undefined") {
         processCodeBlocks();
       } else {
         setTimeout(waitForHljs, 100);

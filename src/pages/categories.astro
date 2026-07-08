@@ -51,7 +51,7 @@ const siteLogo = siteConfig.site.logo.light;
       <div class="category-grid">
         {categories.map((cat) => (
           <a href={`/topic/${cat.slug}`} class="category-card">
-            <div class="category-icon">{cat.icon || '📁'}</div>
+            <div class="category-icon" set:html={cat.icon || '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'}></div>
             <div class="category-info">
               <h3 class="category-name">{cat.name}</h3>
               <span class="category-count">{cat.count} 篇文章</span>

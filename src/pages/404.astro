@@ -15,7 +15,7 @@ const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
 ---
 
-<Layout title="404 · 页面未找到" url="/404" categories={siteData.categories}>
+<Layout title="404 · 页面未找到" url="/404" favicon={siteConfig.site.favicon} icon={siteConfig.site.favicon} logo={siteConfig.site.logo.light} categories={siteData.categories}>
   <main class="main-layout">
     <!-- 左侧栏 220px -->
     <aside class="sidebar-left">

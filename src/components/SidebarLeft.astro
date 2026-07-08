@@ -9,10 +9,10 @@ const { categories = [] } = Astro.props;
 ---
 
 <div class="sidebar-card">
-  <ul class="category-list">
-    <div class="sidebar-card-title"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg>
+  <div class="sidebar-card-title"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg>
 分类
 </div>
+  <ul class="category-list">
     {categories.map((cat) => (
       <li>
         <a href={`/topic/${cat.slug}`}>

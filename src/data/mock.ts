@@ -1,14 +1,14 @@
 import type { Post } from '../lib/mappers';
 
 const categories = [
-  { name: '科技资讯', slug: 'tech', icon: '💻', count: 128 },
-  { name: '财经新闻', slug: 'finance', icon: '📈', count: 96 },
-  { name: '体育赛事', slug: 'sports', icon: '⚽', count: 74 },
-  { name: '娱乐八卦', slug: 'entertainment', icon: '🎬', count: 112 },
-  { name: '国际要闻', slug: 'world', icon: '🌍', count: 85 },
-  { name: '社会民生', slug: 'society', icon: '🏘️', count: 63 },
-  { name: '健康生活', slug: 'health', icon: '🏥', count: 47 },
-  { name: '教育文化', slug: 'education', icon: '📚', count: 39 },
+  { name: '科技资讯', slug: 'tech', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', count: 128 },
+  { name: '财经新闻', slug: 'finance', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', count: 96 },
+  { name: '体育赛事', slug: 'sports', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M12 14v7"/><path d="M9 21h6"/></svg>', count: 74 },
+  { name: '娱乐八卦', slug: 'entertainment', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', count: 112 },
+  { name: '国际要闻', slug: 'world', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>', count: 85 },
+  { name: '社会民生', slug: 'society', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', count: 63 },
+  { name: '健康生活', slug: 'health', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>', count: 47 },
+  { name: '教育文化', slug: 'education', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>', count: 39 },
 ];
 
 const tags = [

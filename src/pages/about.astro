@@ -30,11 +30,8 @@ const social: SocialItem[] =
         { name: "RSS", url: "/rss.xml", icon: "rss" },
       ];
 
-// ✅ 本地图标路径映射
 function getIconPath(icon: string): string {
-  // 本地图标路径：/src/icons/xxx.svg
-  // 在 Astro 中，使用 /src/ 路径会被正确处理
-  return `/src/icons/${icon}.svg`;
+  return `/icons/${icon}.svg`;
 }
 ---
 
