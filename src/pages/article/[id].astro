@@ -80,7 +80,7 @@ const pageUrl = `/article/${id}`;
 
 const relatedPosts = recentPosts
   .filter((p: WPPost) => String(p.id) !== id)
-  .slice(0, 4)
+  .slice(0, 6)
   .map((p: WPPost) => ({
     id: p.id,
     title: stripHtml(p.title?.rendered),

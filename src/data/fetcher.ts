@@ -30,7 +30,7 @@ export async function fetchSiteData(): Promise<SiteData> {
     const posts = wpPosts.map(mapPost);
     const categories = wpCategories.map(mapCategory);
     const tags = wpTags.map(mapTag);
-    const hotPosts = [...posts].sort((a, b) => b.views - a.views).slice(0, 5);
+    const hotPosts = [...posts].sort((a, b) => b.views - a.views).slice(0, 8);
 
     cachedSiteData = { posts, categories, tags, hotPosts, error: null };
     cacheTimestamp = now;

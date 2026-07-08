@@ -6,6 +6,7 @@ interface Props {
 }
 
 const { categories = [] } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 
 <div class="sidebar-card">
@@ -13,14 +14,17 @@ const { categories = [] } = Astro.props;
 分类
 </div>
   <ul class="category-list">
-    {categories.map((cat) => (
-      <li>
-        <a href={`/topic/${cat.slug}`}>
-          <span class="cat-icon" set:html={cat.icon}></span>
-          <span class="cat-name">{cat.name}</span>
-          <span class="cat-count">{cat.count}</span>
-        </a>
-      </li>
-    ))}
+    {categories.map((cat) => {
+      const isActive = currentPath === `/topic/${cat.slug}`;
+      return (
+        <li>
+          <a href={`/topic/${cat.slug}`} class:list={[{ active: isActive }]}>
+            <span class="cat-icon" set:html={cat.icon}></span>
+            <span class="cat-name">{cat.name}</span>
+            <span class="cat-count">{cat.count}</span>
+          </a>
+        </li>
+      );
+    })}
   </ul>
 </div>

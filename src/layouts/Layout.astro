@@ -44,6 +44,7 @@ const {
 } = Astro.props as Props;
 
 const { site, seo } = siteConfig;
+const currentPath = Astro.url.pathname;
 const fullUrl = new URL(url, site.url).toString();
 const fullImage = image.startsWith("http")
   ? image
@@ -166,9 +167,16 @@ const fullImage = image.startsWith("http")
         </div>
         <nav class="header-nav">
           {
-            siteConfig.headerNav.map((item) => (
-              <a href={item.href}>{item.name}</a>
-            ))
+            siteConfig.headerNav.map((item) => {
+              const isActive = item.href === "/"
+                ? currentPath === "/"
+                : currentPath.startsWith(item.href);
+              return (
+                <a href={item.href} class:list={[{ active: isActive }]}>
+                  {item.name}
+                </a>
+              );
+            })
           }
         </nav>
         <button
@@ -262,13 +270,16 @@ const fullImage = image.startsWith("http")
           <div class="mobile-section-title">分类导航</div>
           <div class="mobile-menu-list">
             {
-              categories.map((cat) => (
-                <a href={`/topic/${cat.slug}`} class="mobile-menu-item">
-                  <span class="mobile-menu-icon" set:html={cat.icon} />
-                  <span class="mobile-menu-name">{cat.name}</span>
-                  <span class="mobile-menu-count">{cat.count}</span>
-                </a>
-              ))
+              categories.map((cat) => {
+                const isActive = currentPath === `/topic/${cat.slug}`;
+                return (
+                  <a href={`/topic/${cat.slug}`} class:list={["mobile-menu-item", { active: isActive }]}>
+                    <span class="mobile-menu-icon" set:html={cat.icon} />
+                    <span class="mobile-menu-name">{cat.name}</span>
+                    <span class="mobile-menu-count">{cat.count}</span>
+                  </a>
+                );
+              })
             }
           </div>
         </div>
