@@ -7,7 +7,7 @@
     "dev": "astro dev --host 0.0.0.0 --port 4300",
     "build": "astro build & node scripts/postbuild.mjs",
     "preview": "wrangler pages dev dist",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",

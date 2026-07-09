@@ -1,21 +1,27 @@
-import { writeFileSync, readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = resolve(__dirname, '../dist');
-const wranglerJsonPaths = [
-  resolve(distDir, 'server/wrangler.json'),
-  resolve(distDir, 'server/.prerender/wrangler.json'),
-];
 
-// Delete adapter-generated wrangler.json files - Pages doesn't use them and they cause conflicts
-import { rmSync } from 'node:fs';
-for (const filePath of wranglerJsonPaths) {
+function ensureCacheBinding(filePath) {
   try {
-    rmSync(filePath);
-    console.log(`[postbuild] Removed ${filePath}`);
+    const raw = readFileSync(filePath, 'utf-8');
+    const config = JSON.parse(raw);
+
+    const hasCache = config.kv_namespaces?.some((kv) => kv.binding === 'CACHE');
+    if (!hasCache) {
+      config.kv_namespaces = config.kv_namespaces || [];
+      config.kv_namespaces.push({ binding: 'CACHE', id: 'c42f0eafddf1441989bd28e1d29a0f09' });
+    }
+
+    writeFileSync(filePath, JSON.stringify(config));
+    console.log(`[postbuild] Updated ${filePath}`);
   } catch (e) {
-    // silent skip if file doesn't exist
+    // silent skip
   }
 }
+
+ensureCacheBinding(resolve(distDir, 'server/wrangler.json'));
+ensureCacheBinding(resolve(distDir, 'server/.prerender/wrangler.json'));
