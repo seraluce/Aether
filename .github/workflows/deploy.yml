@@ -14,9 +14,7 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install -g pnpm@11.10.0
-
-      - run: echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+      - run: corepack enable && corepack prepare pnpm@11.10.0 --activate
 
       - run: pnpm install
 
