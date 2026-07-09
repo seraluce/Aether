@@ -4,7 +4,7 @@
 import { slugToTopicId } from "./lib/route-ids";
 
 // ============================================================
-const siteUrl = import.meta.env.WP_SITE_URL;
+const siteUrl = import.meta.env.WP_SITE_URL || import.meta.env.SITE_URL;
 
 export const siteConfig = {
   // 站点基本信息
@@ -14,7 +14,7 @@ export const siteConfig = {
     slogan: "最新最全的新闻资讯平台",
     description:
       "最新最全的新闻资讯平台，涵盖科技、财经、体育、娱乐、国际等多个领域",
-    url: "https://www.kovel.com",
+    url: siteUrl || "https://www.frbkw.com",
     type: "website",
     language: "zh-CN",
     timezone: "Asia/Shanghai",

@@ -5,9 +5,9 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.mjs",
     "dev": "astro dev --host 0.0.0.0 --port 4300",
-    "build": "astro build & node scripts/postbuild.mjs",
+    "build": "astro build && node scripts/postbuild.mjs",
     "preview": "wrangler pages dev dist",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.1",
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@iconify-json/simple-icons": "^1.2.89",
-    "astro-headers-file": "^2.0.0",
+
     "typescript": "^6.0.3",
     "wrangler": "^4.108.0"
   }
