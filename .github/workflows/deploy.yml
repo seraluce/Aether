@@ -16,7 +16,15 @@ jobs:
 
       - run: npm install -g pnpm@11.10.0
 
-      - run: pnpm install
+      - run: |
+          echo "PATH=$PATH"
+          which pnpm || echo "pnpm not in PATH"
+          pnpm --version
+          npm list -g pnpm 2>&1 || true
+          pnpm install 2>&1; exit_code=$?
+          echo "## pnpm install (exit=$exit_code)" >> $GITHUB_STEP_SUMMARY
+          pnpm store path >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          exit $exit_code
 
       - run: pnpm build
         env:
