@@ -1,6 +1,4 @@
 ---
-export const prerender = true;
-
 import { getPostById, getAllPosts, getCategories, getPosts } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
@@ -11,17 +9,6 @@ import ArticleSidebar from "../../components/ArticleSidebar.astro";
 import ArticleComments from "../../components/ArticleComments.astro";
 import { siteConfig } from "../../site.config";
 import { wpConfig } from "../../config";
-
-export async function getStaticPaths() {
-  try {
-    const posts = await getAllPosts();
-    return posts.map((post) => ({
-      params: { id: postToArticleId(post.id) },
-    }));
-  } catch {
-    return [];
-  }
-}
 
 const { id } = Astro.params;
 const siteLogo = siteConfig.site.logo.light;

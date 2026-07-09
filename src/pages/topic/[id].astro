@@ -1,6 +1,4 @@
 ---
-export const prerender = true;
-
 import { getCategories, getPostsByCategory } from '../../lib/wordpress';
 import { mapPost, mapCategory } from '../../lib/mappers';
 import { slugToTopicId } from '../../lib/route-ids';
@@ -9,17 +7,6 @@ import Layout from '../../layouts/Layout.astro';
 import PostGrid from '../../components/PostGrid.astro';
 import { wpConfig } from '../../config';
 import { siteConfig } from '../../site.config';
-
-export async function getStaticPaths() {
-  try {
-    const cats = await getCategories();
-    return cats.map((cat) => ({
-      params: { id: slugToTopicId(cat.slug) },
-    }));
-  } catch {
-    return [];
-  }
-}
 
 const { id } = Astro.params;
 
