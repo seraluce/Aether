@@ -12,6 +12,11 @@ export default defineConfig({
     imageService: 'passthrough',
     session: false,
   }),
+  vite: {
+    define: {
+      'import.meta.env.WP_SITE_URL': JSON.stringify(siteUrl),
+    },
+  },
   integrations: [
     icon(),
     headersFile({  // 新增

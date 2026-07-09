@@ -4,7 +4,9 @@
 import { slugToTopicId } from "./lib/route-ids";
 
 // ============================================================
-const siteUrl = import.meta.env.WP_SITE_URL;
+const siteUrl =
+  typeof globalThis !== 'undefined' && (globalThis as any).WP_SITE_URL ||
+  import.meta.env.WP_SITE_URL;
 
 export const siteConfig = {
   // 站点基本信息
