@@ -326,7 +326,8 @@ async function fetchRemotePostHashes(): Promise<PostHashEntry[]> {
   const perPage = 100;
   const allHashes: PostHashEntry[] = [];
 
-  const { totalPages } = await getTotalPosts();
+  const { total } = await getTotalPosts();
+  const totalPages = Math.ceil(total / perPage);
 
   const batch: Promise<WPPost[]>[] = [];
   for (let page = 1; page <= totalPages; page++) {

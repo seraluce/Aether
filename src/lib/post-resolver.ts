@@ -16,8 +16,9 @@ export async function resolveArticleId(obfuscatedId: string): Promise<number | n
     return cached.map.get(obfuscatedId) ?? null;
   }
 
-  const { totalPages } = await getTotalPosts();
+  const { total } = await getTotalPosts();
   const perPage = 100;
+  const totalPages = Math.ceil(total / perPage);
   const maxPages = Math.min(totalPages, 20);
 
   const batch = [];
