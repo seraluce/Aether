@@ -4,10 +4,11 @@ import SidebarLeft from "../components/SidebarLeft.astro";
 import SidebarRight from "../components/SidebarRight.astro";
 import PostGrid from "../components/PostGrid.astro";
 import { fetchSiteData } from "../data/fetcher";
+import { mockData } from "../data/mock";
 import { siteConfig } from "../site.config";
 
 const initialData = await fetchSiteData();
-const siteData = initialData.error ? null : initialData;
+const siteData = initialData.error ? mockData : initialData;
 
 const siteFavicon = siteConfig.site.favicon;
 const siteLogo = siteConfig.site.logo.light;

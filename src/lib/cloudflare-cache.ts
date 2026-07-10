@@ -1,17 +1,27 @@
-let _kv: any = null;
-
-export function setKvNamespace(ns: any) {
-  _kv = ns;
+interface KvNamespace {
+  get(key: string, type?: string): Promise<unknown>;
+  put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void>;
 }
 
-export function getKvNamespace() {
-  return _kv;
+function getKv(): KvNamespace | null {
+  try {
+    // @astrojs/cloudflare v14+: env is only available via cloudflare:workers import
+    // This import is resolved by the adapter's Vite plugin at build time
+    // and by the Workers runtime at request time.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('cloudflare:workers') as { env: Record<string, unknown> };
+    return (mod.env?.CACHE as KvNamespace) ?? null;
+  } catch {
+    // Local dev without Workers runtime — KV unavailable
+    return null;
+  }
 }
 
 export async function kvGet<T>(key: string): Promise<T | null> {
-  if (!_kv) return null;
+  const kv = getKv();
+  if (!kv) return null;
   try {
-    const val = await _kv.get(key, 'json');
+    const val = await kv.get(key, 'json');
     return val as T | null;
   } catch {
     return null;
@@ -19,9 +29,10 @@ export async function kvGet<T>(key: string): Promise<T | null> {
 }
 
 export async function kvPut(key: string, value: unknown, ttl = 300) {
-  if (!_kv) return;
+  const kv = getKv();
+  if (!kv) return;
   try {
-    await _kv.put(key, JSON.stringify(value), { expirationTtl: ttl });
+    await kv.put(key, JSON.stringify(value), { expirationTtl: ttl });
   } catch {
     // fail open
   }

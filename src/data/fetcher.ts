@@ -20,43 +20,59 @@ export async function fetchSiteData(): Promise<SiteData> {
     return cachedSiteData;
   }
 
-  try {
-    // 使用增量同步拉取文章（只拉取变化和新增的）
-    const syncResult = await incrementalSyncPosts();
-    const wpPosts = syncResult.posts;
+  let wpPosts: Awaited<ReturnType<typeof incrementalSyncPosts>>['posts'] = [];
+  let wpCategories: Awaited<ReturnType<typeof getCategories>> = [];
+  let wpTags: Awaited<ReturnType<typeof getTags>> = [];
+  let fetchError: string | null = null;
 
-    // 如果有变化，打印日志
+  // 拉取文章
+  try {
+    const syncResult = await incrementalSyncPosts();
+    wpPosts = syncResult.posts;
+
     if (syncResult.updatedCount > 0 || syncResult.newCount > 0 || syncResult.removedCount > 0) {
       console.log(
         `[Incremental Sync] updated: ${syncResult.updatedCount}, new: ${syncResult.newCount}, removed: ${syncResult.removedCount}`
       );
     }
+  } catch (err) {
+    console.error('Failed to fetch WordPress posts:', err);
+    fetchError = err instanceof Error ? err.message : 'Failed to fetch posts';
+  }
 
-    const [wpCategories, wpTags] = await Promise.all([
+  // 拉取分类和标签（独立于文章）
+  try {
+    [wpCategories, wpTags] = await Promise.all([
       getCategories(),
       getTags(),
     ]);
-
-    const posts = wpPosts.map(mapPost);
-    const categories = wpCategories.map(mapCategory);
-    const tags = wpTags.map(mapTag);
-    const hotPosts = [...posts].sort((a, b) => b.views - a.views).slice(0, 8);
-
-    cachedSiteData = { posts, categories, tags, hotPosts, error: null };
-    cacheTimestamp = now;
-    return cachedSiteData;
   } catch (err) {
-    console.error('Failed to fetch WordPress data:', err);
-    const result = {
+    console.error('Failed to fetch categories/tags:', err);
+    if (!fetchError) {
+      fetchError = err instanceof Error ? err.message : 'Failed to fetch categories/tags';
+    }
+  }
+
+  // 文章和分类/标签都失败才算整体失败
+  if (wpPosts.length === 0 && wpCategories.length === 0 && wpTags.length === 0 && fetchError) {
+    if (cachedSiteData) {
+      return cachedSiteData;
+    }
+    return {
       posts: [],
       categories: [],
       tags: [],
       hotPosts: [],
-      error: err instanceof Error ? err.message : 'Unknown error',
+      error: fetchError,
     };
-    if (cachedSiteData) {
-      return cachedSiteData;
-    }
-    return result;
   }
+
+  const posts = wpPosts.map(mapPost);
+  const categories = wpCategories.map(mapCategory);
+  const tags = wpTags.map(mapTag);
+  const hotPosts = [...posts].sort((a, b) => b.views - a.views).slice(0, 8);
+
+  cachedSiteData = { posts, categories, tags, hotPosts, error: null };
+  cacheTimestamp = now;
+  return cachedSiteData;
 }

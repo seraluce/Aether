@@ -322,14 +322,8 @@ export async function getComments(postId: number): Promise<WPComment[]> {
 async function fetchRemotePostHashes(): Promise<PostHashEntry[]> {
   const perPage = 100;
   const allHashes: PostHashEntry[] = [];
-  let totalPages = 1;
 
-  try {
-    const result = await getTotalPosts();
-    totalPages = result.totalPages;
-  } catch {
-    return [];
-  }
+  const { totalPages } = await getTotalPosts();
 
   const batch: Promise<WPPost[]>[] = [];
   for (let page = 1; page <= totalPages; page++) {
