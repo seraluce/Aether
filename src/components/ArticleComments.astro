@@ -415,7 +415,7 @@ const { postId } = Astro.props;
           '<span class="comment-author">' + escapeHtml(comment.author_name) + '</span>' +
           '<span class="comment-date">' + formatDate(comment.date) + '</span>' +
         '</div>' +
-        '<div class="comment-body">' + comment.content.rendered + '</div>' +
+        '<div class="comment-body">' + comment.content.rendered.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') + '</div>' +
         '<button class="comment-reply-btn" data-comment-id="' + comment.id + '" data-author="' + escapeHtml(comment.author_name) + '">回复</button>' +
       '</div>';
     }

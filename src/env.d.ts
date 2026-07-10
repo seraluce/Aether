@@ -1,11 +1,3 @@
-// src/env.d.ts
-/// <reference types="astro/client" />
-
-interface ImportMetaEnv {
-  readonly WP_SITE_URL: string;
-  readonly SITE_URL?: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+declare module 'cloudflare:workers' {
+  export const env: Record<string, unknown>;
 }

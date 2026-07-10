@@ -23,7 +23,7 @@ interface SocialItem {
 // ✅ 从 siteConfig.about.social 读取，如果没有则用默认值
 const social: SocialItem[] =
   aboutSocial.length > 0
-    ? (aboutSocial as SocialItem[])
+    ? (aboutSocial as unknown as SocialItem[])
     : [
         { name: "GitHub", url: "https://github.com/seraluce", icon: "github" },
         { name: "Twitter", url: "https://twitter.com/seraluce", icon: "x" },

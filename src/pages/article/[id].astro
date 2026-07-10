@@ -26,7 +26,7 @@ let wpCategories: Array<{
 }> = [];
 
 try {
-  const realId = await resolveArticleId(id);
+  const realId = id ? await resolveArticleId(id) : null;
   if (realId) {
     post = await getPostById(realId);
   }
@@ -87,12 +87,6 @@ const relatedPosts = recentPosts
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js" defer></script>
 
 <Layout
   title={pageTitle}
@@ -205,6 +199,7 @@ const relatedPosts = recentPosts
 </Layout>
 
 <script>
+  // @ts-nocheck
   document.addEventListener("DOMContentLoaded", function () {
     var content = document.querySelector(".article-content");
     if (!content) return;

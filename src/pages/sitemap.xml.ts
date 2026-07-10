@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPosts, getCategories } from '../lib/wordpress';
+import { getAllPosts, getCategories } from '../lib/wordpress';
 import { mapPost, mapCategory } from '../lib/mappers';
 import { slugToTopicId, postToArticleId } from '../lib/route-ids';
 import { mockData } from '../data/mock';
@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ site }) => {
   let categories = mockData.categories;
 
   try {
-    const [wpPosts, wpCategories] = await Promise.all([getPosts(1, 100), getCategories()]);
+    const [wpPosts, wpCategories] = await Promise.all([getAllPosts(20), getCategories()]);
     posts = wpPosts.map(mapPost);
     categories = wpCategories.map(mapCategory);
   } catch {

@@ -94,12 +94,12 @@ export const siteConfig = {
     },
 
     // 获取单个文章
-    getPostUrl(id) {
+    getPostUrl(id: string | number) {
       return this.getApiUrl(`posts/${id}`);
     },
 
     // 获取文章链接（前端链接）
-    getPostLink(slug) {
+    getPostLink(slug: string) {
       const base = this.siteUrl?.replace(/\/$/, "");
       return `${base}/${slug}`;
     },
@@ -179,37 +179,3 @@ export function validateWordPressConfig() {
   }
 }
 
-// ✅ 导出工具函数
-export const wpApi = {
-  // 获取分类
-  getCategories: async () => {
-    const url = siteConfig.wordpress.categoriesUrl;
-    if (!url || url.includes("undefined")) {
-      throw new Error("WordPress 站点地址未配置");
-    }
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
-  },
-
-  // 获取文章列表
-  getPosts: async (params = {}) => {
-    const url = siteConfig.wordpress.postsUrl;
-    if (!url || url.includes("undefined")) {
-      throw new Error("WordPress 站点地址未配置");
-    }
-    const query = new URLSearchParams(params).toString();
-    const fullUrl = query ? `${url}?${query}` : url;
-    const response = await fetch(fullUrl);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
-  },
-
-  // 获取单个文章
-  getPost: async (id) => {
-    const url = siteConfig.wordpress.getPostUrl(id);
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
-  },
-};

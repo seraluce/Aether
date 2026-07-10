@@ -8,8 +8,6 @@ import SidebarRight from "../components/SidebarRight.astro";
 import { siteConfig } from "../site.config";
 import { fetchSiteData } from "../data/fetcher";
 import { mockData } from "../data/mock";
-import "../styles/global.css";
-
 // 获取站点数据（与 about 页面保持一致）
 const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
@@ -181,6 +179,6 @@ const siteData = data.error ? mockData : data;
     }
   }
 </style>
-<script> document.getElementById('goBack').addEventListener('click', () => {
+<script> document.getElementById('goBack')?.addEventListener('click', () => {
     window.history.back();
   });</script>

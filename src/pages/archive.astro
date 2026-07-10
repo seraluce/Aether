@@ -5,6 +5,7 @@ import SidebarRight from "../components/SidebarRight.astro";
 import { fetchSiteData } from "../data/fetcher";
 import { mockData } from "../data/mock";
 import { siteConfig } from "../site.config";
+import { postToArticleId } from "../lib/route-ids";
 
 const data = await fetchSiteData();
 const siteData = data.error ? mockData : data;
@@ -98,7 +99,7 @@ sorted.forEach((post) => {
                     <span class="archive-date">
                       {new Date(post.date).getDate()}日
                     </span>
-                    <a href={`/article/${post.id}`} class="archive-title">
+                    <a href={`/article/${postToArticleId(post.id)}`} class="archive-title">
                       {post.title}
                     </a>
                     <span class="archive-cat">{post.category}</span>

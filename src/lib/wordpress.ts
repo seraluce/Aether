@@ -1,22 +1,13 @@
 // src/lib/wordpress.ts
 import { wpConfig } from '../config';
 import { kvGet, kvPut } from './cloudflare-cache';
+import { djb2Hash } from './route-ids';
 
 function getSiteUrl(): string {
   return wpConfig.siteUrl;
 }
 
-// DJB2 哈希函数（与 route-ids.ts 保持一致）
-function djb2Hash(str: string): number {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) + hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash >>> 0;
-}
-
-// 生成文章哈希：基于 id + date + modified + slug + title
+// 文章哈希：基于 id + date + modified + slug + title
 export function generatePostHash(post: { id: number; date: string; modified?: string; slug: string; title: { rendered: string } }): string {
   const str = `${post.id}:${post.date}:${post.modified || ''}:${post.slug}:${post.title.rendered}`;
   return djb2Hash(str).toString(36);
@@ -38,7 +29,7 @@ const LAST_SYNC_KEY = 'last_sync_at';
 const SYNC_COOLDOWN = 5 * 60 * 1000;
 
 // 获取本地缓存的文章哈希列表
-async function getCachedPostHashes(): Promise<PostHashEntry[]> {
+export async function getCachedPostHashes(): Promise<PostHashEntry[]> {
   const cached = await kvGet<PostHashEntry[]>(POST_HASHES_KEY);
   return cached || [];
 }
@@ -148,7 +139,6 @@ export async function wpFetch<T>(endpoint: string, params: Record<string, string
   const timeoutId = setTimeout(() => controller.abort(), 15000);
 
   try {
-    console.log(`[wpFetch] ${url.toString()}`);
     const res = await fetch(url.toString(), {
       headers: { 'Accept': 'application/json' },
       signal: controller.signal,
@@ -227,7 +217,10 @@ export async function getAllPosts(limitPages = 8): Promise<WPPost[]> {
   const batch = [];
 
   for (let page = 1; page <= maxPages; page++) {
-    batch.push(getPosts(page, perPage).catch(() => [] as WPPost[]));
+    batch.push(getPosts(page, perPage).catch((err) => {
+      console.error(`[getAllPosts] Failed to fetch page ${page}:`, err instanceof Error ? err.message : err);
+      return [] as WPPost[];
+    }));
   }
 
   const results = await Promise.all(batch);
@@ -244,12 +237,12 @@ export async function getPosts(page = 1, perPage = wpConfig.perPage): Promise<WP
   });
 }
 
-export async function getPost(slug: string): Promise<WPPost> {
+export async function getPost(slug: string): Promise<WPPost | null> {
   const posts = await wpFetch<WPPost[]>('/posts', {
     _embed: 'true',
     slug,
   });
-  return posts[0];
+  return posts[0] ?? null;
 }
 
 export async function getPostById(id: number): Promise<WPPost> {
@@ -415,7 +408,6 @@ export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
 
   // 2. KV 有数据但超过 5 分钟 → 拉哈希对比
   if (localPosts.length > 0 && localHashes.length > 0) {
-    console.log('[Sync] Stale, comparing hashes...');
     const remoteHashes = await fetchRemotePostHashes();
     if (remoteHashes.length === 0) {
       await saveLastSyncTime(now);
@@ -439,13 +431,11 @@ export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
 
     const idsToFetch = [...new Set([...updatedIds, ...newIds])];
     if (idsToFetch.length === 0 && removedIds.length === 0) {
-      console.log('[Sync] Hashes match, no changes');
       await saveLastSyncTime(now);
       await savePostHashes(remoteHashes);
       return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
     }
 
-    console.log(`[Sync] ${newIds.length} new, ${updatedIds.length} updated, ${removedIds.length} removed`);
     const fetchedPosts = idsToFetch.length > 0 ? await fetchPostsByIds(idsToFetch) : [];
 
     const postMap = new Map<number, WPPost>();
@@ -458,6 +448,12 @@ export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
+    if (allPosts.length === 0 && localPosts.length > 0) {
+      console.error('[Sync] Refusing to write empty posts — local data has', localPosts.length, 'posts');
+      await saveLastSyncTime(now);
+      return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
+    }
+
     await savePostHashes(remoteHashes);
     await saveAllPosts(allPosts);
     await saveLastSyncTime(now);
@@ -465,7 +461,6 @@ export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
   }
 
   // 3. KV 为空 → 全量同步
-  console.log('[Sync] KV empty, full sync');
   const remoteHashes = await fetchRemotePostHashes();
   if (remoteHashes.length === 0) {
     await saveLastSyncTime(now);
