@@ -34,8 +34,8 @@ const POST_HASHES_KEY = 'post_hashes_v1';
 const ALL_POSTS_KEY = 'all_posts_v1';
 const LAST_SYNC_KEY = 'last_sync_at';
 
-// 同步间隔：6 小时（毫秒）
-const SYNC_INTERVAL = 6 * 60 * 60 * 1000;
+// 同步冷却：5 分钟内不重复检查哈希
+const SYNC_COOLDOWN = 5 * 60 * 1000;
 
 // 获取本地缓存的文章哈希列表
 async function getCachedPostHashes(): Promise<PostHashEntry[]> {
@@ -401,20 +401,19 @@ async function saveLastSyncTime(ts: number): Promise<void> {
   await kvPut(LAST_SYNC_KEY, ts);
 }
 
-// 增量同步：文章永久存储，每 6 小时对比哈希
+// 增量同步：有访问时检查，5 分钟内不重复
 export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
   const now = Date.now();
   const localPosts = await getCachedAllPosts();
   const localHashes = await getCachedPostHashes();
   const lastSync = await getLastSyncTime();
 
-  // 1. KV 有数据且未超过 6 小时 → 直接返回，零请求
-  if (localPosts.length > 0 && now - lastSync < SYNC_INTERVAL) {
-    console.log('[Sync] KV hit, skip WP requests');
+  // 1. KV 有数据且 5 分钟内已检查 → 直接返回
+  if (localPosts.length > 0 && now - lastSync < SYNC_COOLDOWN) {
     return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
   }
 
-  // 2. KV 有数据但超过 6 小时 → 拉哈希对比，只拉变化的
+  // 2. KV 有数据但超过 5 分钟 → 拉哈希对比
   if (localPosts.length > 0 && localHashes.length > 0) {
     console.log('[Sync] Stale, comparing hashes...');
     const remoteHashes = await fetchRemotePostHashes();
