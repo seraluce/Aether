@@ -454,6 +454,59 @@ const fullOgImage = seo.ogImage.startsWith("http")
             window.scrollTo({ top: 0, behavior: "smooth" });
           });
         }
+
+        // Sidebar-right sticky behavior
+        var sidebarEl = document.querySelector(".sidebar-right");
+        if (sidebarEl) {
+          var placeholder = null;
+          var savedWidth = "";
+          var savedHeight = "";
+          function updateSidebarSticky() {
+            var vh = window.innerHeight;
+            var sh = sidebarEl.scrollHeight;
+            // Case 2: widget >= viewport - disable sticky-top, use sticky-bottom
+            if (sh >= vh) {
+              sidebarEl.classList.add("no-sticky");
+              if (sidebarEl.classList.contains("sticky-bottom")) {
+                var parent = sidebarEl.parentElement;
+                if (parent) {
+                  var parentRect = parent.getBoundingClientRect();
+                  if (parentRect.bottom <= vh) {
+                    releaseSidebar();
+                  }
+                }
+                return;
+              }
+              var rect = sidebarEl.getBoundingClientRect();
+              if (rect.bottom >= vh && !sidebarEl.classList.contains("sticky-bottom")) {
+                savedWidth = sidebarEl.offsetWidth + "px";
+                savedHeight = sh + "px";
+                sidebarEl.style.width = savedWidth;
+                placeholder = document.createElement("div");
+                placeholder.className = "sidebar-placeholder";
+                placeholder.style.height = savedHeight;
+                sidebarEl.parentElement.insertBefore(placeholder, sidebarEl);
+                sidebarEl.classList.add("sticky-bottom");
+              }
+              return;
+            }
+            // Case 1: widget < viewport - use sticky-top (CSS handles this)
+            sidebarEl.classList.remove("no-sticky");
+            releaseSidebar();
+          }
+          function releaseSidebar() {
+            if (!sidebarEl.classList.contains("sticky-bottom")) return;
+            sidebarEl.classList.remove("sticky-bottom");
+            sidebarEl.classList.remove("no-sticky");
+            sidebarEl.style.width = "";
+            if (placeholder && placeholder.parentElement) {
+              placeholder.parentElement.removeChild(placeholder);
+              placeholder = null;
+            }
+          }
+          window.addEventListener("scroll", updateSidebarSticky, { passive: true });
+          window.addEventListener("resize", updateSidebarSticky, { passive: true });
+        }
       });
     </script>
   </body>
