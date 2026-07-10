@@ -10,28 +10,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.10.0
+
       - uses: actions/setup-node@v6
         with:
           node-version: 20
 
-      - name: Install pnpm
-        run: npm install -g pnpm@11.10.0
+      - uses: actions/cache@v6
+        id: cache-pnpm
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-      - name: Debug env
-        run: |
-          echo "node: $(node --version)"
-          echo "pnpm: $(pnpm --version 2>&1)"
-          echo "which: $(which pnpm)"
-
-      - name: Install deps
-        run: |
-          pnpm install > /tmp/pnpm-out.txt 2>&1; code=$?
-          cat /tmp/pnpm-out.txt
-          echo "exit code: $code"
-          while IFS= read -r line; do
-            echo "::error::$line"
-          done < /tmp/pnpm-out.txt
-          exit $code
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
         env:
