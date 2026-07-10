@@ -22,6 +22,9 @@ function fixWranglerConfig(filePath) {
       );
     }
 
+    // 'ASSETS' is reserved in Pages projects
+    delete config.assets;
+
     // Remove absolute paths that break CI
     delete config.configPath;
     delete config.userConfigPath;
