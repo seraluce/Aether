@@ -6,6 +6,55 @@ function getSiteUrl(): string {
   return wpConfig.siteUrl;
 }
 
+// DJB2 哈希函数（与 route-ids.ts 保持一致）
+function djb2Hash(str: string): number {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) + hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash >>> 0;
+}
+
+// 生成文章哈希：基于 id + date + modified + slug + title
+export function generatePostHash(post: { id: number; date: string; modified?: string; slug: string; title: { rendered: string } }): string {
+  const str = `${post.id}:${post.date}:${post.modified || ''}:${post.slug}:${post.title.rendered}`;
+  return djb2Hash(str).toString(36);
+}
+
+// 文章哈希条目
+export interface PostHashEntry {
+  id: number;
+  hash: string;
+  slug: string;
+}
+
+// 缓存键前缀
+const POST_HASHES_KEY = 'post_hashes_v1';
+const ALL_POSTS_KEY = 'all_posts_v1';
+
+// 获取本地缓存的文章哈希列表
+async function getCachedPostHashes(): Promise<PostHashEntry[]> {
+  const cached = await kvGet<PostHashEntry[]>(POST_HASHES_KEY);
+  return cached || [];
+}
+
+// 保存文章哈希列表到缓存
+async function savePostHashes(hashes: PostHashEntry[]): Promise<void> {
+  await kvPut(POST_HASHES_KEY, hashes, Math.floor(wpConfig.cacheTimeout / 1000));
+}
+
+// 获取本地缓存的所有文章
+async function getCachedAllPosts(): Promise<WPPost[]> {
+  const cached = await kvGet<WPPost[]>(ALL_POSTS_KEY);
+  return cached || [];
+}
+
+// 保存所有文章到缓存
+async function saveAllPosts(posts: WPPost[]): Promise<void> {
+  await kvPut(ALL_POSTS_KEY, posts, Math.floor(wpConfig.cacheTimeout / 1000));
+}
+
 export interface WPPost {
   id: number;
   date: string;
@@ -263,4 +312,154 @@ export async function getComments(postId: number): Promise<WPComment[]> {
     orderby: 'date_gmt',
     order: 'asc',
   });
+}
+
+// ============================================================
+// 增量拉取相关函数
+// ============================================================
+
+// 获取远程文章哈希列表（轻量级，只拉取 id + date + modified + slug + title）
+async function fetchRemotePostHashes(): Promise<PostHashEntry[]> {
+  const perPage = 100;
+  const allHashes: PostHashEntry[] = [];
+  let totalPages = 1;
+
+  try {
+    const result = await getTotalPosts();
+    totalPages = result.totalPages;
+  } catch {
+    return [];
+  }
+
+  const batch: Promise<WPPost[]>[] = [];
+  for (let page = 1; page <= totalPages; page++) {
+    batch.push(
+      wpFetch<WPPost[]>('/posts', {
+        _fields: 'id,date,modified,slug,title',
+        page: String(page),
+        per_page: String(perPage),
+      }).catch(() => [])
+    );
+  }
+
+  const results = await Promise.all(batch);
+  for (const posts of results) {
+    for (const post of posts) {
+      allHashes.push({
+        id: post.id,
+        hash: generatePostHash(post),
+        slug: post.slug,
+      });
+    }
+  }
+
+  return allHashes;
+}
+
+// 根据 ID 列表批量拉取文章（带 _embed）
+async function fetchPostsByIds(ids: number[]): Promise<WPPost[]> {
+  if (ids.length === 0) return [];
+
+  const perPage = 100;
+  const allPosts: WPPost[] = [];
+
+  // 分批请求
+  for (let i = 0; i < ids.length; i += perPage) {
+    const batchIds = ids.slice(i, i + perPage);
+    try {
+      const posts = await wpFetch<WPPost[]>('/posts', {
+        _embed: 'true',
+        include: batchIds.join(','),
+        per_page: String(batchIds.length),
+      });
+      allPosts.push(...posts);
+    } catch {
+      // 单批失败不影响其他批次
+    }
+  }
+
+  return allPosts;
+}
+
+export interface IncrementalSyncResult {
+  posts: WPPost[];
+  updatedCount: number;
+  newCount: number;
+  removedCount: number;
+}
+
+// 增量同步：只拉取变化和新增的文章
+export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
+  // 1. 获取远程哈希列表
+  const remoteHashes = await fetchRemotePostHashes();
+  if (remoteHashes.length === 0) {
+    return { posts: [], updatedCount: 0, newCount: 0, removedCount: 0 };
+  }
+
+  // 2. 获取本地缓存的哈希列表和文章
+  const localHashes = await getCachedPostHashes();
+  const localPosts = await getCachedAllPosts();
+
+  // 3. 构建本地哈希映射
+  const localHashMap = new Map<number, PostHashEntry>();
+  for (const entry of localHashes) {
+    localHashMap.set(entry.id, entry);
+  }
+
+  const localPostMap = new Map<number, WPPost>();
+  for (const post of localPosts) {
+    localPostMap.set(post.id, post);
+  }
+
+  // 4. 找出需要更新的文章（哈希不同）
+  const updatedIds: number[] = [];
+  const newIds: number[] = [];
+
+  for (const remote of remoteHashes) {
+    const local = localHashMap.get(remote.id);
+    if (!local) {
+      // 新文章
+      newIds.push(remote.id);
+    } else if (local.hash !== remote.hash) {
+      // 更新的文章
+      updatedIds.push(remote.id);
+    }
+  }
+
+  // 5. 找出被删除的文章
+  const remoteIdSet = new Set(remoteHashes.map((h) => h.id));
+  const removedIds = localHashes.filter((h) => !remoteIdSet.has(h.id)).map((h) => h.id);
+
+  // 6. 合并需要拉取的 ID
+  const idsToFetch = [...new Set([...updatedIds, ...newIds])];
+
+  // 7. 拉取变化的文章
+  const fetchedPosts = idsToFetch.length > 0 ? await fetchPostsByIds(idsToFetch) : [];
+
+  // 8. 合并文章列表
+  const updatedPostMap = new Map<number, WPPost>();
+  for (const post of localPosts) {
+    if (!removedIds.includes(post.id)) {
+      updatedPostMap.set(post.id, post);
+    }
+  }
+  for (const post of fetchedPosts) {
+    updatedPostMap.set(post.id, post);
+  }
+
+  // 保持按日期排序（最新的在前）
+  const allPosts = Array.from(updatedPostMap.values()).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  // 9. 更新缓存
+  await savePostHashes(remoteHashes);
+  await saveAllPosts(allPosts);
+
+  return {
+    posts: allPosts,
+    updatedCount: updatedIds.length,
+    newCount: newIds.length,
+    removedCount: removedIds.length,
+  };
 }

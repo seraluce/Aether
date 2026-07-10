@@ -1,4 +1,4 @@
-import { getPosts, getCategories, getTags } from '../lib/wordpress';
+import { incrementalSyncPosts, getCategories, getTags } from '../lib/wordpress';
 import { mapPost, mapCategory, mapTag } from '../lib/mappers';
 import type { Post } from '../lib/mappers';
 import { wpConfig } from '../config';
@@ -21,8 +21,18 @@ export async function fetchSiteData(): Promise<SiteData> {
   }
 
   try {
-    const [wpPosts, wpCategories, wpTags] = await Promise.all([
-      getPosts(1, wpConfig.perPage),
+    // 使用增量同步拉取文章（只拉取变化和新增的）
+    const syncResult = await incrementalSyncPosts();
+    const wpPosts = syncResult.posts;
+
+    // 如果有变化，打印日志
+    if (syncResult.updatedCount > 0 || syncResult.newCount > 0 || syncResult.removedCount > 0) {
+      console.log(
+        `[Incremental Sync] updated: ${syncResult.updatedCount}, new: ${syncResult.newCount}, removed: ${syncResult.removedCount}`
+      );
+    }
+
+    const [wpCategories, wpTags] = await Promise.all([
       getCategories(),
       getTags(),
     ]);
