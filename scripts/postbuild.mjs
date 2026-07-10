@@ -28,6 +28,10 @@ function fixWranglerConfig(filePath) {
     // Pages projects use pages_build_output_dir, not main
     delete config.main;
 
+    // Pages does not support these fields
+    delete config.rules;
+    delete config.previews;
+
     // Remove absolute paths that break CI
     delete config.configPath;
     delete config.userConfigPath;
