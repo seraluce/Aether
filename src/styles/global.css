@@ -1437,7 +1437,7 @@ body.menu-open::before {
   /* Article mobile */
   .article-layout {
     grid-template-columns: 1fr;
-    padding: 16px;
+    padding: 0;
   }
   .article-actions {
     position: fixed;
