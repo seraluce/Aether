@@ -786,19 +786,7 @@ body.menu-open::before {
 .sidebar-right {
   align-self: start;
   position: sticky;
-  top: 0;
-}
-.sidebar-right.no-sticky {
-  position: relative;
-}
-.sidebar-right.sticky-bottom {
-  position: fixed;
-  bottom: 0;
-  z-index: 10;
-  top: auto;
-}
-.sidebar-placeholder {
-  visibility: hidden;
+  top: 80px;
 }
 
 .hot-post-list {
