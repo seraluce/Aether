@@ -18,15 +18,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Debug environment
-        run: |
-          echo "=== node ===" && node --version
-          echo "=== pnpm ===" && pnpm --version
-          echo "=== store ===" && pnpm store path
-          echo "=== lockfile ===" && head -3 pnpm-lock.yaml
-          echo "=== npmrc ===" && cat .npmrc
-
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
 
       - run: pnpm build
         env:
