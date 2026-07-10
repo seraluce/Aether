@@ -17,8 +17,21 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@11.10.0
 
+      - name: Debug env
+        run: |
+          echo "node: $(node --version)"
+          echo "pnpm: $(pnpm --version 2>&1)"
+          echo "which: $(which pnpm)"
+
       - name: Install deps
-        run: pnpm install
+        run: |
+          pnpm install > /tmp/pnpm-out.txt 2>&1; code=$?
+          cat /tmp/pnpm-out.txt
+          echo "exit code: $code"
+          while IFS= read -r line; do
+            echo "::error::$line"
+          done < /tmp/pnpm-out.txt
+          exit $code
 
       - run: pnpm build
         env:
