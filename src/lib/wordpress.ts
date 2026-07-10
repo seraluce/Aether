@@ -32,9 +32,10 @@ export interface PostHashEntry {
 // 缓存键前缀
 const POST_HASHES_KEY = 'post_hashes_v1';
 const ALL_POSTS_KEY = 'all_posts_v1';
+const LAST_SYNC_KEY = 'last_sync_at';
 
-// KV 长期存储 TTL：24 小时（增量同步数据）
-const KV_LONG_TTL = 86400;
+// 同步间隔：6 小时（毫秒）
+const SYNC_INTERVAL = 6 * 60 * 60 * 1000;
 
 // 获取本地缓存的文章哈希列表
 async function getCachedPostHashes(): Promise<PostHashEntry[]> {
@@ -42,9 +43,9 @@ async function getCachedPostHashes(): Promise<PostHashEntry[]> {
   return cached || [];
 }
 
-// 保存文章哈希列表到缓存
+// 保存文章哈希列表到缓存（永不过期）
 async function savePostHashes(hashes: PostHashEntry[]): Promise<void> {
-  await kvPut(POST_HASHES_KEY, hashes, KV_LONG_TTL);
+  await kvPut(POST_HASHES_KEY, hashes);
 }
 
 // 获取本地缓存的所有文章
@@ -53,9 +54,9 @@ async function getCachedAllPosts(): Promise<WPPost[]> {
   return cached || [];
 }
 
-// 保存所有文章到缓存
+// 保存所有文章到缓存（永不过期）
 async function saveAllPosts(posts: WPPost[]): Promise<void> {
-  await kvPut(ALL_POSTS_KEY, posts, KV_LONG_TTL);
+  await kvPut(ALL_POSTS_KEY, posts);
 }
 
 export interface WPPost {
@@ -389,78 +390,98 @@ export interface IncrementalSyncResult {
   removedCount: number;
 }
 
-// 增量同步：只拉取变化和新增的文章
+// 获取上次同步时间
+async function getLastSyncTime(): Promise<number> {
+  const ts = await kvGet<number>(LAST_SYNC_KEY);
+  return ts || 0;
+}
+
+// 保存同步时间
+async function saveLastSyncTime(ts: number): Promise<void> {
+  await kvPut(LAST_SYNC_KEY, ts);
+}
+
+// 增量同步：文章永久存储，每 6 小时对比哈希
 export async function incrementalSyncPosts(): Promise<IncrementalSyncResult> {
-  // 1. 获取远程哈希列表
+  const now = Date.now();
+  const localPosts = await getCachedAllPosts();
+  const localHashes = await getCachedPostHashes();
+  const lastSync = await getLastSyncTime();
+
+  // 1. KV 有数据且未超过 6 小时 → 直接返回，零请求
+  if (localPosts.length > 0 && now - lastSync < SYNC_INTERVAL) {
+    console.log('[Sync] KV hit, skip WP requests');
+    return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
+  }
+
+  // 2. KV 有数据但超过 6 小时 → 拉哈希对比，只拉变化的
+  if (localPosts.length > 0 && localHashes.length > 0) {
+    console.log('[Sync] Stale, comparing hashes...');
+    const remoteHashes = await fetchRemotePostHashes();
+    if (remoteHashes.length === 0) {
+      await saveLastSyncTime(now);
+      return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
+    }
+
+    const localHashMap = new Map<number, PostHashEntry>();
+    for (const entry of localHashes) localHashMap.set(entry.id, entry);
+
+    const updatedIds: number[] = [];
+    const newIds: number[] = [];
+
+    for (const remote of remoteHashes) {
+      const local = localHashMap.get(remote.id);
+      if (!local) newIds.push(remote.id);
+      else if (local.hash !== remote.hash) updatedIds.push(remote.id);
+    }
+
+    const remoteIdSet = new Set(remoteHashes.map((h) => h.id));
+    const removedIds = localHashes.filter((h) => !remoteIdSet.has(h.id)).map((h) => h.id);
+
+    const idsToFetch = [...new Set([...updatedIds, ...newIds])];
+    if (idsToFetch.length === 0 && removedIds.length === 0) {
+      console.log('[Sync] Hashes match, no changes');
+      await saveLastSyncTime(now);
+      await savePostHashes(remoteHashes);
+      return { posts: localPosts, updatedCount: 0, newCount: 0, removedCount: 0 };
+    }
+
+    console.log(`[Sync] ${newIds.length} new, ${updatedIds.length} updated, ${removedIds.length} removed`);
+    const fetchedPosts = idsToFetch.length > 0 ? await fetchPostsByIds(idsToFetch) : [];
+
+    const postMap = new Map<number, WPPost>();
+    for (const post of localPosts) {
+      if (!removedIds.includes(post.id)) postMap.set(post.id, post);
+    }
+    for (const post of fetchedPosts) postMap.set(post.id, post);
+
+    const allPosts = Array.from(postMap.values()).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    await savePostHashes(remoteHashes);
+    await saveAllPosts(allPosts);
+    await saveLastSyncTime(now);
+    return { posts: allPosts, updatedCount: updatedIds.length, newCount: newIds.length, removedCount: removedIds.length };
+  }
+
+  // 3. KV 为空 → 全量同步
+  console.log('[Sync] KV empty, full sync');
   const remoteHashes = await fetchRemotePostHashes();
   if (remoteHashes.length === 0) {
+    await saveLastSyncTime(now);
     return { posts: [], updatedCount: 0, newCount: 0, removedCount: 0 };
   }
 
-  // 2. 获取本地缓存的哈希列表和文章
-  const localHashes = await getCachedPostHashes();
-  const localPosts = await getCachedAllPosts();
+  const allIds = remoteHashes.map((h) => h.id);
+  const fetchedPosts = await fetchPostsByIds(allIds);
 
-  // 3. 构建本地哈希映射
-  const localHashMap = new Map<number, PostHashEntry>();
-  for (const entry of localHashes) {
-    localHashMap.set(entry.id, entry);
-  }
-
-  const localPostMap = new Map<number, WPPost>();
-  for (const post of localPosts) {
-    localPostMap.set(post.id, post);
-  }
-
-  // 4. 找出需要更新的文章（哈希不同）
-  const updatedIds: number[] = [];
-  const newIds: number[] = [];
-
-  for (const remote of remoteHashes) {
-    const local = localHashMap.get(remote.id);
-    if (!local) {
-      // 新文章
-      newIds.push(remote.id);
-    } else if (local.hash !== remote.hash) {
-      // 更新的文章
-      updatedIds.push(remote.id);
-    }
-  }
-
-  // 5. 找出被删除的文章
-  const remoteIdSet = new Set(remoteHashes.map((h) => h.id));
-  const removedIds = localHashes.filter((h) => !remoteIdSet.has(h.id)).map((h) => h.id);
-
-  // 6. 合并需要拉取的 ID
-  const idsToFetch = [...new Set([...updatedIds, ...newIds])];
-
-  // 7. 拉取变化的文章
-  const fetchedPosts = idsToFetch.length > 0 ? await fetchPostsByIds(idsToFetch) : [];
-
-  // 8. 合并文章列表
-  const updatedPostMap = new Map<number, WPPost>();
-  for (const post of localPosts) {
-    if (!removedIds.includes(post.id)) {
-      updatedPostMap.set(post.id, post);
-    }
-  }
-  for (const post of fetchedPosts) {
-    updatedPostMap.set(post.id, post);
-  }
-
-  // 保持按日期排序（最新的在前）
-  const allPosts = Array.from(updatedPostMap.values()).sort(
+  const allPosts = fetchedPosts.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // 9. 更新缓存
   await savePostHashes(remoteHashes);
   await saveAllPosts(allPosts);
-
-  return {
-    posts: allPosts,
-    updatedCount: updatedIds.length,
-    newCount: newIds.length,
-    removedCount: removedIds.length,
-  };
+  await saveLastSyncTime(now);
+  return { posts: allPosts, updatedCount: 0, newCount: allPosts.length, removedCount: 0 };
 }

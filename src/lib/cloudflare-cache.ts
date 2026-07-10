@@ -28,11 +28,12 @@ export async function kvGet<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function kvPut(key: string, value: unknown, ttl = 300) {
+export async function kvPut(key: string, value: unknown, ttl?: number) {
   const kv = getKv();
   if (!kv) return;
   try {
-    await kv.put(key, JSON.stringify(value), { expirationTtl: ttl });
+    const opts = ttl ? { expirationTtl: ttl } : {};
+    await kv.put(key, JSON.stringify(value), opts);
   } catch {
     // fail open
   }
