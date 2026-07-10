@@ -77,7 +77,7 @@ function setCache<T>(key: string, data: T): void {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
-async function wpFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+export async function wpFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
   const cacheKey = getCacheKey(endpoint, params);
   const cached = getCached<T>(cacheKey);
   if (cached) return cached;

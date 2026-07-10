@@ -1,8 +1,9 @@
 ---
-import { getPostById, getAllPosts, getCategories, getPosts } from "../../lib/wordpress";
+import { getPostById, getCategories, getPosts } from "../../lib/wordpress";
 import type { WPPost } from "../../lib/wordpress";
 import { mapCategory, mapPost } from "../../lib/mappers";
 import { slugToTopicId, nameToTagId, postToArticleId } from "../../lib/route-ids";
+import { resolveArticleId } from "../../lib/post-resolver";
 import Layout from "../../layouts/Layout.astro";
 import ArticleActions from "../../components/ArticleActions.astro";
 import ArticleSidebar from "../../components/ArticleSidebar.astro";
@@ -25,12 +26,11 @@ let wpCategories: Array<{
 }> = [];
 
 try {
-  const allPosts = await getAllPosts();
-  const foundPost = allPosts.find((p) => postToArticleId(p.id) === id);
-  if (foundPost) {
-    post = await getPostById(foundPost.id);
+  const realId = await resolveArticleId(id);
+  if (realId) {
+    post = await getPostById(realId);
   }
-  
+
   const [wpPosts, wpCats] = await Promise.all([
     getPosts(1, Math.min(wpConfig.perPage, 20)),
     getCategories(),
