@@ -1,7 +1,8 @@
----
+// src/pages/api/debug.json.ts
+import type { APIRoute } from 'astro';
 import { fetchSiteData } from '../../data/fetcher';
 
-export async function GET() {
+export const GET: APIRoute = async () => {
   const data = await fetchSiteData();
   return new Response(JSON.stringify({
     error: data.error,
@@ -12,4 +13,4 @@ export async function GET() {
   }, null, 2), {
     headers: { 'Content-Type': 'application/json' },
   });
-}
+};
