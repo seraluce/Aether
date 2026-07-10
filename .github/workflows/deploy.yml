@@ -18,7 +18,14 @@ jobs:
         with:
           node-version: 20
 
-      - run: pnpm install
+      - name: Test pnpm
+        run: |
+          echo "PATH=$PATH" | tee -a "$GITHUB_STEP_SUMMARY"
+          which pnpm || echo "pnpm not found"
+          node --version
+          pnpm --version
+          pnpm install 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          exit ${PIPESTATUS[0]}
 
       - run: pnpm build
         env:
