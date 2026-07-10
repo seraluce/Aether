@@ -22,22 +22,12 @@ function fixWranglerConfig(filePath) {
       );
     }
 
-    // 'ASSETS' is reserved in Pages projects
-    delete config.assets;
-
-    // Pages projects use pages_build_output_dir, not main
-    delete config.main;
-
-    // Pages does not support these fields
-    delete config.rules;
-    delete config.previews;
+    // Workers deployment: remove pages_build_output_dir (not needed, and conflicts with main)
+    delete config.pages_build_output_dir;
 
     // Remove absolute paths that break CI
     delete config.configPath;
     delete config.userConfigPath;
-    if (config.pages_build_output_dir) {
-      config.pages_build_output_dir = '../client';
-    }
 
     writeFileSync(filePath, JSON.stringify(config, null, 2));
     console.log(`[postbuild] Updated ${filePath}`);
