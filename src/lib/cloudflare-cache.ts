@@ -1,3 +1,5 @@
+import { env } from 'cloudflare:workers';
+
 interface KvNamespace {
   get(key: string, type?: string): Promise<unknown>;
   put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void>;
@@ -5,12 +7,7 @@ interface KvNamespace {
 
 function getKv(): KvNamespace | null {
   try {
-    // @astrojs/cloudflare v14+: env is only available via cloudflare:workers import
-    // This import is resolved by the adapter's Vite plugin at build time
-    // and by the Workers runtime at request time.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const mod = require('cloudflare:workers') as { env: Record<string, unknown> };
-    return (mod.env?.CACHE as KvNamespace) ?? null;
+    return (env?.CACHE as KvNamespace) ?? null;
   } catch {
     // Local dev without Workers runtime — KV unavailable
     return null;
