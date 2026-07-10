@@ -10,22 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11.10.0
-
       - uses: actions/setup-node@v6
         with:
           node-version: 20
 
-      - name: Test pnpm
-        run: |
-          echo "PATH=$PATH" | tee -a "$GITHUB_STEP_SUMMARY"
-          which pnpm || echo "pnpm not found"
-          node --version
-          pnpm --version
-          pnpm install 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
-          exit ${PIPESTATUS[0]}
+      - name: Install pnpm
+        run: npm install -g pnpm@11.10.0
+
+      - name: Install deps
+        run: pnpm install
 
       - run: pnpm build
         env:
