@@ -36,7 +36,7 @@ function fixWranglerConfig(filePath) {
     delete config.configPath;
     delete config.userConfigPath;
     if (config.pages_build_output_dir) {
-      config.pages_build_output_dir = 'dist';
+      config.pages_build_output_dir = '../client';
     }
 
     writeFileSync(filePath, JSON.stringify(config, null, 2));
