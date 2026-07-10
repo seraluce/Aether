@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
         with:
@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: cache-pnpm
         with:
           path: ${{ steps.pnpm-store.outputs.path }}
@@ -36,7 +36,7 @@ jobs:
         env:
           WP_SITE_URL: ${{ secrets.WP_SITE_URL }}
 
-      - uses: cloudflare/wrangler-action@v3
+      - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: pages deploy dist --project-name=aether
