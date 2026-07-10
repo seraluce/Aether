@@ -33,6 +33,9 @@ export interface PostHashEntry {
 const POST_HASHES_KEY = 'post_hashes_v1';
 const ALL_POSTS_KEY = 'all_posts_v1';
 
+// KV 长期存储 TTL：24 小时（增量同步数据）
+const KV_LONG_TTL = 86400;
+
 // 获取本地缓存的文章哈希列表
 async function getCachedPostHashes(): Promise<PostHashEntry[]> {
   const cached = await kvGet<PostHashEntry[]>(POST_HASHES_KEY);
@@ -41,7 +44,7 @@ async function getCachedPostHashes(): Promise<PostHashEntry[]> {
 
 // 保存文章哈希列表到缓存
 async function savePostHashes(hashes: PostHashEntry[]): Promise<void> {
-  await kvPut(POST_HASHES_KEY, hashes, Math.floor(wpConfig.cacheTimeout / 1000));
+  await kvPut(POST_HASHES_KEY, hashes, KV_LONG_TTL);
 }
 
 // 获取本地缓存的所有文章
@@ -52,7 +55,7 @@ async function getCachedAllPosts(): Promise<WPPost[]> {
 
 // 保存所有文章到缓存
 async function saveAllPosts(posts: WPPost[]): Promise<void> {
-  await kvPut(ALL_POSTS_KEY, posts, Math.floor(wpConfig.cacheTimeout / 1000));
+  await kvPut(ALL_POSTS_KEY, posts, KV_LONG_TTL);
 }
 
 export interface WPPost {
