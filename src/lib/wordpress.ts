@@ -144,6 +144,7 @@ export async function wpFetch<T>(endpoint: string, params: Record<string, string
   const timeoutId = setTimeout(() => controller.abort(), 15000);
 
   try {
+    console.log(`[wpFetch] ${url.toString()}`);
     const res = await fetch(url.toString(), {
       headers: { 'Accept': 'application/json' },
       signal: controller.signal,
@@ -152,7 +153,8 @@ export async function wpFetch<T>(endpoint: string, params: Record<string, string
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url}`);
+      const body = await res.text().catch(() => '');
+      throw new Error(`WordPress API error: ${res.status} ${res.statusText} for ${url} body=${body.slice(0, 200)}`);
     }
 
     const data = await res.json() as T;
@@ -161,6 +163,7 @@ export async function wpFetch<T>(endpoint: string, params: Record<string, string
     return data;
   } catch (err) {
     clearTimeout(timeoutId);
+    console.error(`[wpFetch] Error fetching ${url}:`, err instanceof Error ? err.message : err);
     throw err;
   }
 }

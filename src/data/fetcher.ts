@@ -27,8 +27,10 @@ export async function fetchSiteData(): Promise<SiteData> {
 
   // 拉取文章
   try {
+    console.log(`[fetchSiteData] Fetching posts from: ${import.meta.env.WP_SITE_URL || 'default'}`);
     const syncResult = await incrementalSyncPosts();
     wpPosts = syncResult.posts;
+    console.log(`[fetchSiteData] Got ${wpPosts.length} posts`);
 
     if (syncResult.updatedCount > 0 || syncResult.newCount > 0 || syncResult.removedCount > 0) {
       console.log(
@@ -36,7 +38,7 @@ export async function fetchSiteData(): Promise<SiteData> {
       );
     }
   } catch (err) {
-    console.error('Failed to fetch WordPress posts:', err);
+    console.error('[fetchSiteData] Failed to fetch posts:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
     fetchError = err instanceof Error ? err.message : 'Failed to fetch posts';
   }
 
