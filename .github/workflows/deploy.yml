@@ -8,13 +8,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - name: Setup
-        run: |
-          npm install -g pnpm@11.10.0
-          echo "node=$(node --version)"
-          echo "pnpm=$(pnpm --version)"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - run: npm install -g pnpm@11.10.0
 
       - run: pnpm install --frozen-lockfile
 
@@ -25,4 +26,5 @@ jobs:
       - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=aether

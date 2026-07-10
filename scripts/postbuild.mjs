@@ -10,18 +10,23 @@ function fixWranglerConfig(filePath) {
     const raw = readFileSync(filePath, 'utf-8');
     const config = JSON.parse(raw);
 
-    // Remove auto-added SESSION binding (session: false)
+    // Remove auto-added SESSION binding (session: false bug)
     if (config.kv_namespaces) {
       config.kv_namespaces = config.kv_namespaces.filter(
         (kv) => kv.binding !== 'SESSION'
       );
     }
+    if (config.previews && config.previews.kv_namespaces) {
+      config.previews.kv_namespaces = config.previews.kv_namespaces.filter(
+        (kv) => kv.binding !== 'SESSION'
+      );
+    }
 
-    // Ensure CACHE binding exists
-    const hasCache = config.kv_namespaces?.some((kv) => kv.binding === 'CACHE');
-    if (!hasCache) {
-      config.kv_namespaces = config.kv_namespaces || [];
-      config.kv_namespaces.push({ binding: 'CACHE', id: 'c42f0eafddf1441989bd28e1d29a0f09' });
+    // Remove absolute paths that break CI
+    delete config.configPath;
+    delete config.userConfigPath;
+    if (config.pages_build_output_dir) {
+      config.pages_build_output_dir = 'dist';
     }
 
     writeFileSync(filePath, JSON.stringify(config, null, 2));
