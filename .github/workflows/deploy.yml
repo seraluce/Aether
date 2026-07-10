@@ -10,21 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11.10.0
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
-      - uses: actions/cache@v6
-        id: cache-pnpm
-        with:
-          path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+      - name: Setup
+        run: |
+          npm install -g pnpm@11.10.0
+          echo "node=$(node --version)"
+          echo "pnpm=$(pnpm --version)"
 
       - run: pnpm install --frozen-lockfile
 
