@@ -9,8 +9,18 @@ const { postId } = Astro.props;
 <div class="comments-section" id="comments-section">
   <div class="comments-header">
     <div class="comments-header-left">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+        ></path>
       </svg>
       <span>评论</span>
       <span class="comment-count-badge" id="commentCount"></span>
@@ -30,10 +40,25 @@ const { postId } = Astro.props;
       <form id="commentForm" class="comment-form">
         <input type="hidden" name="post" value={postId} />
         <div class="comment-form-row">
-          <input type="text" name="author_name" placeholder="昵称 *" required class="comment-input" />
-          <input type="email" name="author_email" placeholder="邮箱（选填）" class="comment-input" />
+          <input
+            type="text"
+            name="author_name"
+            placeholder="昵称 *"
+            required
+            class="comment-input"
+          />
+          <input
+            type="email"
+            name="author_email"
+            placeholder="邮箱（选填）"
+            class="comment-input"
+          />
         </div>
-        <textarea name="content" placeholder="写下你的评论..." required class="comment-textarea"></textarea>
+        <textarea
+          name="content"
+          placeholder="写下你的评论..."
+          required
+          class="comment-textarea"></textarea>
         <div class="comment-form-actions">
           <span class="comment-form-hint">支持 Markdown 语法</span>
           <button type="submit" class="comment-submit-btn">提交评论</button>
@@ -83,6 +108,9 @@ const { postId } = Astro.props;
 
   .comments-body {
     min-height: 60px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
   }
 
   .comments-loading {
@@ -103,7 +131,9 @@ const { postId } = Astro.props;
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .comment-item {
@@ -120,7 +150,7 @@ const { postId } = Astro.props;
     position: relative;
   }
   .comment-item.depth-1::before {
-    content: '';
+    content: "";
     position: absolute;
     left: -20px;
     top: 0;
@@ -236,7 +266,9 @@ const { postId } = Astro.props;
     color: var(--fg);
     font-family: inherit;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
   .comment-input:focus {
     border-color: var(--accent);
@@ -254,7 +286,9 @@ const { postId } = Astro.props;
     font-family: inherit;
     outline: none;
     resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
   .comment-textarea:focus {
     border-color: var(--accent);
@@ -279,7 +313,9 @@ const { postId } = Astro.props;
     border-radius: 8px;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s, transform 0.1s;
+    transition:
+      background 0.15s,
+      transform 0.1s;
   }
   .comment-submit-btn:hover {
     background: var(--accent-hover);
@@ -334,13 +370,13 @@ const { postId } = Astro.props;
 </style>
 
 <script define:vars={{ postId }}>
-  document.addEventListener('DOMContentLoaded', function() {
-    var container = document.getElementById('comments-container');
-    var loading = document.getElementById('commentsLoading');
-    var countEl = document.getElementById('commentCount');
-    var form = document.getElementById('commentForm');
-    var statusEl = document.getElementById('commentFormStatus');
-    var formWrapper = document.getElementById('commentFormWrapper');
+  document.addEventListener("DOMContentLoaded", function () {
+    var container = document.getElementById("comments-container");
+    var loading = document.getElementById("commentsLoading");
+    var countEl = document.getElementById("commentCount");
+    var form = document.getElementById("commentForm");
+    var statusEl = document.getElementById("commentFormStatus");
+    var formWrapper = document.getElementById("commentFormWrapper");
 
     var replyTo = 0;
 
@@ -349,53 +385,60 @@ const { postId } = Astro.props;
       var now = new Date();
       var diff = now.getTime() - d.getTime();
       var days = Math.floor(diff / 86400000);
-      if (days === 0) return '今天';
-      if (days === 1) return '昨天';
-      if (days < 7) return days + '天前';
-      return d.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      if (days === 0) return "今天";
+      if (days === 1) return "昨天";
+      if (days < 7) return days + "天前";
+      return d.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
     }
 
     function escapeHtml(text) {
-      var div = document.createElement('div');
+      var div = document.createElement("div");
       div.textContent = text;
       return div.innerHTML;
     }
 
     function renderComments(comments) {
-      if (loading) loading.style.display = 'none';
+      if (loading) loading.style.display = "none";
 
       if (comments.length === 0) {
-        container.innerHTML = '<div class="comments-empty">暂无评论，快来抢沙发吧</div>';
-        if (countEl) countEl.textContent = '';
+        container.innerHTML =
+          '<div class="comments-empty">暂无评论，快来抢沙发吧</div>';
+        if (countEl) countEl.textContent = "";
         return;
       }
 
-      if (countEl) countEl.textContent = '(' + comments.length + ')';
+      if (countEl) countEl.textContent = "(" + comments.length + ")";
 
-      var topLevel = comments.filter(function(c) { return c.parent === 0; });
+      var topLevel = comments.filter(function (c) {
+        return c.parent === 0;
+      });
       var byParent = {};
-      comments.forEach(function(c) {
+      comments.forEach(function (c) {
         if (c.parent > 0) {
           if (!byParent[c.parent]) byParent[c.parent] = [];
           byParent[c.parent].push(c);
         }
       });
 
-      var html = '';
-      topLevel.forEach(function(comment) {
+      var html = "";
+      topLevel.forEach(function (comment) {
         html += renderComment(comment, 0);
         var replies = byParent[comment.id] || [];
-        replies.forEach(function(reply) {
+        replies.forEach(function (reply) {
           html += renderComment(reply, 1);
         });
       });
 
       container.innerHTML = html;
 
-      container.querySelectorAll('.comment-reply-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var id = parseInt(this.getAttribute('data-comment-id') || '0');
-          var name = this.getAttribute('data-author') || '';
+      container.querySelectorAll(".comment-reply-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = parseInt(this.getAttribute("data-comment-id") || "0");
+          var name = this.getAttribute("data-author") || "";
           replyTo = id;
           scrollToForm(name);
         });
@@ -404,63 +447,96 @@ const { postId } = Astro.props;
 
     function renderComment(comment, depth) {
       var avatar;
-      if (comment.author_avatar_urls && comment.author_avatar_urls['48']) {
-        avatar = '<img src="' + escapeHtml(comment.author_avatar_urls['48']) + '" alt="" class="comment-avatar" loading="lazy" />';
+      if (comment.author_avatar_urls && comment.author_avatar_urls["48"]) {
+        avatar =
+          '<img src="' +
+          escapeHtml(comment.author_avatar_urls["48"]) +
+          '" alt="" class="comment-avatar" loading="lazy" />';
       } else {
-        avatar = '<div class="comment-avatar-placeholder">' + escapeHtml(comment.author_name.charAt(0)) + '</div>';
+        avatar =
+          '<div class="comment-avatar-placeholder">' +
+          escapeHtml(comment.author_name.charAt(0)) +
+          "</div>";
       }
 
-      return '<div class="comment-item' + (depth > 0 ? ' depth-1' : '') + '">' +
-        '<div class="comment-meta">' + avatar +
-          '<span class="comment-author">' + escapeHtml(comment.author_name) + '</span>' +
-          '<span class="comment-date">' + formatDate(comment.date) + '</span>' +
-        '</div>' +
-        '<div class="comment-body">' + comment.content.rendered.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') + '</div>' +
-        '<button class="comment-reply-btn" data-comment-id="' + comment.id + '" data-author="' + escapeHtml(comment.author_name) + '">回复</button>' +
-      '</div>';
+      return (
+        '<div class="comment-item' +
+        (depth > 0 ? " depth-1" : "") +
+        '">' +
+        '<div class="comment-meta">' +
+        avatar +
+        '<span class="comment-author">' +
+        escapeHtml(comment.author_name) +
+        "</span>" +
+        '<span class="comment-date">' +
+        formatDate(comment.date) +
+        "</span>" +
+        "</div>" +
+        '<div class="comment-body">' +
+        comment.content.rendered.replace(
+          /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+          "",
+        ) +
+        "</div>" +
+        '<button class="comment-reply-btn" data-comment-id="' +
+        comment.id +
+        '" data-author="' +
+        escapeHtml(comment.author_name) +
+        '">回复</button>' +
+        "</div>"
+      );
     }
 
     function scrollToForm(replyName) {
-      var textarea = form && form.querySelector('textarea');
-      var existing = formWrapper && formWrapper.querySelector('.comment-reply-to');
+      var textarea = form && form.querySelector("textarea");
+      var existing =
+        formWrapper && formWrapper.querySelector(".comment-reply-to");
       if (existing) existing.remove();
 
       if (replyName) {
-        var bar = document.createElement('div');
-        bar.className = 'comment-reply-to';
-        bar.innerHTML = '回复 @' + escapeHtml(replyName) + '<button type="button" id="cancelReply">&times;</button>';
+        var bar = document.createElement("div");
+        bar.className = "comment-reply-to";
+        bar.innerHTML =
+          "回复 @" +
+          escapeHtml(replyName) +
+          '<button type="button" id="cancelReply">&times;</button>';
         if (form) form.insertBefore(bar, form.firstChild);
-        bar.querySelector('#cancelReply').addEventListener('click', function() {
-          replyTo = 0;
-          bar.remove();
-        });
+        bar
+          .querySelector("#cancelReply")
+          .addEventListener("click", function () {
+            replyTo = 0;
+            bar.remove();
+          });
       }
 
-      if (formWrapper) formWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (formWrapper)
+        formWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
       if (textarea) textarea.focus();
     }
 
-    fetch('/api/comments?postId=' + postId)
-      .then(function(res) { return res.json(); })
-      .then(function(comments) {
+    fetch("/api/comments?postId=" + postId)
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (comments) {
         if (Array.isArray(comments)) {
           renderComments(comments);
         } else {
-          if (loading) loading.textContent = '评论加载失败';
+          if (loading) loading.textContent = "评论加载失败";
         }
       })
-      .catch(function() {
-        if (loading) loading.textContent = '评论加载失败';
+      .catch(function () {
+        if (loading) loading.textContent = "评论加载失败";
       });
 
     if (form) {
-      form.addEventListener('submit', function(e) {
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
-        var btn = form.querySelector('.comment-submit-btn');
+        var btn = form.querySelector(".comment-submit-btn");
         btn.disabled = true;
-        btn.textContent = '提交中...';
-        statusEl.className = 'comment-form-status';
-        statusEl.textContent = '';
+        btn.textContent = "提交中...";
+        statusEl.className = "comment-form-status";
+        statusEl.textContent = "";
 
         var data = {
           post: postId,
@@ -470,32 +546,35 @@ const { postId } = Astro.props;
         };
         if (replyTo > 0) data.parent = replyTo;
 
-        fetch('/api/comments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/comments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         })
-          .then(function(res) { return res.json(); })
-          .then(function(result) {
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (result) {
             if (result.success) {
-              statusEl.className = 'comment-form-status success';
-              statusEl.textContent = '评论提交成功，等待审核后显示';
+              statusEl.className = "comment-form-status success";
+              statusEl.textContent = "评论提交成功，等待审核后显示";
               form.reset();
               replyTo = 0;
-              var bar = formWrapper && formWrapper.querySelector('.comment-reply-to');
+              var bar =
+                formWrapper && formWrapper.querySelector(".comment-reply-to");
               if (bar) bar.remove();
             } else {
-              statusEl.className = 'comment-form-status error';
-              statusEl.textContent = result.error || '提交失败，请稍后再试';
+              statusEl.className = "comment-form-status error";
+              statusEl.textContent = result.error || "提交失败，请稍后再试";
             }
           })
-          .catch(function() {
-            statusEl.className = 'comment-form-status error';
-            statusEl.textContent = '网络错误，请稍后再试';
+          .catch(function () {
+            statusEl.className = "comment-form-status error";
+            statusEl.textContent = "网络错误，请稍后再试";
           })
-          .finally(function() {
+          .finally(function () {
             btn.disabled = false;
-            btn.textContent = '提交评论';
+            btn.textContent = "提交评论";
           });
       });
     }
