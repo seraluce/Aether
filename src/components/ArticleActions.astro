@@ -9,9 +9,27 @@ const { postId, pageUrl, title } = Astro.props;
 ---
 
 <div class="article-actions">
+  <button class="action-btn" id="goBackHeader" aria-label="返回上一层">
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="4"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M44 40.8361C39.1069 34.8632 34.7617 31.4739 30.9644 30.6682C27.1671 29.8625 23.5517 29.7408 20.1182 30.303V41L4 23.5453L20.1182 7V17.167C26.4667 17.2172 31.8638 19.4948 36.3095 24C40.7553 28.5052 43.3187 34.1172 44 40.8361Z"
+      ></path>
+    </svg>
+    返回
+  </button>
   <button class="action-btn" id="likeBtn" aria-label="点赞">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      <path
+        d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
+      ></path>
     </svg>
     <span class="action-label">点赞</span>
     <span class="action-count" id="likeCount">0</span>
@@ -19,26 +37,39 @@ const { postId, pageUrl, title } = Astro.props;
 
   <a href="#comments-section" class="action-btn" aria-label="评论">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path>
     </svg>
     <span class="action-label">评论</span>
   </a>
 
   <button class="action-btn" id="shareBtn" aria-label="分享">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"
+      ></circle><circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
     </svg>
     <span class="action-label">分享</span>
   </button>
 
   <button class="action-btn" id="qrBtn" aria-label="手机查看">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/>
-      <line x1="21" y1="14" x2="21" y2="17"/><line x1="14" y1="21" x2="17" y2="21"/>
-      <line x1="21" y1="21" x2="21" y2="21"/>
+      <rect x="3" y="3" width="7" height="7"></rect><rect
+        x="14"
+        y="3"
+        width="7"
+        height="7"></rect>
+      <rect x="3" y="14" width="7" height="7"></rect><rect
+        x="14"
+        y="14"
+        width="3"
+        height="3"></rect>
+      <line x1="21" y1="14" x2="21" y2="17"></line><line
+        x1="14"
+        y1="21"
+        x2="17"
+        y2="21"></line>
+      <line x1="21" y1="21" x2="21" y2="21"></line>
     </svg>
     <span class="action-label">手机</span>
     <div class="qr-popup" id="qrPopup">
@@ -49,66 +80,75 @@ const { postId, pageUrl, title } = Astro.props;
 </div>
 
 <script define:vars={{ pageUrl, title }}>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     // Like button
-    var likeBtn = document.getElementById('likeBtn');
-    var likeCount = document.getElementById('likeCount');
-    var key = 'liked_' + window.location.pathname;
-    var count = parseInt(localStorage.getItem('like_count_' + window.location.pathname) || '0');
+    var likeBtn = document.getElementById("likeBtn");
+    var likeCount = document.getElementById("likeCount");
+    var key = "liked_" + window.location.pathname;
+    var count = parseInt(
+      localStorage.getItem("like_count_" + window.location.pathname) || "0",
+    );
     likeCount.textContent = count;
 
     if (localStorage.getItem(key)) {
-      likeBtn.classList.add('liked');
+      likeBtn.classList.add("liked");
     }
 
-    likeBtn.addEventListener('click', function() {
+    likeBtn.addEventListener("click", function () {
       if (localStorage.getItem(key)) {
         count--;
         localStorage.removeItem(key);
-        likeBtn.classList.remove('liked');
+        likeBtn.classList.remove("liked");
       } else {
         count++;
-        localStorage.setItem(key, '1');
-        likeBtn.classList.add('liked');
+        localStorage.setItem(key, "1");
+        likeBtn.classList.add("liked");
       }
-      localStorage.setItem('like_count_' + window.location.pathname, String(count));
+      localStorage.setItem(
+        "like_count_" + window.location.pathname,
+        String(count),
+      );
       likeCount.textContent = count;
     });
 
     // Share button
-    var shareBtn = document.getElementById('shareBtn');
-    shareBtn.addEventListener('click', function() {
+    var shareBtn = document.getElementById("shareBtn");
+    shareBtn.addEventListener("click", function () {
       if (navigator.share) {
         navigator.share({ title: title, url: pageUrl });
       } else {
-        navigator.clipboard.writeText(pageUrl).then(function() {
-          shareBtn.querySelector('.action-label').textContent = '已复制';
-          setTimeout(function() { shareBtn.querySelector('.action-label').textContent = '分享'; }, 2000);
+        navigator.clipboard.writeText(pageUrl).then(function () {
+          shareBtn.querySelector(".action-label").textContent = "已复制";
+          setTimeout(function () {
+            shareBtn.querySelector(".action-label").textContent = "分享";
+          }, 2000);
         });
       }
     });
 
     // QR Code
-    var qrBtn = document.getElementById('qrBtn');
-    var qrPopup = document.getElementById('qrPopup');
-    var qrCode = document.getElementById('qrCode');
+    var qrBtn = document.getElementById("qrBtn");
+    var qrPopup = document.getElementById("qrPopup");
+    var qrCode = document.getElementById("qrCode");
 
-    qrBtn.addEventListener('click', function(e) {
+    qrBtn.addEventListener("click", function (e) {
       e.stopPropagation();
-      qrPopup.classList.toggle('show');
-      if (qrPopup.classList.contains('show') && !qrCode.querySelector('img')) {
-        var img = document.createElement('img');
-        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(pageUrl);
-        img.alt = 'QR Code';
-        img.style.width = '120px';
-        img.style.height = '120px';
+      qrPopup.classList.toggle("show");
+      if (qrPopup.classList.contains("show") && !qrCode.querySelector("img")) {
+        var img = document.createElement("img");
+        img.src =
+          "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" +
+          encodeURIComponent(pageUrl);
+        img.alt = "QR Code";
+        img.style.width = "120px";
+        img.style.height = "120px";
         qrCode.appendChild(img);
       }
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener("click", function (e) {
       if (!qrBtn.contains(e.target)) {
-        qrPopup.classList.remove('show');
+        qrPopup.classList.remove("show");
       }
     });
   });
